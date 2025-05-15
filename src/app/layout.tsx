@@ -4,7 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Redario Chatbots",
+  title: "SiteAgent",
   description: "Create and manage your custom AI chatbots",
 };
 
