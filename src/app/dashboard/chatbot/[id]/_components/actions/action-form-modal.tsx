@@ -30,7 +30,7 @@ interface ActionFormData {
 }
 
 interface ActionFormModalProps {
-  // chatbotId: string; // Removed as it's not used directly in the modal
+  chatbotId?: string; // Added optional chatbotId to match callers
   actionToEdit: Action | null; // If null, it's an 'Add New' modal
   onClose: () => void;
   onSave: (formData: ActionFormData, actionId?: string) => void; // Pass form data and ID if editing
@@ -38,7 +38,7 @@ interface ActionFormModalProps {
 }
 
 const ActionFormModal: React.FC<ActionFormModalProps> = ({ 
-    // chatbotId, // Removed
+    chatbotId, // Removed
     actionToEdit, 
     onClose, 
     onSave 

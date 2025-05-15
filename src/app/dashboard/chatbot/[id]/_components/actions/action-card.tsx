@@ -5,6 +5,7 @@ import React from 'react';
 // Match the Action interface from actions-tab.tsx
 interface Action {
   id: string;
+  chatbot_id: string;
   name: string;
   description: string | null;
   trigger_keywords: string[];
