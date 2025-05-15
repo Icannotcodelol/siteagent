@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ChatbotList from './_components/ChatbotList'
-import LogoutButton from './_components/LogoutButton'
 import { disconnectOAuthServiceAction } from '@/app/actions/oauth'
 import DisconnectButton from './_components/disconnect-button'
 import Link from 'next/link'
+import DashboardLayout from './_components/dashboard-layout'
+import LogoutButton from './_components/LogoutButton'
+import { Button } from '@/app/_components/ui/button'
+import { Suspense } from 'react'
 
 // Type representing the chatbot data passed to the list component
 export type Chatbot = {
@@ -17,7 +20,7 @@ export type Chatbot = {
 }
 
 // -----------------------------
-// Small presentational components
+// Small presentational components (adapted for dark theme)
 // -----------------------------
 
 function StatCard({
@@ -28,7 +31,7 @@ function StatCard({
 }: {
   label: string
   value: number
-  color: 'indigo' | 'green' | 'purple' | 'yellow'
+  color: 'blue' | 'green' | 'purple' | 'yellow'
   icon: 'chat' | 'chart' | 'user' | 'bolt'
 }) {
   const iconMap: Record<typeof icon, string> = {
@@ -39,14 +42,14 @@ function StatCard({
   }
 
   const colorClassMap: Record<typeof color, string> = {
-    indigo: 'bg-indigo-100 text-indigo-600',
-    green: 'bg-green-100 text-green-600',
-    purple: 'bg-purple-100 text-purple-600',
-    yellow: 'bg-yellow-100 text-yellow-600',
+    blue: 'bg-blue-500/20 text-blue-400',
+    green: 'bg-green-500/20 text-green-400',
+    purple: 'bg-purple-500/20 text-purple-400',
+    yellow: 'bg-yellow-500/20 text-yellow-400',
   }
 
   return (
-    <div className="flex items-center space-x-4 rounded-lg border bg-white p-4 shadow-sm">
+    <div className="flex items-center space-x-4 rounded-lg border border-slate-700 bg-slate-800 p-4 shadow-lg">
       <span
         className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${colorClassMap[color]}`}
         aria-hidden="true"
@@ -54,8 +57,8 @@ function StatCard({
         {iconMap[icon]}
       </span>
       <div className="flex flex-col">
-        <span className="text-xl font-semibold">{value}</span>
-        <span className="text-sm text-gray-500">{label}</span>
+        <span className="text-xl font-semibold text-slate-100">{value}</span>
+        <span className="text-sm text-slate-400">{label}</span>
       </div>
     </div>
   )
@@ -71,18 +74,18 @@ function ServiceCard({
   disconnectButton: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border bg-white p-4 shadow-sm">
+    <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 p-4 shadow-md">
       <div className="flex items-center space-x-3">
         <div
           className="h-4 w-4 rounded-full"
-          style={{ backgroundColor: connected ? '#16a34a' : '#a1a1aa' }}
+          style={{ backgroundColor: connected ? '#22c55e' : '#71717a' }}
         />
-        <span className="text-sm font-medium">{name}</span>
+        <span className="text-sm font-medium text-slate-200">{name}</span>
       </div>
       {connected ? (
         disconnectButton
       ) : (
-        <span className="text-xs text-gray-400">Not connected</span>
+        <span className="text-xs text-slate-500">Not connected</span>
       )}
     </div>
   )
@@ -189,72 +192,67 @@ export default async function DashboardPage() {
   // -------------------------
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      {/* Top bar */}
-      <header className="border-b bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-semibold">Your Chatbots</h1>
-          <div className="flex items-center space-x-4">
-            {/* Create Chatbot */}
-            <Link
-              href="/dashboard/chatbot/new"
-              className="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              + Create New Chatbot
-            </Link>
-            <LogoutButton />
-          </div>
-        </div>
-      </header>
+    <DashboardLayout authButtonSlot={<LogoutButton />}>
+      {/* Top bar content now part of DashboardLayout or handled differently */}
+      {/* Page title can be managed within DashboardLayout or as a specific component */}
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-100">Overview</h1>
+        <Button asChild>
+          <Link href="/dashboard/chatbot/new">
+            + Create New Chatbot
+          </Link>
+        </Button>
+      </div>
 
-      {/* Main */}
-      <main className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+      {/* Main content area */}
+      <div className="space-y-8">
         {/* Stats */}
-        <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          <StatCard
-            label="Total Conversations"
-            value={totalConversations}
-            color="indigo"
-            icon="chat"
-          />
-          <StatCard
-            label="Total Messages"
-            value={totalMessages}
-            color="green"
-            icon="chart"
-          />
-          <StatCard
-            label="Active Chatbots"
-            value={activeChatbots}
-            color="purple"
-            icon="user"
-          />
-          <StatCard
-            label="Connected Services"
-            value={connectedServicesCount}
-            color="yellow"
-            icon="bolt"
-          />
+        <section>
+          <h2 className="text-xl font-semibold text-slate-200 mb-4">Usage Metrics</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+            <StatCard
+              label="Total Conversations"
+              value={totalConversations}
+              color="blue"
+              icon="chat"
+            />
+            <StatCard
+              label="Total Messages"
+              value={totalMessages}
+              color="green"
+              icon="chart"
+            />
+            <StatCard
+              label="Active Chatbots"
+              value={activeChatbots}
+              color="purple"
+              icon="user"
+            />
+            <StatCard
+              label="Connected Services"
+              value={connectedServicesCount}
+              color="yellow"
+              icon="bolt"
+            />
+          </div>
         </section>
 
         {/* Chatbots list */}
-        <section className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium">Your Chatbots</h2>
-            <div className="flex items-center space-x-2">
-              {/* Export placeholder */}
-              <button className="rounded-md border bg-white px-3 py-1.5 text-sm font-medium shadow-sm hover:bg-gray-50">
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-slate-200">Your Chatbots</h2>
+            {/* TODO: Implement Export and Sort functionality with dark theme styles */}
+            {/* <div className="flex items-center space-x-2">
+              <Button variant="outline" className="border-slate-600 hover:bg-slate-700 hover:text-slate-100">
                 Export
-              </button>
+              </Button>
               <select
-                className="rounded-md border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                defaultValue="newest"
-                aria-label="Sort chatbots"
+                className="rounded-md border-slate-600 bg-slate-800 text-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500"
               >
-                <option value="newest">Sort by: Newest</option>
-                <option value="oldest">Sort by: Oldest</option>
+                <option>Sort by Date</option>
+                <option>Sort by Name</option>
               </select>
-            </div>
+            </div> */}
           </div>
 
           {chatbotError && (
@@ -268,63 +266,55 @@ export default async function DashboardPage() {
 
         {/* Connected services */}
         <section>
-          <h2 className="mb-4 text-lg font-medium">Connected Services</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="text-xl font-semibold text-slate-200 mb-4">Connected Services</h2>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <ServiceCard
               name="HubSpot"
               connected={isHubspotConnected}
               disconnectButton={
-                isHubspotConnected && (
-                  <DisconnectButton
-                    serviceName="hubspot"
-                    displayName="HubSpot"
-                    disconnectAction={disconnectOAuthServiceAction}
-                  />
-                )
+                <DisconnectButton
+                  serviceName="hubspot"
+                  displayName="HubSpot"
+                  disconnectAction={disconnectOAuthServiceAction}
+                />
               }
             />
             <ServiceCard
               name="Jira"
               connected={isJiraConnected}
               disconnectButton={
-                isJiraConnected && (
-                  <DisconnectButton
-                    serviceName="jira"
-                    displayName="Jira"
-                    disconnectAction={disconnectOAuthServiceAction}
-                  />
-                )
+                <DisconnectButton
+                  serviceName="jira"
+                  displayName="Jira"
+                  disconnectAction={disconnectOAuthServiceAction}
+                />
               }
             />
             <ServiceCard
               name="Calendly"
               connected={isCalendlyConnected}
               disconnectButton={
-                isCalendlyConnected && (
-                  <DisconnectButton
-                    serviceName="calendly"
-                    displayName="Calendly"
-                    disconnectAction={disconnectOAuthServiceAction}
-                  />
-                )
+                <DisconnectButton
+                  serviceName="calendly"
+                  displayName="Calendly"
+                  disconnectAction={disconnectOAuthServiceAction}
+                />
               }
             />
             <ServiceCard
               name="Shopify"
               connected={isShopifyConnected}
               disconnectButton={
-                isShopifyConnected && (
-                  <DisconnectButton
-                    serviceName="shopify"
-                    displayName="Shopify"
-                    disconnectAction={disconnectOAuthServiceAction}
-                  />
-                )
+                <DisconnectButton
+                  serviceName="shopify"
+                  displayName="Shopify"
+                  disconnectAction={disconnectOAuthServiceAction}
+                />
               }
             />
           </div>
         </section>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   )
 } 

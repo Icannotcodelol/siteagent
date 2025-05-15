@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/app/_components/ui/button'
 
 // Chatbot type with additional metadata (kept in sync with DashboardPage)
 export type Chatbot = {
@@ -76,67 +77,69 @@ function ChatbotListItem({ chatbot, index }: ChatbotListItemProps) {
 
   // Color accent for the top border – rotate through a small palette for visual variety
   const accentColors = [
-    'border-indigo-500',
+    'border-blue-500',
     'border-green-500',
     'border-purple-500',
+    'border-yellow-500',
     'border-pink-500',
-    'border-blue-500',
   ]
   const accent = accentColors[index % accentColors.length]
 
   return (
-    <li className={`flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm ${accent} border-t-4`}>
+    <li className={`flex flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-800 shadow-lg ${accent} border-t-4`}>
       {/* Clickable body */}
       <Link
         href={`/dashboard/chatbot/${chatbot.id}`}
-        className="flex flex-col gap-2 p-4 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="flex flex-grow flex-col gap-2 p-4 hover:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
         aria-label={`Manage chatbot ${chatbot.name}`}
       >
         {/* Name & updated date */}
         <div className="flex items-start justify-between gap-2">
-          <p className="truncate text-base font-semibold text-gray-900">
+          <p className="truncate text-base font-semibold text-slate-100">
             {chatbot.name}
           </p>
-          <p className="whitespace-nowrap text-xs text-gray-500">Updated {formattedDate}</p>
+          <p className="whitespace-nowrap text-xs text-slate-400">Updated {formattedDate}</p>
         </div>
 
         {/* Description */}
         {chatbot.description && (
-          <p className="truncate text-sm text-gray-600">
+          <p className="truncate text-sm text-slate-300">
             {chatbot.description}
           </p>
         )}
 
         {/* Stats */}
-        <div className="mt-auto flex items-center justify-between pt-2 text-xs text-gray-600">
+        <div className="mt-auto flex items-center justify-between pt-2 text-xs text-slate-400">
           <div className="flex space-x-4">
             {chatbot.conversationCount !== undefined && (
               <span>
-                <span className="font-medium text-gray-900">{chatbot.conversationCount}</span>{' '}
+                <span className="font-medium text-slate-100">{chatbot.conversationCount}</span>{' '}
                 Conversations
               </span>
             )}
             <span>
-              <span className="font-medium text-gray-900">{chatbot.messageCount}</span>{' '}
+              <span className="font-medium text-slate-100">{chatbot.messageCount}</span>{' '}
               Messages
             </span>
           </div>
-          <span className="font-medium text-indigo-600 hover:text-indigo-500">Manage</span>
+          <span className="font-medium text-blue-400 hover:text-blue-300">Manage</span>
         </div>
       </Link>
 
       {/* Delete action */}
-      <div className="flex items-center justify-end border-t bg-gray-50 px-4 py-2">
-        {error && <p className="mr-auto text-xs text-red-500">Error: {error}</p>}
-        <button
+      <div className="flex items-center justify-end border-t border-slate-700 bg-slate-800/50 px-4 py-2">
+        {error && <p className="mr-auto text-xs text-red-400">Error: {error}</p>}
+        <Button
+          variant="destructive"
+          size="sm"
           onClick={handleDelete}
           disabled={deletingId === chatbot.id}
-          className="text-xs font-medium text-red-600 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+          className="text-xs"
           title="Delete chatbot"
           aria-label={`Delete chatbot ${chatbot.name}`}
         >
           {deletingId === chatbot.id ? 'Deleting...' : 'Delete'}
-        </button>
+        </Button>
       </div>
     </li>
   )
@@ -145,15 +148,15 @@ function ChatbotListItem({ chatbot, index }: ChatbotListItemProps) {
 export default function ChatbotList({ chatbots }: ChatbotListProps) {
   if (!chatbots || chatbots.length === 0) {
     return (
-      <div className="rounded-lg border bg-white p-6 text-center shadow-sm">
-        <p className="text-gray-500">You haven't created any chatbots yet.</p>
-        <p className="mt-1 text-sm text-gray-400">Use the button above to create your first one!</p>
+      <div className="rounded-lg border border-slate-700 bg-slate-800 p-6 text-center shadow-md">
+        <p className="text-slate-400">You haven't created any chatbots yet.</p>
+        <p className="mt-1 text-sm text-slate-500">Use the button above to create your first one!</p>
       </div>
     )
   }
 
   return (
-    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
       {chatbots.map((chatbot, index) => (
         <ChatbotListItem key={chatbot.id} chatbot={chatbot} index={index} />
       ))}
