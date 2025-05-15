@@ -3,8 +3,6 @@
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import {
   ArrowRight,
@@ -25,56 +23,12 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { Button, cn } from "@/app/_components/ui/button";
+import { AuthButton } from "@/app/_components/auth-button";
 
 // ============= UTILITY FUNCTIONS =============
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
 
 // ============= UI COMPONENTS =============
-const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
-  }
-);
-
-interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const Comp = asChild ? Slot : "button";
-    return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
-    );
-  }
-);
-Button.displayName = "Button";
 
 // Accordion Components
 const Accordion = AccordionPrimitive.Root;
@@ -238,55 +192,38 @@ function Navbar() {
         </nav>
 
         <div className="hidden md:flex md:items-center md:gap-4">
-          <Link href="/login">
-            <Button
-              variant="ghost"
-              className="text-gray-300 transition-all duration-300 hover:bg-gray-800/50 hover:text-white"
-            >
-              Log in
-            </Button>
-          </Link>
-          <Link href="/signup">
-            <Button className="relative overflow-hidden bg-blue-600 text-white transition-all duration-300 hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-600/20">
-              <span className="relative z-10">Sign up</span>
-              <span className="absolute inset-0 -translate-y-full bg-blue-500 transition-transform duration-300 hover:translate-y-0"></span>
-            </Button>
-          </Link>
+          <AuthButton />
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="flex items-center justify-center rounded-md p-2 text-gray-400 transition-colors duration-300 hover:bg-gray-800 hover:text-white md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          <span className="sr-only">Toggle menu</span>
-        </button>
+        {/* Mobile Navigation */}
+        <div className="flex items-center md:hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="text-gray-300 hover:text-white"
+          >
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="container border-t border-gray-800 px-4 py-4 md:hidden">
-          <nav className="flex flex-col space-y-4">
+        <div className="md:hidden">
+          <nav className="flex flex-col space-y-2 px-4 pb-4 pt-2">
             {["Features", "How It Works", "Pricing", "FAQ"].map((item) => (
               <Link
                 key={item}
                 href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-                className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
                 onClick={() => setIsMenuOpen(false)}
+                className="rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-800 hover:text-white"
               >
                 {item}
               </Link>
             ))}
-            <div className="flex flex-col space-y-2 pt-4">
-              <Link href="/login">
-                <Button variant="outline" className="w-full">
-                  Log in
-                </Button>
-              </Link>
-              <Link href="/signup">
-                <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">Sign up</Button>
-              </Link>
+            <div className="mt-4 flex flex-col space-y-2 border-t border-gray-700 pt-4">
+              <AuthButton />
             </div>
           </nav>
         </div>

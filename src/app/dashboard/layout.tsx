@@ -41,7 +41,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="min-h-screen flex flex-col">
       <header className="bg-gray-800 text-white p-4 flex justify-between items-center shadow-md">
-        <h1 className="text-xl font-semibold">Redario Chatbots</h1>
+        <h1 className="text-xl font-semibold">SiteAgent Chatbots</h1>
         <div className="flex items-center space-x-4">
           <span className="text-sm">{data.user.email}</span>
           <LogoutButton />
@@ -51,7 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         {children}
       </main>
       <footer className="bg-gray-200 text-center p-2 text-sm text-gray-600">
-        &copy; {new Date().getFullYear()} Redario
+        &copy; {new Date().getFullYear()} SiteAgent
       </footer>
     </div>
   )
