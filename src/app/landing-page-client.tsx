@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from 'next/image';
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import {
   ArrowRight,
@@ -169,12 +170,7 @@ function Navbar({ authButtonSlot }: { authButtonSlot: React.ReactNode }) {
       <div className="container flex h-16 items-center justify-between px-4 md:px-8">
         <div className="flex items-center gap-2">
           <Link href="/" className="group flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 transition-all duration-300 group-hover:bg-blue-500">
-              <span className="text-lg font-bold text-white">S</span>
-            </div>
-            <span className="text-xl font-bold text-white transition-colors duration-300 group-hover:text-blue-400">
-              SiteAgent
-            </span>
+            <Image src="/sitelogo.svg" alt="SiteAgent Logo" width={40} height={40} priority />
           </Link>
         </div>
 

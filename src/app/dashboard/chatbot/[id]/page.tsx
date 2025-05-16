@@ -119,11 +119,11 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
       {/* Pass chatbot name as title to header */}
       <BuilderHeader title={chatbot.name} /> 
 
-      {/* Two-column layout */}
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Left Column: Form */}
-        <div className="md:w-2/3 bg-gray-900 p-6 rounded-lg shadow border border-gray-700">
-           {/* Pass initial data AND document data to the form */}
+      {/* Three-column layout: Vertical Tabs (within Form) | Form Content (within Form) | Chat Preview */}
+      <div className="flex flex-col lg:flex-row gap-6 md:gap-8 mt-6">
+        {/* Left & Middle Columns: ChatbotBuilderForm handles its internal two-column (tabs | content) */}
+        {/* This div will take up roughly 2/3 of the space on larger screens */}
+        <div className="lg:w-2/3 flex-shrink-0">
            <ChatbotBuilderForm 
              initialName={chatbot.name} 
              initialSystemPrompt={chatbot.system_prompt ?? ''} 
@@ -145,13 +145,14 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
            />
         </div>
 
-        {/* Right Column: Chat Preview/Interface */}
-        <div className="md:w-1/3 h-[calc(100vh-150px)] flex flex-col gap-4">
-           <div className="flex-1"> 
-             {/* Pass chatbotId to the interactive preview */}
-             <ChatPreview chatbotId={chatbotId} />
-           </div>
-           {/* Remove commented out ChatInterface section if no longer needed */}
+        {/* Right Column: Chat Preview */}
+        {/* This div will take up roughly 1/3 of the space on larger screens and have a fixed height */}
+        {/* Added card styling for consistency */}
+        <div className="lg:w-1/3 flex-shrink-0 h-[calc(100vh-200px)] md:sticky md:top-24 bg-gray-900 p-4 rounded-lg shadow-xl border border-gray-700">
+          <h2 className="text-lg font-semibold text-white mb-3">Chatbot Preview</h2>
+          <div className="h-[calc(100%-40px)]"> {/* Adjust height to account for title */}
+            <ChatPreview chatbotId={chatbotId} />
+          </div>
         </div>
       </div>
     </div>

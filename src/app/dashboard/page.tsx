@@ -49,7 +49,7 @@ function StatCard({
   }
 
   return (
-    <div className="flex items-center space-x-4 rounded-lg border border-slate-700 bg-slate-800 p-4 shadow-lg">
+    <div className="flex items-center space-x-4 rounded-lg border border-gray-700 bg-gray-800 p-4 shadow-lg">
       <span
         className={`flex h-10 w-10 items-center justify-center rounded-full text-lg ${colorClassMap[color]}`}
         aria-hidden="true"
@@ -57,8 +57,8 @@ function StatCard({
         {iconMap[icon]}
       </span>
       <div className="flex flex-col">
-        <span className="text-xl font-semibold text-slate-100">{value}</span>
-        <span className="text-sm text-slate-400">{label}</span>
+        <span className="text-xl font-semibold text-white">{value}</span>
+        <span className="text-sm text-gray-400">{label}</span>
       </div>
     </div>
   )
@@ -74,18 +74,18 @@ function ServiceCard({
   disconnectButton: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border border-slate-700 bg-slate-800 p-4 shadow-md">
+    <div className="flex items-center justify-between rounded-lg border border-gray-700 bg-gray-800 p-4 shadow-md">
       <div className="flex items-center space-x-3">
         <div
           className="h-4 w-4 rounded-full"
-          style={{ backgroundColor: connected ? '#22c55e' : '#71717a' }}
+          style={{ backgroundColor: connected ? '#22c55e' : '#71717a' /* gray-500 */ }}
         />
-        <span className="text-sm font-medium text-slate-200">{name}</span>
+        <span className="text-sm font-medium text-gray-200">{name}</span>
       </div>
       {connected ? (
         disconnectButton
       ) : (
-        <span className="text-xs text-slate-500">Not connected</span>
+        <span className="text-xs text-gray-500">Not connected</span>
       )}
     </div>
   )
@@ -198,7 +198,7 @@ export default async function DashboardPage() {
       {/* Top bar content now part of DashboardLayout or handled differently */}
       {/* Page title can be managed within DashboardLayout or as a specific component */}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-100">Overview</h1>
+        <h1 className="text-3xl font-bold text-white">Overview</h1>
         <Button asChild>
           <Link href="/dashboard/chatbot/new">
             + Create New Chatbot
@@ -210,7 +210,7 @@ export default async function DashboardPage() {
       <div className="space-y-8">
         {/* Stats */}
         <section>
-          <h2 className="text-xl font-semibold text-slate-200 mb-4">Usage Metrics</h2>
+          <h2 className="text-xl font-semibold text-gray-200 mb-4">Usage Metrics</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
             <StatCard
               label="Total Conversations"
@@ -242,18 +242,15 @@ export default async function DashboardPage() {
         {/* Chatbots list */}
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-slate-200">Your Chatbots</h2>
+            <h2 className="text-xl font-semibold text-gray-200">Your Chatbots</h2>
             {/* TODO: Implement Export and Sort functionality with dark theme styles */}
             {/* <div className="flex items-center space-x-2">
-              <Button variant="outline" className="border-slate-600 hover:bg-slate-700 hover:text-slate-100">
+              <Button variant="outline" className="border-gray-700 hover:bg-gray-700 hover:text-white">
                 Export
               </Button>
-              <select
-                className="rounded-md border-slate-600 bg-slate-800 text-slate-200 text-sm focus:border-blue-500 focus:ring-blue-500"
-              >
-                <option>Sort by Date</option>
-                <option>Sort by Name</option>
-              </select>
+              <Button variant="outline" className="border-gray-700 hover:bg-gray-700 hover:text-white">
+                Sort By
+              </Button>
             </div> */}
           </div>
 
@@ -263,13 +260,15 @@ export default async function DashboardPage() {
             </p>
           )}
 
-          <ChatbotList chatbots={chatbots} />
+          <Suspense fallback={<ChatbotListSkeleton />}>
+            <ChatbotList chatbots={chatbots} />
+          </Suspense>
         </section>
 
         {/* Connected services */}
         <section>
-          <h2 className="text-xl font-semibold text-slate-200 mb-4">Connected Services</h2>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <h2 className="text-xl font-semibold text-gray-200 mb-4">Connected Services</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             <ServiceCard
               name="HubSpot"
               connected={isHubspotConnected}
@@ -325,9 +324,31 @@ export default async function DashboardPage() {
                 />
               }
             />
+            {/* Placeholder for future service integrations */}
+            <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-700 bg-gray-800 p-4 text-gray-500">
+              <span>+ Add New Service</span>
+            </div>
           </div>
         </section>
       </div>
     </DashboardLayout>
   )
+}
+
+// Define a skeleton component for the chatbot list
+function ChatbotListSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="rounded-lg border border-gray-700 bg-gray-800 p-4 shadow-md animate-pulse">
+          <div className="h-4 bg-gray-700 rounded w-3/4 mb-2"></div>
+          <div className="h-3 bg-gray-700 rounded w-1/2 mb-3"></div>
+          <div className="flex justify-between items-center">
+            <div className="h-3 bg-gray-700 rounded w-1/4"></div>
+            <div className="h-3 bg-gray-700 rounded w-1/4"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 } 

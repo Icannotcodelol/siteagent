@@ -181,27 +181,29 @@ export default function ChatbotBuilderForm({
   // Helper function for tab button classes
   const getTabClass = (tabName: ActiveTab) => {
     // Match target styling: Purple background for active, slightly lighter gray for inactive
-    return `px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${activeTab === tabName 
-        ? 'bg-purple-600 text-white' 
-        : 'text-gray-300 bg-gray-800 hover:bg-gray-700'}`;
+    return `w-full text-left px-4 py-3 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-150 ${activeTab === tabName 
+        ? 'bg-purple-600 text-white shadow-md' 
+        : 'text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-white'}`;
   };
 
   return (
-    <div className="space-y-6">
-      {/* Tab Navigation - ADD Settings and Actions buttons */}
-      <div className="border-b border-gray-200 pb-3">
-        <div className="flex space-x-3 flex-wrap gap-y-2"> {/* Added flex-wrap and gap-y-2 for responsiveness */}
-            <button type="button" className={getTabClass('settings')} onClick={() => setActiveTab('settings')}>Settings</button>
-            <button type="button" className={getTabClass('dataSources')} onClick={() => setActiveTab('dataSources')}>Data Sources</button>
-            <button type="button" className={getTabClass('appearance')} onClick={() => setActiveTab('appearance')}>Appearance</button>
-            <button type="button" className={getTabClass('embed')} onClick={() => setActiveTab('embed')}>Embed Code</button>
-            <button type="button" className={getTabClass('actions')} onClick={() => setActiveTab('actions')}>Actions</button>
-            <button type="button" className={getTabClass('integrations')} onClick={() => setActiveTab('integrations')}>Integrations</button>
+    // Main container: flex row, form card styling
+    <div className="flex flex-col md:flex-row gap-6 md:gap-8 bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-700">
+      {/* Left Column: Vertical Tab Navigation */}
+      <div className="md:w-1/4 lg:w-1/5 border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6">
+        <div className="flex flex-row md:flex-col md:space-y-2 overflow-x-auto md:overflow-x-visible">
+            {/* Horizontal scroll for mobile, vertical stack for md+ */}
+            <button type="button" className={`${getTabClass('settings')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('settings')}>Settings</button>
+            <button type="button" className={`${getTabClass('dataSources')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('dataSources')}>Data Sources</button>
+            <button type="button" className={`${getTabClass('appearance')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('appearance')}>Appearance</button>
+            <button type="button" className={`${getTabClass('embed')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('embed')}>Embed Code</button>
+            <button type="button" className={`${getTabClass('actions')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('actions')}>Actions</button>
+            <button type="button" className={`${getTabClass('integrations')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('integrations')}>Integrations</button>
         </div>
       </div>
 
-      {/* Tab Content Area */}
-      <div className="pt-4 min-h-[300px]"> {/* Increased min-height slightly */}
+      {/* Right Column: Tab Content Area */}
+      <div className="flex-1 min-h-[400px]"> {/* Increased min-height */}
 
         {/* Settings Tab Content */}
         {activeTab === 'settings' && (
@@ -229,6 +231,15 @@ export default function ChatbotBuilderForm({
               onChange={(v) => { setSystemPrompt(v); }}
               disabled={isPending}
             />
+            {/* Action Buttons for this tab */}
+            <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+              <button type="button" onClick={handleCancel} disabled={isPending} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                Cancel
+              </button>
+              <button type="button" onClick={handleSave} disabled={isPending} className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                {isPending ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Chatbot' : 'Save Chatbot')}
+              </button>
+            </div>
           </div>
         )}
 
@@ -293,6 +304,15 @@ export default function ChatbotBuilderForm({
                             <p className="mt-1 text-sm text-gray-500">Save the chatbot first to enable file uploads.</p>
                         </div>
                      )}
+                </div>
+                {/* Action Buttons for this tab */}
+                <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                  <button type="button" onClick={handleCancel} disabled={isPending} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                    Cancel
+                  </button>
+                  <button type="button" onClick={handleSave} disabled={isPending} className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                    {isPending ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Chatbot' : 'Save Chatbot')}
+                  </button>
                 </div>
              </div>
          )}
@@ -404,6 +424,15 @@ export default function ChatbotBuilderForm({
                   <input type="checkbox" id="show-branding" checked={showBranding} onChange={(e) => { const checked=e.target.checked; setShowBranding(checked); setAppearance({showBranding: checked}); }} className="form-checkbox h-5 w-5 text-purple-600" />
                   <label htmlFor="show-branding" className="text-sm text-gray-300">Show Branding</label>
                 </div>
+                {/* Action Buttons for this tab */}
+                <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                  <button type="button" onClick={handleCancel} disabled={isPending} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                    Cancel
+                  </button>
+                  <button type="button" onClick={handleSave} disabled={isPending} className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                    {isPending ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Chatbot' : 'Save Chatbot')}
+                  </button>
+                </div>
             </div>
          )}
 
@@ -414,6 +443,17 @@ export default function ChatbotBuilderForm({
                     <EmbedCodeDisplay chatbotId={chatbotId} launcherIconUrl={botAvatarUrl} />
                  ) : (
                     <p className="text-gray-400">Embed code will be available after the chatbot is saved.</p>
+                 )}
+                 {/* Action Buttons for this tab (conditional for edit mode) */}
+                 {isEditMode && chatbotId && (
+                    <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                      <button type="button" onClick={handleCancel} disabled={isPending} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                        Cancel
+                      </button>
+                      <button type="button" onClick={handleSave} disabled={isPending} className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                        {isPending ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Chatbot' : 'Save Chatbot')}
+                      </button>
+                    </div>
                  )}
             </div>
          )}
@@ -426,6 +466,17 @@ export default function ChatbotBuilderForm({
                  ) : (
                     <p className="text-gray-400">Actions can be configured after the chatbot is saved.</p>
                  )}
+                 {/* Action Buttons for this tab (conditional for edit mode) */}
+                 {isEditMode && chatbotId && (
+                    <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                      <button type="button" onClick={handleCancel} disabled={isPending} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                        Cancel
+                      </button>
+                      <button type="button" onClick={handleSave} disabled={isPending} className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                        {isPending ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Chatbot' : 'Save Chatbot')}
+                      </button>
+                    </div>
+                 )}
             </div>
          )}
 
@@ -437,39 +488,23 @@ export default function ChatbotBuilderForm({
                  ) : (
                     <p className="text-gray-400">Integrations can be configured after the chatbot is saved.</p>
                  )}
+                 {/* Action Buttons for this tab (conditional for edit mode) */}
+                 {isEditMode && chatbotId && (
+                    <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                      <button type="button" onClick={handleCancel} disabled={isPending} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                        Cancel
+                      </button>
+                      <button type="button" onClick={handleSave} disabled={isPending} className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors">
+                        {isPending ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update Chatbot' : 'Save Chatbot')}
+                      </button>
+                    </div>
+                 )}
             </div>
          )}
        </div>
 
-      {/* Error Display (Keep as is for now) */}
-      {error && (
-        <div className="bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded relative mt-4" role="alert">
-          <strong className="font-bold">Error:</strong>
-          <span className="block sm:inline"> {error}</span>
-        </div>
-      )}
-
-      {/* Action Buttons - Match target style */}
-       <div className="flex justify-end gap-3 pt-5 border-t border-gray-700">
-          {/* Cancel Button: Lighter gray */}
-          <button
-             type="button"
-             onClick={handleCancel}
-             disabled={isPending}
-             className="inline-flex justify-center py-2 px-4 border border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-300 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 disabled:opacity-50"
-          >
-             Cancel
-          </button>
-          {/* Save Button: Purple */}
-          <button
-             type="button" 
-             onClick={handleSave} 
-             disabled={isPending}
-             className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${isPending ? 'bg-purple-800 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500`}
-          >
-             {isPending ? 'Saving...' : (isEditMode ? 'Update Chatbot' : 'Save Chatbot')}
-          </button>
-       </div>
+      {/* Action Buttons (Save/Cancel) - REMOVED FROM HERE */}
+      {error && <p className="text-sm text-red-500 mt-4">{error}</p>}
     </div>
   )
 } 
