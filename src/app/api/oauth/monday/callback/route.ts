@@ -43,13 +43,13 @@ export async function GET(request: NextRequest) {
 
   if (!clientId || !clientSecret) {
     console.error('Monday.com OAuth Callback: Missing MONDAY_CLIENT_ID or MONDAY_CLIENT_SECRET in environment variables.');
-    return NextResponse.redirect(new URL('/dashboard?error=monday_config_error', request.url));
+    return NextResponse.redirect(new URL('/dashboard?error=monday_config_error&reason=credentials_missing', request.url));
   }
   if (!process.env.NEXT_PUBLIC_APP_URL && !process.env.MONDAY_REDIRECT_URI) {
     console.error(
       'Monday.com OAuth Callback: Missing NEXT_PUBLIC_APP_URL (for default redirect URI) or MONDAY_REDIRECT_URI env var.',
     );
-    return { error: 'Server configuration error: Redirect URI for Monday.com not configured.' };
+    return NextResponse.redirect(new URL('/dashboard?error=monday_config_error&reason=redirect_uri_env_missing', request.url));
   }
 
   try {
