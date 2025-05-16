@@ -11,11 +11,11 @@ export default function Page() {
       <Suspense fallback={<div>Loading...</div>}> {/* Suspense for AuthButton if needed */}
         <LandingPageClient authButtonSlot={<AuthButton />} />
       </Suspense>
-      <Script
-        src="http://localhost:3000/chatbot-widget.js"
-        data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
-        async
-      ></Script>
+<script
+    src="https://www.siteagent.eu/chatbot-widget.js"
+    data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
+    async
+  ></script>
     </>
   );
 } 
