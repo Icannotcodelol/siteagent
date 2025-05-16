@@ -24,6 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Button, cn } from "@/app/_components/ui/button";
+import IntegrationsBar from "@/app/_components/ui/integrations-bar";
 // AuthButton import is removed as it will be passed as a prop
 
 interface LandingPageClientProps {
@@ -894,10 +895,11 @@ export default function LandingPageClient({ authButtonSlot }: LandingPageClientP
     <div className="relative min-h-screen overflow-hidden bg-gray-900 text-gray-100">
       <MouseFollower />
       <Navbar authButtonSlot={authButtonSlot} />
-      <main>
+      <main className="overflow-x-hidden">
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <IntegrationsBar />
         <PricingSection />
         <TestimonialsSection />
         <FaqSection />
