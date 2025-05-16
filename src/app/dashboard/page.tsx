@@ -179,12 +179,14 @@ export default async function DashboardPage() {
   const isJiraConnected = connectedServices.includes('jira')
   const isCalendlyConnected = connectedServices.includes('calendly')
   const isShopifyConnected = connectedServices.includes('shopify')
+  const isMondayConnected = connectedServices.includes('monday')
 
   const connectedServicesCount = [
     isHubspotConnected,
     isJiraConnected,
     isCalendlyConnected,
     isShopifyConnected,
+    isMondayConnected,
   ].filter(Boolean).length
 
   // -------------------------
@@ -308,6 +310,17 @@ export default async function DashboardPage() {
                 <DisconnectButton
                   serviceName="shopify"
                   displayName="Shopify"
+                  disconnectAction={disconnectOAuthServiceAction}
+                />
+              }
+            />
+            <ServiceCard
+              name="Monday.com"
+              connected={isMondayConnected}
+              disconnectButton={
+                <DisconnectButton
+                  serviceName="monday"
+                  displayName="Monday.com"
                   disconnectAction={disconnectOAuthServiceAction}
                 />
               }

@@ -8,6 +8,7 @@ import { getHubspotOAuthUrl } from '@/app/actions/hubspot';
 import { getJiraOAuthUrl } from '@/app/actions/jira';
 import { getCalendlyOAuthUrl } from '@/app/actions/oauth';
 import { getShopifyOAuthUrl } from '@/app/actions/shopify'; // Import Shopify action
+import { getMondayOAuthUrl } from '@/app/actions/monday'; // Import Monday action
 
 // Import the reusable connect button
 import ConnectServiceButton from '@/app/dashboard/_components/connect-service-button';
@@ -16,12 +17,14 @@ interface Props {
   chatbotId: string;
 }
 
-type IntegrationKey = 'hubspot' | 'jira' | 'calendly'; // Removed shopify for now
+type IntegrationKey = 'hubspot' | 'jira' | 'calendly' | 'shopify' | 'monday'; // Removed shopify for now
 
 interface ChatbotIntegrationState {
   integration_hubspot: boolean;
   integration_jira: boolean;
   integration_calendly: boolean;
+  integration_shopify: boolean;
+  integration_monday: boolean; // Add Monday
 }
 
 interface AccountConnectionState {
@@ -29,6 +32,7 @@ interface AccountConnectionState {
   jira: boolean;
   calendly: boolean;
   shopify: boolean;
+  monday: boolean; // Add Monday
 }
 
 export default function IntegrationsPanel({ chatbotId }: Props) {
@@ -75,7 +79,8 @@ export default function IntegrationsPanel({ chatbotId }: Props) {
           hubspot: connectedServices.includes('hubspot'),
           jira: connectedServices.includes('jira'),
           calendly: connectedServices.includes('calendly'),
-          shopify: connectedServices.includes('shopify'), 
+          shopify: connectedServices.includes('shopify'),
+          monday: connectedServices.includes('monday'),
         });
 
       } catch (e: any) {
@@ -246,12 +251,25 @@ export default function IntegrationsPanel({ chatbotId }: Props) {
     );
   };
 
+  const renderMonday = () => {
+    if (!accountConnections.monday) {
+      return <ConnectServiceButton 
+                serviceName="monday" 
+                displayName="Monday.com" 
+                getOAuthUrlAction={getMondayOAuthUrl} 
+             />;
+    }
+    const checked = chatbotState.integration_monday;
+    return renderToggle('Monday.com', 'monday', checked);
+  };
+
   return (
     <div className="space-y-1">
       {renderHubspot()}
       {renderJira()}
       {renderCalendly()}
       {renderShopify()}
+      {renderMonday()}
     </div>
   );
 } 

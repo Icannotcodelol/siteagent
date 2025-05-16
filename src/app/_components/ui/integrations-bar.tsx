@@ -13,6 +13,7 @@ const integrations: Integration[] = [
   { name: 'Jira', logo: '/integrations/jira.svg' },
   { name: 'HubSpot', logo: '/integrations/hubspot.svg' },
   { name: 'Shopify', logo: '/integrations/shopify.svg' },
+  { name: 'Monday', logo: '/integrations/monday.svg' },
 ];
 
 const IntegrationsBar: React.FC = () => {
