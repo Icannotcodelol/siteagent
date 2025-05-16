@@ -64,11 +64,14 @@ export default function ChatPreview(props: ChatPreviewProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
+  // Scroll to bottom when messages change without affecting parent page
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }
   }, [messages]);
 
   const handleSendMessage = async () => {
@@ -141,7 +144,11 @@ export default function ChatPreview(props: ChatPreviewProps) {
         </p>
       </div>
       {/* Message Area */}
-      <div className="flex-grow p-4 space-y-3 overflow-y-auto" style={{ background: backgroundColor || '#1a1a1a' }}>
+      <div
+        ref={messagesContainerRef}
+        className="flex-grow p-4 space-y-3 overflow-y-auto"
+        style={{ background: backgroundColor || '#1a1a1a' }}
+      >
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             {/* Avatar */}
@@ -210,7 +217,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
                  </div>
              </div>
          )}
-        <div ref={messagesEndRef} /> {/* Anchor for scrolling */}
+        {/* Container-based scrolling handles auto-scroll; anchor not needed */}
       </div>
       {/* Input Area */}
       <div className="p-3 border-t border-gray-700" style={{ background: secondaryColor || '#23232b' }}>

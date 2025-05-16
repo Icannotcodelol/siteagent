@@ -73,7 +73,8 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null); // Ref for scrolling
+  // Ref to the scrollable messages container (instead of relying on an invisible anchor)
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname(); // Get the current path
 
   // Determine if we are in the embed context
@@ -93,9 +94,14 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
     }
   }, []); // empty deps = run once on mount
 
-  // Function to scroll to the bottom of the message list
+  // Function to scroll to the bottom of the message list WITHOUT affecting the parent page.
+  // Using scrollTo on the dedicated container avoids the browser trying to bring the iframe
+  // itself into view, which was causing the host page to jump.
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+    }
   };
 
   // Scroll to bottom whenever messages update
@@ -196,7 +202,11 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
         </p>
       </div>
       {/* Message Display Area */}
-      <div className="flex-grow p-4 space-y-4 overflow-y-auto" style={{ background: backgroundColor || '#fff' }}>
+      <div
+        ref={messagesContainerRef}
+        className="flex-grow p-4 space-y-4 overflow-y-auto"
+        style={{ background: backgroundColor || '#fff' }}
+      >
         {messages.map((message) => (
           <div
             key={message.id}
@@ -256,7 +266,6 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
             })()}
           </div>
         ))}
-        <div ref={messagesEndRef} />
       </div>
       {/* Input Area */}
       <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200" style={{ background: secondaryColor || '#f3f4f6' }}>

@@ -9,6 +9,11 @@ import LogoutButton from './_components/LogoutButton'
 import { Button } from '@/app/_components/ui/button'
 import { Suspense } from 'react'
 
+// Import new chart components
+import UsageTrendsChart from './_components/usage-trends-chart';
+import ChatbotActivityChart from './_components/chatbot-activity-chart';
+import AvgMessagesChart from './_components/avg-messages-chart';
+
 // Type representing the chatbot data passed to the list component
 export type Chatbot = {
   id: string
@@ -190,6 +195,16 @@ export default async function DashboardPage() {
   ].filter(Boolean).length
 
   // -------------------------
+  // Daily usage trends (messages & conversations)
+  // -------------------------
+  const { data: usageTrendsData, error: usageTrendsError } = await supabase
+    .rpc('f_get_daily_usage_trends', { p_user: user.id, p_days: 30 });
+
+  if (usageTrendsError) {
+    console.error('Error fetching usage trends:', usageTrendsError);
+  }
+
+  // -------------------------
   // Render
   // -------------------------
 
@@ -236,6 +251,20 @@ export default async function DashboardPage() {
               color="yellow"
               icon="bolt"
             />
+          </div>
+        </section>
+
+        {/* Data Visualizations Section */}
+        <section>
+          <h2 className="text-xl font-semibold text-gray-200 mb-4">Analytics Overview</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-2">
+              <UsageTrendsChart data={usageTrendsData as any} />
+            </div>
+            <ChatbotActivityChart chatbots={chatbots} /> 
+          </div>
+          <div className="grid grid-cols-1 gap-6">
+            <AvgMessagesChart chatbots={chatbots} />
           </div>
         </section>
 

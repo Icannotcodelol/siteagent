@@ -323,26 +323,80 @@ function HeroSection() {
                 <div className="ml-2 text-xs text-gray-400">SiteAgent Dashboard</div>
               </div>
             </div>
-            <div className="p-2">
-              <div className="aspect-[16/9] rounded bg-gray-800/80 p-4 backdrop-blur">
-                <div className="flex h-full flex-col">
-                  <div className="mb-4 flex items-center justify-between">
-                    <div className="h-8 w-40 rounded bg-gray-700"></div>
-                    <div className="h-8 w-24 rounded bg-blue-600"></div>
+            <div className="p-4 bg-gray-900 text-white rounded-b-lg h-[350px] overflow-y-auto">
+              <div className="mb-4 flex items-center justify-between">
+                <h1 className="text-lg font-semibold text-white">Overview</h1>
+                <div className="px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-500 cursor-default">
+                  + Create New Chatbot
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow">
+                    <div className="flex items-start space-x-2">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-xs flex-shrink-0 mt-0.5">
+                        <span>💬</span>
+                      </div>
+                      <div>
+                        <div className="text-base font-semibold text-white">1,234</div>
+                        <div className="text-2xs text-gray-400 truncate">Total Conversations</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-1 gap-4">
-                    <div className="w-1/4">
-                      <div className="mb-2 h-8 w-full rounded bg-gray-700"></div>
-                      <div className="mb-2 h-8 w-full rounded bg-gray-700"></div>
-                      <div className="mb-2 h-8 w-full rounded bg-gray-700"></div>
+                  <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow">
+                    <div className="flex items-start space-x-2">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-500/20 text-purple-400 text-xs flex-shrink-0 mt-0.5">
+                         <span>🤖</span>
+                      </div>
+                      <div>
+                        <div className="text-base font-semibold text-white">5</div>
+                        <div className="text-2xs text-gray-400 truncate">Active Chatbots</div>
+                      </div>
                     </div>
-                    <div className="w-3/4 rounded bg-gray-700 p-4">
-                      <div className="mb-4 h-8 w-1/3 rounded bg-gray-600"></div>
-                      <div className="mb-2 h-4 w-full rounded bg-gray-600"></div>
-                      <div className="mb-2 h-4 w-full rounded bg-gray-600"></div>
-                      <div className="mb-2 h-4 w-2/3 rounded bg-gray-600"></div>
-                      <div className="mt-4 h-32 w-full rounded bg-gray-600"></div>
+                  </div>
+                  <div className="hidden sm:block rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow">
+                    <div className="flex items-start space-x-2">
+                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-500/20 text-yellow-400 text-xs flex-shrink-0 mt-0.5">
+                        <span>🔌</span>
+                      </div>
+                      <div>
+                        <div className="text-base font-semibold text-white">3</div>
+                        <div className="text-2xs text-gray-400 truncate">Connected Services</div>
+                      </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-md font-semibold text-gray-200">Your Chatbots</h2>
+                </div>
+                <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow mb-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-white">Support ProBot</h3>
+                      <p className="text-2xs text-gray-400">Updated: 2 hours ago</p>
+                    </div>
+                    <div className="px-1.5 py-0.5 text-2xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-sm cursor-default">View</div>
+                  </div>
+                  <div className="mt-1.5 flex space-x-3 text-2xs text-gray-400">
+                    <div><span className="font-medium text-white">150</span> Msgs</div>
+                    <div><span className="font-medium text-white">25</span> Convos</div>
+                  </div>
+                </div>
+                <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow opacity-80">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-white">FAQ Assistant</h3>
+                      <p className="text-2xs text-gray-400">Updated: 1 day ago</p>
+                    </div>
+                    <div className="px-1.5 py-0.5 text-2xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-sm cursor-default">View</div>
+                  </div>
+                   <div className="mt-1.5 flex space-x-3 text-2xs text-gray-400">
+                    <div><span className="font-medium text-white">88</span> Msgs</div>
+                    <div><span className="font-medium text-white">12</span> Convos</div>
                   </div>
                 </div>
               </div>

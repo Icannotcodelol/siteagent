@@ -12,11 +12,10 @@ export default function Page() {
         <LandingPageClient authButtonSlot={<AuthButton />} />
       </Suspense>
       <Script
-        src="https://www.siteagent.eu/chatbot-widget.js"
-        data-chatbot-id="565b9865-a040-40b7-bf33-9e5332432454"
-        data-launcher-icon="https://pbs.twimg.com/profile_images/1510001089973792771/yf430h4x_400x400.jpg"
-        strategy="afterInteractive"
-      />
+        src="http://localhost:3000/chatbot-widget.js"
+        data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
+        async
+      ></Script>
     </>
   );
 } 
