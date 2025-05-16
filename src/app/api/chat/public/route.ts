@@ -410,7 +410,7 @@ const openAiTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
         type: 'function',
         function: {
             name: 'create_hubspot_contact',
-            description: 'Create or update a contact in the chatbot owner\'s connected HubSpot account.',
+            description: 'Create or update a contact in the chatbot owner\'s connected HubSpot account. You MUST first collect a valid email address (and preferably the user\'s first and last name) directly from the user before calling this function. Do NOT invent or use placeholder values. If the user has not yet provided these details, ask for them.',
             parameters: {
                 type: 'object',
                 properties: {
@@ -680,7 +680,19 @@ export async function POST(request: NextRequest) {
             ? `\n\nThis chatbot is able to perform the following external actions: ${enabledIntegrations.join(', ')}.`
             : '';
 
-        const systemPrompt = (baseSystemPrompt || "You are a helpful AI assistant. Answer based only on the provided context.") + integrationNote;
+        // Additional usage guidelines for each enabled integration so the LLM knows when to ask follow-up questions
+        let integrationGuidelines = '';
+        if (hasHubspot) {
+            integrationGuidelines += `\n\nHubSpot usage guideline: before calling \"create_hubspot_contact\" you must have a valid user email address (and, if possible, their first and last name). If this information has not yet been provided in the conversation, politely ask the user for it instead of guessing or using placeholder values.`;
+        }
+        if (hasJira) {
+            integrationGuidelines += `\n\nJira usage guideline: only call \"create_jira_issue\" after you have collected a clear issue summary (and optional description) from the user.`;
+        }
+        if (hasCalendly) {
+            integrationGuidelines += `\n\nCalendly usage guideline: you may call \"create_calendly_meeting_link\" when the user explicitly requests to book a meeting. The \"event_type_uri\" parameter is optional.`;
+        }
+
+        const systemPrompt = (baseSystemPrompt || "You are a helpful AI assistant. Answer based only on the provided context.") + integrationNote + integrationGuidelines;
 
         console.log(`Using system prompt (first 100 chars): \"${systemPrompt.substring(0,100)}...\"`);
         // -------------------------------------------------------------
@@ -1133,7 +1145,10 @@ async function createHubspotContactForChatbot({
     firstname?: string;
     lastname?: string;
 }): Promise<{ error?: string; data?: any }> {
-    if (!email) return { error: 'email required.' };
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailPattern.test(email) || email.toLowerCase().endsWith('@example.com')) {
+        return { error: 'A valid user email address is required.' };
+    }
 
     // 1. Get owner of chatbot
     const { data: chatbotRow, error: cbErr } = await supabaseAdmin
