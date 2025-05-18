@@ -428,12 +428,12 @@ function HeroSection() {
 // Features Section Component
 function FeaturesSection() {
   const features = [
-    { icon: Bot, title: "AI-Powered Chatbots", description: "Create intelligent conversational agents that understand context and provide helpful responses to your users." },
-    { icon: Webhook, title: "External API Actions", description: "Connect your chatbot to third-party services like Calendly, HubSpot, Jira, and Shopify to perform real actions." },
-    { icon: FileText, title: "Document Knowledge Base", description: "Upload documents and let your chatbot answer questions based on their content using advanced RAG technology." },
-    { icon: Globe, title: "Website Embedding", description: "Easily embed your chatbots into any website with a simple code snippet that works across all platforms." },
-    { icon: Database, title: "Powerful Analytics", description: "Track conversations, user satisfaction, and chatbot performance with comprehensive analytics." },
-    { icon: Lock, title: "Enterprise Security", description: "Keep your data secure with end-to-end encryption, role-based access control, and compliance features." },
+    { img: "/icons/AI CHATBOT ICON.svg", title: "AI-Powered Chatbots", description: "Create intelligent conversational agents that understand context and provide helpful responses to your users." },
+    { img: "/icons/External API Actions.svg", title: "External API Actions", description: "Connect your chatbot to third-party services like Calendly, HubSpot, Jira, and Shopify to perform real actions." },
+    { img: "/icons/Document Knowledge Base.svg", title: "Document Knowledge Base", description: "Upload documents and let your chatbot answer questions based on their content using advanced RAG technology." },
+    { img: "/icons/Website Embedding.svg", title: "Website Embedding", description: "Easily embed your chatbots into any website with a simple code snippet that works across all platforms." },
+    { img: "/icons/Powerful Analytics.svg", title: "Powerful Analytics", description: "Track conversations, user satisfaction, and chatbot performance with comprehensive analytics." },
+    { img: "/icons/Enterprise Security.svg", title: "Enterprise Security", description: "Keep your data secure with end-to-end encryption, role-based access control, and compliance features." },
   ];
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -474,20 +474,27 @@ function FeaturesSection() {
             SiteAgent provides all the tools to create, deploy, and manage chatbots that deliver real value.
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, index) => (
             <div
               key={index}
               ref={(el) => { cardsRef.current[index] = el; }}
-              className="group rounded-lg border border-gray-800 bg-gray-800/50 p-6 opacity-0 transition-all duration-500 ease-out translate-y-8 hover:border-gray-700 hover:bg-gray-800 hover:shadow-lg hover:shadow-blue-900/5"
+              className="group rounded-2xl border border-gray-800 bg-gray-800/70 p-8 transition-all duration-500 hover:border-blue-500 hover:bg-gray-800/90 hover:shadow-xl hover:scale-[1.03]"
             >
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-blue-600/20 transition-all duration-300 group-hover:bg-blue-600/30 group-hover:scale-110">
-                <feature.icon className="h-6 w-6 text-blue-500 transition-all duration-300 group-hover:text-blue-400" />
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-xl bg-white/90 shadow-md group-hover:scale-110 transition-transform">
+                <Image
+                  src={feature.img}
+                  alt={feature.title}
+                  width={68}
+                  height={68}
+                  className="object-contain"
+                  style={{ background: 'white' }}
+                />
               </div>
-              <h3 className="mb-2 text-xl font-bold text-white transition-colors duration-300 group-hover:text-blue-400">
+              <h3 className="mb-2 text-lg font-extrabold text-white group-hover:text-blue-400 transition-colors">
                 {feature.title}
               </h3>
-              <p className="text-gray-400 transition-colors duration-300 group-hover:text-gray-300">
+              <p className="text-gray-300 text-base">
                 {feature.description}
               </p>
             </div>
