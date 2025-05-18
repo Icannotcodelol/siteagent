@@ -20,7 +20,7 @@ if (!secretKeyInput || typeof secretKeyInput !== 'string' || secretKeyInput.leng
   // Replace this with a proper key management strategy or ensure the env var is always set.
   encryptionKey = crypto.pbkdf2Sync(
     'default-highly-insecure-fallback-key-replace-me',
-    'fixed-salt-for-redario-token-encryption',
+    'fixed-salt-for-siteagent-token-encryption',
     100000,
     KEY_LENGTH,
     'sha512',
@@ -34,7 +34,7 @@ if (!secretKeyInput || typeof secretKeyInput !== 'string' || secretKeyInput.leng
   // if the provided key isn't perfectly random (though a random 32-byte string is best).
   encryptionKey = crypto.pbkdf2Sync(
     secretKeyInput,
-    'fixed-salt-for-redario-token-encryption', // Use a fixed, application-specific salt
+    'fixed-salt-for-siteagent-token-encryption', // Use a fixed, application-specific salt
     100000, // Iterations - adjust as needed for your security/performance balance
     KEY_LENGTH, // 32 bytes for AES-256
     'sha512',

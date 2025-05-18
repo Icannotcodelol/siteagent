@@ -2,14 +2,14 @@
   // Identify the current script tag
   const currentScript = document.currentScript;
   if (!currentScript) {
-    console.error('[Redario Widget] Unable to identify current <script> tag.');
+    console.error('[SiteAgent Widget] Unable to identify current <script> tag.');
     return;
   }
 
   // Extract required attributes
   const chatbotId = currentScript.getAttribute('data-chatbot-id');
   if (!chatbotId) {
-    console.error('[Redario Widget] Missing required attribute: data-chatbot-id');
+    console.error('[SiteAgent Widget] Missing required attribute: data-chatbot-id');
     return;
   }
 
@@ -23,7 +23,7 @@
   // ----- Create styles -----
   const styleTag = document.createElement('style');
   styleTag.textContent = `
-    .redario-chatbot-launcher-btn {
+    .siteagent-chatbot-launcher-btn {
       position: fixed;
       bottom: 24px;
       right: 24px;
@@ -38,21 +38,21 @@
       cursor: pointer;
       z-index: 2147483647; /* At the very top */
     }
-    .redario-chatbot-launcher-btn img {
+    .siteagent-chatbot-launcher-btn img {
       width: 100%;
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
     }
-    @keyframes redario-bounce {
+    @keyframes siteagent-bounce {
       0% { transform: scale(1); }
       50% { transform: scale(0.88); }
       100% { transform: scale(1); }
     }
-    .redario-chatbot-launcher-btn.redario-bouncing {
-      animation: redario-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    .siteagent-chatbot-launcher-btn.siteagent-bouncing {
+      animation: siteagent-bounce 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .redario-chatbot-iframe-container {
+    .siteagent-chatbot-iframe-container {
       position: fixed;
       bottom: 90px;
       right: 24px;
@@ -67,7 +67,7 @@
       display: none;
       flex-direction: column;
     }
-    .redario-chatbot-close-btn {
+    .siteagent-chatbot-close-btn {
       position: absolute;
       top: 8px;
       right: 8px;
@@ -86,7 +86,7 @@
 
   // ----- Create launcher button -----
   const launcherBtn = document.createElement('div');
-  launcherBtn.className = 'redario-chatbot-launcher-btn';
+  launcherBtn.className = 'siteagent-chatbot-launcher-btn';
 
   function applyIcon(url) {
     if (!url) return;
@@ -111,7 +111,7 @@
 
   // ----- Create iframe container -----
   const iframeContainer = document.createElement('div');
-  iframeContainer.className = 'redario-chatbot-iframe-container';
+  iframeContainer.className = 'siteagent-chatbot-iframe-container';
 
   const iframe = document.createElement('iframe');
   iframe.src = embedUrl;
@@ -123,7 +123,7 @@
 
   // Close button
   const closeBtn = document.createElement('div');
-  closeBtn.className = 'redario-chatbot-close-btn';
+  closeBtn.className = 'siteagent-chatbot-close-btn';
   closeBtn.innerHTML = '&times;';
   closeBtn.addEventListener('click', () => {
     iframeContainer.style.display = 'none';
@@ -135,8 +135,8 @@
   // ----- Toggle behaviour -----
   launcherBtn.addEventListener('click', () => {
     // Click animation
-    launcherBtn.classList.add('redario-bouncing');
-    setTimeout(() => launcherBtn.classList.remove('redario-bouncing'), 300);
+    launcherBtn.classList.add('siteagent-bouncing');
+    setTimeout(() => launcherBtn.classList.remove('siteagent-bouncing'), 300);
     if (iframeContainer.style.display === 'none' || iframeContainer.style.display === '') {
       iframeContainer.style.display = 'flex';
     } else {

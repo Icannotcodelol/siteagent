@@ -128,7 +128,7 @@ Deno.serve(async (req: Request) => {
         const response = await fetch(urlToScrape, { 
             headers: { 
                 // Add a basic user-agent, some sites block default fetch/deno agent
-                'User-Agent': 'Mozilla/5.0 (compatible; RedarioBot/1.0; +https://yourdomain.com/bot)' 
+                'User-Agent': 'Mozilla/5.0 (compatible; SiteAgentBot/1.0; +https://yourdomain.com/bot)' 
             }
         });
         

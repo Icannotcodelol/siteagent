@@ -246,7 +246,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
       </div>
       {/* Branding */}
       {showBranding !== false && (
-        <div className="text-xs text-gray-400 text-center py-2">Powered by Redario</div>
+        <div className="text-xs text-gray-400 text-center py-2">Powered by SiteAgent</div>
       )}
     </div>
   );

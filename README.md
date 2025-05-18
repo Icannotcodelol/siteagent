@@ -1,4 +1,4 @@
-# Redario - Document-Based AI Chatbot Platform
+# SiteAgent - Document-Based AI Chatbot Platform
 
 This project aims to build a multi-tenant web platform where users can upload documents, generate personalized AI chatbots based on that content, embed these chatbots on their own websites, and view usage analytics.
 
@@ -53,7 +53,7 @@ The application follows modern web architecture principles using Next.js.
 1.  **Clone the repository (if you haven't already):**
     ```bash
     # git clone <repository-url>
-    cd redario
+    cd siteagent
     ```
 2.  **Install dependencies:**
     ```bash
@@ -70,7 +70,7 @@ The application follows modern web architecture principles using Next.js.
     # Pinecone
     PINECONE_API_KEY=your_pinecone_api_key
     PINECONE_ENVIRONMENT=your_pinecone_environment
-    PINECONE_INDEX_NAME=your_chosen_pinecone_index_name # e.g., 'redario-chatbots'
+    PINECONE_INDEX_NAME=your_chosen_pinecone_index_name # e.g., 'siteagent-chatbots'
 
     # OpenAI
     OPENAI_API_KEY=your_openai_api_key # Keep this secret!
