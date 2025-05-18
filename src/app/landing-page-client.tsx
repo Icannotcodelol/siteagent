@@ -324,13 +324,6 @@ function HeroSection() {
               </div>
             </div>
             <div className="p-4 bg-gray-900 text-white rounded-b-lg h-[350px] overflow-y-auto">
-              <div className="mb-4 flex items-center justify-between">
-                <h1 className="text-lg font-semibold text-white">Overview</h1>
-                <div className="px-3 py-1 text-xs font-medium text-white bg-blue-600 rounded-md shadow-sm hover:bg-blue-500 cursor-default">
-                  + Create New Chatbot
-                </div>
-              </div>
-
               <div className="mb-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow">

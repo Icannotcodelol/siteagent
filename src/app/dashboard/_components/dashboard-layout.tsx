@@ -41,7 +41,7 @@ function DashboardNavbar({ authButtonSlot }: { authButtonSlot?: React.ReactNode 
       )}
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-8">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 md:self-center">
           <Link href="/dashboard" className="group flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 transition-all duration-300 group-hover:bg-blue-500">
               {/* Using Bot icon as an example, or keep 'S' if preferred */}
@@ -65,7 +65,7 @@ function DashboardNavbar({ authButtonSlot }: { authButtonSlot?: React.ReactNode 
           ))}
         </nav>
 
-        <div className="hidden md:flex md:items-center md:gap-4">
+        <div className="hidden md:flex md:items-center md:gap-4 md:self-center">
           {/* AuthButton will be passed here */}
           {authButtonSlot}
         </div>

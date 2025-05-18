@@ -47,7 +47,7 @@ export default function SignupForm() {
     } else {
       // Signup successful - Supabase sends a confirmation email by default
       setMessage(
-        'Signup successful! Please check your email to confirm your account.'
+        'Signup successful! Please check your email to confirm your account. After confirming your email, you can log in and will be redirected to your dashboard.'
       )
       // Optionally clear form or redirect to a confirmation page or login
       // router.push('/login')

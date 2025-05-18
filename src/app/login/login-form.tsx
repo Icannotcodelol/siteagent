@@ -28,7 +28,7 @@ export default function LoginForm() {
     } else {
       // Login successful, redirect to dashboard
       // The middleware and dashboard layout should handle session refresh and redirection
-      router.push('/') // Redirect to the root which should be protected by dashboard layout
+      router.push('/dashboard') // Redirect to dashboard after login
       router.refresh() // Ensure layout re-evaluates auth state
     }
     setLoading(false)
