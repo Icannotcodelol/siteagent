@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import Script from "next/script";
 import "./globals.css";
+import { PostHogProvider } from './providers'
 
 export const metadata: Metadata = {
   title: "SiteAgent",
@@ -38,7 +39,9 @@ export default function RootLayout({
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-gray-950`}
       >
-        {children}
+        <PostHogProvider>
+          {children}
+        </PostHogProvider>
       </body>
     </html>
   );
