@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Button, cn } from "@/app/_components/ui/button";
 import IntegrationsBar from "@/app/_components/ui/integrations-bar";
+import { createClient } from '@/lib/supabase/client';
 // AuthButton import is removed as it will be passed as a prop
 
 interface LandingPageClientProps {
@@ -230,6 +231,8 @@ function HeroSection() {
   const orb1Ref = useRef<HTMLDivElement>(null);
   const orb2Ref = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -250,6 +253,24 @@ function HeroSection() {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
+
+  const handleGetStarted = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        window.location.href = '/dashboard';
+      } else {
+        window.location.href = '/signup';
+      }
+    } catch (err) {
+      setError('Unexpected error.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
@@ -279,18 +300,18 @@ function HeroSection() {
             and deliver real value to your visitors.
           </p>
           <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-            <Link href="/signup">
-              <Button
-                size="lg"
-                className="group relative overflow-hidden bg-blue-600 text-white transition-all duration-300 hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-600/20"
-              >
-                <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-1">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-                <span className="absolute inset-0 z-0 translate-y-[105%] bg-blue-500 transition-transform duration-300 group-hover:translate-y-0"></span>
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              className="group relative overflow-hidden bg-blue-600 text-white transition-all duration-300 hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-600/20"
+              onClick={handleGetStarted}
+              disabled={loading}
+            >
+              <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-1">
+                {loading ? 'Checking...' : 'Get Started Free'}
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </span>
+              <span className="absolute inset-0 z-0 translate-y-[105%] bg-blue-500 transition-transform duration-300 group-hover:translate-y-0"></span>
+            </Button>
             <Link href="#how-it-works">
               <Button
                 size="lg"
@@ -301,6 +322,9 @@ function HeroSection() {
               </Button>
             </Link>
           </div>
+          {error && (
+            <div className="mt-2 text-red-500 text-sm">{error}</div>
+          )}
           <div className="mt-10 flex items-center justify-center space-x-6 text-sm text-gray-400">
             <div className="flex items-center">
               <Zap className="mr-2 h-4 w-4 text-blue-500" />
