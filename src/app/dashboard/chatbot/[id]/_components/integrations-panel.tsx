@@ -17,7 +17,7 @@ interface Props {
   chatbotId: string;
 }
 
-type IntegrationKey = 'hubspot' | 'jira' | 'calendly' | 'shopify' | 'monday'; // Removed shopify for now
+type IntegrationKey = 'hubspot' | 'jira' | 'calendly' | 'shopify' | 'monday';
 
 interface ChatbotIntegrationState {
   integration_hubspot: boolean;
@@ -214,15 +214,9 @@ export default function IntegrationsPanel({ chatbotId }: Props) {
       );
     }
     
-    // Account IS connected, render toggle (placeholder for now until DB column exists)
-    // const checked = chatbotState.integration_shopify; // Uncomment when ready
-    // return renderToggle('Shopify', 'shopify', checked);
-    return (
-       <div className="flex items-center justify-between py-3 border-b border-gray-700 last:border-b-0">
-         <span className="text-sm font-medium text-green-500">✓ Shopify Connected</span>
-         <span className="text-xs text-gray-500">(Per-bot toggle coming soon)</span>
-       </div>
-    );
+    // Account IS connected, render toggle
+    const checked = chatbotState.integration_shopify; // Uncomment when ready
+    return renderToggle('Shopify', 'shopify', checked);
   };
   
   // General toggle rendering function (used when account IS connected)

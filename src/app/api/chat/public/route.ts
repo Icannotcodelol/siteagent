@@ -653,7 +653,7 @@ export async function POST(request: NextRequest) {
         console.log("Fetching chatbot details (public)...");
         const { data: chatbotData, error: chatbotFetchError } = await supabaseAdmin
             .from('chatbots')
-            .select('id, name, system_prompt, integration_hubspot, integration_jira, integration_calendly')
+            .select('id, name, user_id, system_prompt, integration_hubspot, integration_jira, integration_calendly')
             .eq('id', chatbotId)
             .single(); // Use single, expect it to exist if ID is valid
 
@@ -666,10 +666,37 @@ export async function POST(request: NextRequest) {
         // Note: No check needed if chatbotData is null, as .single() would error above if not found.
         const {
             system_prompt: baseSystemPrompt,
-            integration_hubspot: hasHubspot,
-            integration_jira: hasJira,
-            integration_calendly: hasCalendly,
+            integration_hubspot,
+            integration_jira,
+            integration_calendly,
+            user_id: ownerId,
         } = chatbotData as any;
+
+        // Determine which integrations are BOTH toggled on for this chatbot AND actually connected at the account level
+        let hubspotConnected = false;
+        let jiraConnected = false;
+        let calendlyConnected = false;
+
+        if (ownerId) {
+            const { data: tokenRows, error: tokenErr } = await supabaseAdmin
+                .from('user_oauth_tokens')
+                .select('service_name')
+                .eq('user_id', ownerId);
+
+            if (tokenErr) {
+                console.error('Error fetching owner OAuth tokens:', tokenErr);
+            } else if (tokenRows) {
+                const services = tokenRows.map((row: any) => row.service_name);
+                hubspotConnected = services.includes('hubspot');
+                jiraConnected = services.includes('jira');
+                calendlyConnected = services.includes('calendly');
+            }
+        }
+
+        // Final booleans indicating availability for the chatbot
+        const hasHubspot = Boolean(integration_hubspot && hubspotConnected);
+        const hasJira     = Boolean(integration_jira && jiraConnected);
+        const hasCalendly = Boolean(integration_calendly && calendlyConnected);
 
         const enabledIntegrations: string[] = [];
         if (hasHubspot) enabledIntegrations.push('HubSpot');
@@ -789,8 +816,8 @@ ${contextText}
 
         // 5. Call OpenAI Chat Completions API *with* tool definitions so the model can decide to call Shopify helper
         const toolsToPass = openAiTools.filter((tool) => {
-            if (tool.function?.name === 'create_hubspot_contact') return hasHubspot;
-            if (tool.function?.name === 'create_jira_issue') return hasJira;
+            if (tool.function?.name === 'create_hubspot_contact')      return hasHubspot;
+            if (tool.function?.name === 'create_jira_issue')           return hasJira;
             if (tool.function?.name === 'create_calendly_meeting_link') return hasCalendly;
             return true; // keep generic tools
         });
