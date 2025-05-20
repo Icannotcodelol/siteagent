@@ -286,6 +286,28 @@
     })
   }
 
+  // Listen for messages from the iframe (e.g., to dismiss proactive bubble)
+  window.addEventListener('message', (event) => {
+    // IMPORTANT: Always verify the origin of the message for security.
+    // baseOrigin should be the origin where your iframe content is served from.
+    if (event.origin !== baseOrigin) { 
+      // If baseOrigin is not yet defined or doesn't match, you might need to queue or ignore.
+      // For this specific use case, if baseOrigin isn't set, the iframe isn't loaded from expected origin.
+      // console.warn('[SiteAgent Widget] Message received from unexpected origin:', event.origin, 'Expected:', baseOrigin);
+      return;
+    }
+
+    if (event.data && event.data.type === 'siteagent-user-interaction') {
+      console.log('[SiteAgent Widget] Received siteagent-user-interaction from iframe');
+      if (proactiveBubble) {
+        proactiveBubble.remove();
+        proactiveBubble = null;
+        proactiveDismissed = true; // Ensure it doesn't try to show again in this session
+        console.log('[SiteAgent Widget] Proactive bubble removed due to iframe interaction.');
+      }
+    }
+  });
+
   // Add styles for proactive bubble
   const proactiveStyle = document.createElement('style')
   proactiveStyle.textContent = `
