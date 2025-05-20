@@ -1,6 +1,7 @@
 'use client' // Keep as client component for potential future interactivity
 
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import CalendlyEmbed from '../../[id]/_components/calendly-embed';
 import { useChatbotAppearance } from './chatbot-appearance-context';
 
@@ -215,7 +216,13 @@ export default function ChatPreview(props: ChatPreviewProps) {
               // Default display
               return (
                 <div className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'}`} style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}>
-                  {msg.text}
+                  <ReactMarkdown
+                    components={{
+                      a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline" />
+                    }}
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
                 </div>
               );
             })()}
