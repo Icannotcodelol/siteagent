@@ -3,6 +3,7 @@ import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import PromptEditor from './_components/prompt-editor'
+import ProactiveMessageSettings from './_components/proactive-message-settings'
 
 // Import Builder components
 import BuilderHeader from '../new/_components/builder-header' // Re-use header from 'new' page
@@ -123,7 +124,7 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8 mt-6">
         {/* Left & Middle Columns: ChatbotBuilderForm handles its internal two-column (tabs | content) */}
         {/* This div will take up roughly 2/3 of the space on larger screens */}
-        <div className="lg:w-2/3 flex-shrink-0">
+        <div className="lg:w-2/3 flex-shrink-0 space-y-6"> {/* <-- ADDED space-y-6 for spacing */}
            <ChatbotBuilderForm 
              initialName={chatbot.name} 
              initialSystemPrompt={chatbot.system_prompt ?? ''} 
@@ -143,6 +144,9 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
              initialInputPlaceholder={chatbot.input_placeholder ?? ''}
              initialShowBranding={chatbot.show_branding ?? true}
            />
+            {/* --- ADDED PROACTIVE MESSAGE SETTINGS --- */}
+            <ProactiveMessageSettings chatbotId={chatbot.id} />
+            {/* --- END --- */}
         </div>
 
         {/* Right Column: Chat Preview */}

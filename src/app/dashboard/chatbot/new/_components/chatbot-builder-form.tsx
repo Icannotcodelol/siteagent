@@ -85,6 +85,20 @@ export default function ChatbotBuilderForm({
   const { setAppearance } = useChatbotAppearance();
   const supabase = createSupabaseBrowserClient();
 
+  const popularFontFamilies = [
+    { name: "Inter (Modern Sans-Serif)", value: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif" },
+    { name: "Roboto (Google Sans-Serif)", value: "'Roboto', sans-serif" },
+    { name: "Open Sans (Google Sans-Serif)", value: "'Open Sans', sans-serif" },
+    { name: "Lato (Google Sans-Serif)", value: "'Lato', sans-serif" },
+    { name: "Montserrat (Google Sans-Serif)", value: "'Montserrat', sans-serif" },
+    { name: "Nunito (Google Sans-Serif)", value: "'Nunito', sans-serif" },
+    { name: "Arial (Classic Sans-Serif)", value: "Arial, Helvetica, sans-serif" },
+    { name: "Verdana (Readable Sans-Serif)", value: "Verdana, Geneva, sans-serif" },
+    { name: "Georgia (Classic Serif)", value: "Georgia, serif" },
+    { name: "Times New Roman (Classic Serif)", value: "'Times New Roman', Times, serif" },
+    { name: "Courier New (Monospace)", value: "'Courier New', Courier, monospace" },
+  ];
+
   // Update state if props change (e.g., navigating between chatbots)
   useEffect(() => {
     setName(initialName);
@@ -320,28 +334,46 @@ export default function ChatbotBuilderForm({
          {/* Appearance Tab Content */}
          {activeTab === 'appearance' && (
             <div className="space-y-6">
+                <h3 className="text-xl font-semibold text-white">Chatbot Appearance</h3>
                 {/* Color Pickers */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Primary Color</label>
-                  <input type="color" value={primaryColor} onChange={(e) => { const v=e.target.value; setPrimaryColor(v); setAppearance({primaryColor: v}); }} className="w-12 h-8 p-0 border-none bg-transparent" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-300 mb-1">Primary Color</label>
+                    <input type="color" id="primaryColor" value={primaryColor || '#9333ea'} onChange={(e) => { const v = e.target.value; setPrimaryColor(v); setAppearance({ primaryColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                  </div>
+                  <div>
+                    <label htmlFor="secondaryColor" className="block text-sm font-medium text-gray-300 mb-1">Secondary Color</label>
+                    <input type="color" id="secondaryColor" value={secondaryColor || '#f3f4f6'} onChange={(e) => { const v = e.target.value; setSecondaryColor(v); setAppearance({ secondaryColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                  </div>
+                  <div>
+                    <label htmlFor="backgroundColor" className="block text-sm font-medium text-gray-300 mb-1">Background Color</label>
+                    <input type="color" id="backgroundColor" value={backgroundColor || '#ffffff'} onChange={(e) => { const v = e.target.value; setBackgroundColor(v); setAppearance({ backgroundColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                  </div>
+                  <div>
+                    <label htmlFor="textColor" className="block text-sm font-medium text-gray-300 mb-1">Text Color</label>
+                    <input type="color" id="textColor" value={textColor || '#222222'} onChange={(e) => { const v = e.target.value; setTextColor(v); setAppearance({ textColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                  </div>
                 </div>
+
+                {/* Font Family Dropdown */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Secondary Color</label>
-                  <input type="color" value={secondaryColor} onChange={(e) => { const v=e.target.value; setSecondaryColor(v); setAppearance({secondaryColor: v}); }} className="w-12 h-8 p-0 border-none bg-transparent" />
+                  <label htmlFor="fontFamily" className="block text-sm font-medium text-gray-300 mb-1">Font Family</label>
+                  <select
+                    id="fontFamily"
+                    value={fontFamily}
+                    onChange={(e) => { const v = e.target.value; setFontFamily(v); setAppearance({ fontFamily: v }); }}
+                    className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                  >
+                    <option value="">Select a font (default)</option>
+                    {popularFontFamilies.map(font => (
+                      <option key={font.value} value={font.value}>{font.name}</option>
+                    ))}
+                  </select>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Ensure the selected font is loaded on your website for the widget to display it correctly.
+                  </p>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Background Color</label>
-                  <input type="color" value={backgroundColor} onChange={(e) => { const v=e.target.value; setBackgroundColor(v); setAppearance({backgroundColor: v}); }} className="w-12 h-8 p-0 border-none bg-transparent" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Text Color</label>
-                  <input type="color" value={textColor} onChange={(e) => { const v=e.target.value; setTextColor(v); setAppearance({textColor: v}); }} className="w-12 h-8 p-0 border-none bg-transparent" />
-                </div>
-                {/* Font Family */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Font Family</label>
-                  <input type="text" value={fontFamily} onChange={(e) => { const v=e.target.value; setFontFamily(v); setAppearance({fontFamily: v}); }} placeholder="e.g. Inter, Arial, sans-serif" className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
-                </div>
+
                 {/* Welcome Message */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Welcome Message</label>

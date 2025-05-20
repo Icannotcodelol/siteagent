@@ -137,25 +137,204 @@
     // Click animation
     launcherBtn.classList.add('siteagent-bouncing');
     setTimeout(() => launcherBtn.classList.remove('siteagent-bouncing'), 300);
-    if (iframeContainer.style.display === 'none' || iframeContainer.style.display === '') {
+    const willOpen = (iframeContainer.style.display === 'none' || iframeContainer.style.display === '');
+    if (willOpen) {
       iframeContainer.style.display = 'flex';
+      // If proactive bubble exists, remove it and persist dismissal
+      if (proactiveBubble) {
+        proactiveBubble.remove();
+        proactiveBubble = null;
+        proactiveDismissed = true;
+      }
     } else {
       iframeContainer.style.display = 'none';
     }
   });
 
-  // If no launcherIcon provided, fetch public meta to get avatar
-  if (!launcherIcon) {
+  // If no launcherIcon provided, fetch public meta to get avatar and other settings
+  let chatFontFamily = 'sans-serif'; // Default font
+
+  if (!launcherIcon) { // Assuming we fetch public-meta anyway for font, even if icon is provided.
+    // Let's adjust this logic to always fetch public-meta if we need font_family
     fetch(`${baseOrigin}/api/chatbots/${chatbotId}/public-meta`)
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
-        if (data && data.bot_avatar_url) {
-          launcherIcon = data.bot_avatar_url;
-          // Remove default icon (svg) and replace
-          launcherBtn.innerHTML = '';
-          applyIcon(launcherIcon);
+        if (data) {
+          if (data.bot_avatar_url && !launcherIcon) {
+            launcherIcon = data.bot_avatar_url;
+            launcherBtn.innerHTML = '';
+            applyIcon(launcherIcon);
+          }
+          if (data.font_family) {
+            chatFontFamily = data.font_family;
+          }
+        }
+      })
+      .catch(() => {/* ignore */});
+  } else {
+    // Still fetch for font_family if launcher icon was provided via attribute
+    fetch(`${baseOrigin}/api/chatbots/${chatbotId}/public-meta`)
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data && data.font_family) {
+          chatFontFamily = data.font_family;
         }
       })
       .catch(() => {/* ignore */});
   }
+
+  // ----- Proactive Message Logic -----
+  let proactiveBubble = null;
+  let proactiveDismissed = false;
+
+  // fetch proactive message always; decide based on dismissal with current content
+  {
+    fetch(`${baseOrigin}/api/chatbots/${chatbotId}/public/proactive-message`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.content && !proactiveDismissed) {
+          const delayMs = (data.delay || 5) * 1000
+          setTimeout(() => {
+            tryShowProactiveBubble(data.content, data.color)
+          }, delayMs)
+        }
+      })
+      .catch(() => {/* ignore */})
+  }
+
+  function tryShowProactiveBubble(message, bubbleColor) {
+    // If user already opened the chat, do not show
+    if (iframeContainer.style.display === 'flex') return
+
+    // Check again if dismissed
+    if (proactiveDismissed) return
+
+    const bubble = document.createElement('div')
+    bubble.className = 'siteagent-proactive-bubble'
+    bubble.style.fontFamily = chatFontFamily; // Apply the fetched font family
+
+    // Apply custom color if provided, otherwise CSS will use its default
+    if (bubbleColor) {
+      bubble.style.backgroundColor = bubbleColor;
+      bubble.style.borderColor = `${bubbleColor} transparent transparent transparent`; // Ensure top border matches bubble color
+
+      // Potentially adjust text color based on bubbleColor for contrast here
+      // For simplicity, we'll assume light text on dark backgrounds or dark text on light backgrounds.
+      // A more robust solution would calculate luminance and choose black/white text.
+      // Also update the ::after pseudo-element for the speech bubble tail
+      const existingStyleSheet = document.getElementById('siteagent-proactive-dynamic-styles');
+      if (existingStyleSheet) {
+        existingStyleSheet.remove();
+      }
+      const dynamicStyle = document.createElement('style');
+      dynamicStyle.id = 'siteagent-proactive-dynamic-styles';
+      dynamicStyle.textContent = `
+        .siteagent-proactive-bubble[style*="background-color: ${bubbleColor}"]::after {
+          border-top-color: ${bubbleColor};
+        }
+      `;
+      document.head.appendChild(dynamicStyle);
+
+      // Determine if the background color is light or dark to set text color
+      const hexToRgb = (hex) => {
+        const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        } : null;
+      };
+
+      const rgbColor = hexToRgb(bubbleColor);
+      if (rgbColor) {
+        // Formula for luminance
+        const luminance = (0.299 * rgbColor.r + 0.587 * rgbColor.g + 0.114 * rgbColor.b) / 255;
+        if (luminance > 0.5) {
+          bubble.style.color = '#000000'; // Dark text for light backgrounds
+           // Adjust close button color for light backgrounds
+          const closeButton = bubble.querySelector('.siteagent-proactive-close');
+          if (closeButton) {
+            closeButton.style.color = '#374151'; // gray-700
+          }
+        } else {
+          bubble.style.color = '#FFFFFF'; // Light text for dark backgrounds
+           // Keep default close button color for dark backgrounds (or explicitly set)
+           const closeButton = bubble.querySelector('.siteagent-proactive-close');
+          if (closeButton) {
+            closeButton.style.color = '#d1d5db'; // Default gray-300
+          }
+        }
+      }
+    }
+    bubble.innerHTML = `<span class="siteagent-proactive-text">${message}</span><button class="siteagent-proactive-close" aria-label="Close proactive message">&times;</button>`
+
+    document.body.appendChild(bubble)
+    proactiveBubble = bubble; // store reference
+
+    const closeBtn = bubble.querySelector('.siteagent-proactive-close')
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation()
+      bubble.remove()
+      proactiveDismissed = true;
+    })
+
+    bubble.addEventListener('click', () => {
+      bubble.remove()
+      proactiveDismissed = true;
+      // Open chat
+      launcherBtn.click()
+    })
+  }
+
+  // Add styles for proactive bubble
+  const proactiveStyle = document.createElement('style')
+  proactiveStyle.textContent = `
+    .siteagent-proactive-bubble {
+      position: fixed;
+      bottom: 100px;
+      right: 24px;
+      max-width: 260px;
+      /* Default background color, will be overridden by JS if custom color is set */
+      background: #111827; /* gray-900 */
+      color: #fff; /* Default text color */
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 12px 16px 12px 16px;
+      font-size: 14px;
+      line-height: 1.4;
+      z-index: 2147483647;
+      cursor: pointer;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: siteagent-proactive-fade-in 0.3s forwards;
+      position:fixed;
+      border-style: solid;
+      /* Default border color for the tail, will be overridden by dynamic styles if custom color set */
+      border-color: #111827 transparent transparent transparent;
+    }
+    .siteagent-proactive-bubble .siteagent-proactive-close {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: transparent;
+      border: none;
+      color: #d1d5db;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .siteagent-proactive-bubble::after {
+      content: '';
+      position: absolute;
+      right: 22px;
+      bottom: -6px;
+      border-width: 6px 6px 0 6px;
+      border-style: solid;
+      border-color: #111827 transparent transparent transparent;
+    }
+    @keyframes siteagent-proactive-fade-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `
+  document.head.appendChild(proactiveStyle)
 })(); 

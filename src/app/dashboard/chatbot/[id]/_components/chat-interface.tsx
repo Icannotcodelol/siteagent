@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, FormEvent, useRef, useEffect } from 'react';
+import { useState, FormEvent, useRef, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation'; // Import usePathname
 import CalendlyEmbed from './calendly-embed';
+import ProactiveMessageBubble from '@/app/embed/chatbot/[id]/_components/proactive-message-bubble'; // Import ProactiveMessageBubble
 
 // Define the structure of a chat message
 interface Message {
@@ -74,8 +75,15 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [typingIndicatorDots, setTypingIndicatorDots] = useState('.');
 
+  // Proactive Message State
+  const [proactiveMessageData, setProactiveMessageData] = useState<{ content: string; delay: number; color?: string | null } | null>(null);
+  const [showProactiveBubble, setShowProactiveBubble] = useState(false);
+  const [proactiveBubbleInteracted, setProactiveBubbleInteracted] = useState(false);
+  const proactiveMessageTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Ref to the scrollable messages container (instead of relying on an invisible anchor)
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null); // Ref for focusing input
   const pathname = usePathname(); // Get the current path
 
   // Determine if we are in the embed context
@@ -94,6 +102,67 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
       }
     }
   }, []); // empty deps = run once on mount
+
+  // Fetch proactive message for embed
+  useEffect(() => {
+    if (isEmbed && chatbotId && !proactiveBubbleInteracted) {
+      console.log('[ProactiveMsg] Attempting to fetch proactive message for chatbotId:', chatbotId);
+      fetch(`/api/chatbots/${chatbotId}/public/proactive-message`)
+        .then(res => {
+          if (res.ok) return res.json();
+          console.error('[ProactiveMsg] Fetch failed with status:', res.status, res.statusText);
+          throw new Error('Failed to fetch proactive message');
+        })
+        .then(data => {
+          console.log('[ProactiveMsg] Fetched proactive message data:', data);
+          if (data) {
+            setProactiveMessageData(data);
+          } else {
+            console.log('[ProactiveMsg] No proactive message data returned from API (this is normal if none is configured/enabled).');
+          }
+        })
+        .catch(err => console.error("[ProactiveMsg] Error during fetch process:", err));
+    }
+  }, [isEmbed, chatbotId, proactiveBubbleInteracted]);
+
+  // Schedule proactive message display
+  useEffect(() => {
+    console.log('[ProactiveMsg Scheduler] Effect run. States:', {
+      isEmbed,
+      hasProactiveData: !!proactiveMessageData,
+      proactiveDataContent: proactiveMessageData?.content,
+      proactiveBubbleInteracted,
+      isLoading,
+    });
+
+    if (proactiveMessageTimerRef.current) {
+      console.log('[ProactiveMsg Scheduler] Clearing existing timer');
+      clearTimeout(proactiveMessageTimerRef.current);
+      proactiveMessageTimerRef.current = null;
+    }
+
+    if (isEmbed && proactiveMessageData && !proactiveBubbleInteracted && !isLoading) {
+      console.log(`[ProactiveMsg Scheduler] Conditions met. Setting timer for ${proactiveMessageData.delay} seconds.`);
+      proactiveMessageTimerRef.current = setTimeout(() => {
+        if (!proactiveBubbleInteracted) {
+          console.log('[ProactiveMsg Scheduler] Timer fired! Showing bubble.');
+          setShowProactiveBubble(true);
+        } else {
+          console.log('[ProactiveMsg Scheduler] Timer fired, but user already interacted. Not showing bubble.');
+        }
+      }, proactiveMessageData.delay * 1000);
+    } else {
+      console.log('[ProactiveMsg Scheduler] Conditions NOT met. Ensuring bubble is hidden.');
+      setShowProactiveBubble(false);
+    }
+
+    return () => {
+      if (proactiveMessageTimerRef.current) {
+        console.log('[ProactiveMsg Scheduler] Cleanup: Clearing timer');
+        clearTimeout(proactiveMessageTimerRef.current);
+      }
+    };
+  }, [isEmbed, proactiveMessageData, proactiveBubbleInteracted, isLoading]);
 
   // Function to scroll to the bottom of the message list WITHOUT affecting the parent page.
   // Using scrollTo on the dedicated container avoids the browser trying to bring the iframe
@@ -129,8 +198,21 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
     return () => clearInterval(intervalId); // Cleanup interval
   }, [isLoading]);
 
+  const handleUserInteraction = useCallback(() => {
+    console.log('[ProactiveMsg Interaction] handleUserInteraction called. Current proactiveBubbleInteracted:', proactiveBubbleInteracted);
+    if (!proactiveBubbleInteracted) {
+      setProactiveBubbleInteracted(true);
+      setShowProactiveBubble(false); // Ensure bubble is hidden on interaction
+      if (proactiveMessageTimerRef.current) {
+        clearTimeout(proactiveMessageTimerRef.current);
+        proactiveMessageTimerRef.current = null;
+      }
+    }
+  }, [proactiveBubbleInteracted]);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    handleUserInteraction(); // User sending a message is an interaction
     const userMessageText = inputValue.trim();
     if (!userMessageText || isLoading) return;
 
@@ -204,6 +286,26 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCloseProactiveBubble = () => {
+    setShowProactiveBubble(false);
+    setProactiveBubbleInteracted(true); // User closed it
+    if (proactiveMessageTimerRef.current) {
+      clearTimeout(proactiveMessageTimerRef.current);
+      proactiveMessageTimerRef.current = null;
+    }
+  };
+
+  const handleClickProactiveBubble = () => {
+    setShowProactiveBubble(false);
+    setProactiveBubbleInteracted(true); // User clicked it
+    if (proactiveMessageTimerRef.current) {
+      clearTimeout(proactiveMessageTimerRef.current);
+      proactiveMessageTimerRef.current = null;
+    }
+    // Optionally, focus the input field
+    inputRef.current?.focus();
   };
 
   return (
@@ -308,6 +410,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
       <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200" style={{ background: secondaryColor || '#f3f4f6' }}>
         <div className="flex items-center border border-gray-300 rounded-md" style={{ background: backgroundColor || '#fff' }}>
           <input
+            ref={inputRef} // Assign ref to input
             type="text"
             placeholder={inputPlaceholder || 'Type your message...'}
             className="flex-grow bg-transparent px-3 py-2 placeholder-gray-500 focus:outline-none text-sm"
@@ -315,6 +418,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading}
             style={{ color: textColor || '#222', fontFamily: fontFamily || 'inherit' }}
+            onFocus={handleUserInteraction} // Focusing input is also an interaction
           />
           <button
             type="submit"
@@ -330,6 +434,17 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
       {/* Branding */}
       {showBranding !== false && (
         <div className="text-xs text-gray-400 text-center py-2">Powered by SiteAgent</div>
+      )}
+
+      {/* Proactive Message Bubble (only for full-page dashboard preview, not for embedded iframe) */}
+      {!isEmbed && proactiveMessageData && (
+        <ProactiveMessageBubble
+          messageContent={proactiveMessageData.content}
+          onClose={handleCloseProactiveBubble}
+          onClick={handleClickProactiveBubble}
+          isVisible={showProactiveBubble}
+          bubbleColor={proactiveMessageData.color}
+        />
       )}
     </div>
   );
