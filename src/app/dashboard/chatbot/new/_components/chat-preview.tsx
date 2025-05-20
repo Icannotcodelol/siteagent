@@ -64,6 +64,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [typingIndicatorDots, setTypingIndicatorDots] = useState('.');
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when messages change without affecting parent page
@@ -73,6 +74,25 @@ export default function ChatPreview(props: ChatPreviewProps) {
       container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
   }, [messages]);
+
+  // Effect for animating typing indicator
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (isLoading) {
+      setTypingIndicatorDots('.'); // Reset to one dot when loading starts
+      intervalId = setInterval(() => {
+        setTypingIndicatorDots(prevDots => {
+          if (prevDots === '...') return '.';
+          if (prevDots === '..') return '...';
+          if (prevDots === '.') return '..';
+          return '.'; // Default case, though should not be reached
+        });
+      }, 500); // Adjust speed as needed
+    } else {
+      setTypingIndicatorDots('.'); // Reset when not loading
+    }
+    return () => clearInterval(intervalId); // Cleanup interval on unmount or when isLoading changes
+  }, [isLoading]);
 
   const handleSendMessage = async () => {
     const userMessage = input.trim();
@@ -205,7 +225,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
         {isLoading && (
              <div className="flex justify-start">
                 <div className="bg-purple-600 text-white text-sm p-2 rounded-lg animate-pulse">
-                   ...
+                   {typingIndicatorDots}
                  </div>
              </div>
         )}

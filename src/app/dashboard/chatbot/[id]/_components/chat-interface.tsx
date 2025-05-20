@@ -72,6 +72,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [typingIndicatorDots, setTypingIndicatorDots] = useState('.');
 
   // Ref to the scrollable messages container (instead of relying on an invisible anchor)
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
@@ -108,6 +109,25 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Effect for animating typing indicator
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+    if (isLoading) {
+      setTypingIndicatorDots('.'); // Reset to one dot when loading starts
+      intervalId = setInterval(() => {
+        setTypingIndicatorDots(prevDots => {
+          if (prevDots === '...') return '.';
+          if (prevDots === '..') return '...';
+          if (prevDots === '.') return '..';
+          return '.'; // Default case
+        });
+      }, 500); // Adjust speed as needed
+    } else {
+      setTypingIndicatorDots('.'); // Reset when not loading
+    }
+    return () => clearInterval(intervalId); // Cleanup interval
+  }, [isLoading]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -279,7 +299,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
                 color: textColor || '#fff',
               }}
             >
-              ...
+              {typingIndicatorDots}
             </div>
           </div>
         )}
