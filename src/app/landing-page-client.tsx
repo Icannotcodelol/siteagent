@@ -593,116 +593,6 @@ function HowItWorksSection() {
   );
 }
 
-// Pricing Section Component
-function PricingSection() {
-  const plans = [
-    { name: "Starter", price: "$29", description: "Perfect for small businesses and personal websites.", features: ["1 Chatbot", "5,000 messages per month", "Document upload (up to 50 pages)", "Basic analytics", "Email support"], cta: "Get Started", popular: false },
-    { name: "Professional", price: "$79", description: "Ideal for growing businesses with multiple needs.", features: ["3 Chatbots", "25,000 messages per month", "Document upload (up to 500 pages)", "Advanced analytics", "3 External API actions", "Priority support"], cta: "Get Started", popular: true },
-    { name: "Enterprise", price: "Custom", description: "For large organizations with advanced requirements.", features: ["Unlimited Chatbots", "Unlimited messages", "Unlimited document upload", "Custom integrations", "Advanced security features", "Dedicated account manager", "SLA guarantees"], cta: "Contact Sales", popular: false },
-  ];
-
-  const sectionRef = useRef<HTMLElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            cardsRef.current.forEach((card, index) => {
-              if (card) {
-                setTimeout(() => {
-                  card.classList.add("opacity-100", "translate-y-0");
-                }, index * 150);
-              }
-            });
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => {
-      if (sectionRef.current) observer.unobserve(sectionRef.current);
-    };
-  }, []);
-
-  return (
-    <section id="pricing" ref={sectionRef} className="bg-gray-900 py-20">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mx-auto mb-16 max-w-2xl text-center">
-          <h2 className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-            Simple, Transparent Pricing
-          </h2>
-          <p className="mt-4 text-lg text-gray-400">
-            Choose the plan that's right for your business. All plans include a 14-day free trial.
-          </p>
-        </div>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3">
-          {plans.map((plan, index) => (
-            <div
-              key={index}
-              ref={(el) => { cardsRef.current[index] = el; }}
-              className={`group relative rounded-lg border opacity-0 translate-y-8 transition-all duration-500 ease-out ${
-                plan.popular ? "border-blue-600 bg-gray-800" : "border-gray-800 bg-gray-800/50"
-              } p-6 shadow-lg hover:shadow-xl hover:shadow-blue-900/5 ${
-                plan.popular ? "hover:border-blue-500" : "hover:border-gray-700"
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-0 right-0 mx-auto w-fit rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white transition-all duration-300 group-hover:bg-blue-500">
-                  Most Popular
-                </div>
-              )}
-              <div className="mb-6">
-                <h3 className="text-xl font-bold text-white transition-colors duration-300 group-hover:text-blue-400">
-                  {plan.name}
-                </h3>
-                <div className="mt-2 flex items-baseline">
-                  <span className="text-4xl font-bold text-white">{plan.price}</span>
-                  {plan.price !== "Custom" && <span className="ml-1 text-gray-400">/month</span>}
-                </div>
-                <p className="mt-2 text-sm text-gray-400 transition-colors duration-300 group-hover:text-gray-300">
-                  {plan.description}
-                </p>
-              </div>
-              <ul className="mb-6 space-y-3">
-                {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-start group/item">
-                    <span className="mr-2 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-600/20 transition-all duration-300 group-hover/item:bg-blue-600/30">
-                      <Check className="h-3 w-3 text-blue-500 transition-colors duration-300 group-hover/item:text-blue-400" />
-                    </span>
-                    <span className="text-gray-300 transition-colors duration-300 group-hover/item:text-white">
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <Link href={plan.price === "Custom" ? "/contact" : "/signup"}>
-                <Button
-                  className={`group/btn relative w-full overflow-hidden ${
-                    plan.popular ? "bg-blue-600 text-white hover:bg-blue-600" : "bg-gray-700 text-white hover:bg-gray-700"
-                  }`}
-                >
-                  <span className="relative z-10 transition-transform duration-300 group-hover/btn:translate-x-1">
-                    {plan.cta}
-                  </span>
-                  <span
-                    className={`absolute inset-0 z-0 translate-y-[105%] transition-transform duration-300 group-hover/btn:translate-y-0 ${
-                      plan.popular ? "bg-blue-500" : "bg-gray-600"
-                    }`}
-                  ></span>
-                </Button>
-              </Link>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // Testimonials Section Component
 function TestimonialsSection() {
   const testimonials = [
@@ -762,12 +652,12 @@ function TestimonialsSection() {
               <blockquote className="mb-4 text-gray-300 transition-colors duration-300 group-hover:text-white">
                 "{testimonial.quote}"
               </blockquote>
-              <div className="mt-4">
+              {/* <div className="mt-4">
                 <p className="font-medium text-white">{testimonial.author}</p>
                 <p className="text-sm text-gray-400 transition-colors duration-300 group-hover:text-gray-300">
                   {testimonial.role}, {testimonial.company}
                 </p>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
@@ -974,7 +864,6 @@ export default function LandingPageClient({ authButtonSlot }: LandingPageClientP
         <FeaturesSection />
         <HowItWorksSection />
         <IntegrationsBar />
-        <PricingSection />
         <TestimonialsSection />
         <FaqSection />
         <CtaSection />
