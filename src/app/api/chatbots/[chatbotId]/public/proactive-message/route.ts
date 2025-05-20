@@ -16,28 +16,43 @@ if (!supabaseUrl || !supabaseAnonKey) {
 const supabase = supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 // Helper function to set CORS headers
-function getCorsHeaders() {
+function getCorsHeaders(requestingOrigin?: string | null) { // Accept requesting origin
   const headers: Record<string, string> = {
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin', // Important to tell caches that the response varies by Origin
   };
-  // Allow all origins in development, or be more specific for production
-  // For file:// origin, 'null' is sometimes needed, or '*' can be used less securely.
-  // In a real production scenario, you would list your allowed domains.
-  headers['Access-Control-Allow-Origin'] = process.env.NODE_ENV === 'development' ? '*' : 'YOUR_PRODUCTION_DOMAIN_HERE';
+
+  // Define your allowed origins.
+  // It's best to manage this list via environment variables in a real production app.
+  const allowedOrigins = [
+    'https://rembrereere.myshopify.com',
+    // Add other domains like 'https://your-primary-app-domain.com' if the widget is also used there
+  ];
+
+  if (process.env.NODE_ENV === 'development') {
+    headers['Access-Control-Allow-Origin'] = '*';
+  } else if (requestingOrigin && allowedOrigins.includes(requestingOrigin)) {
+    headers['Access-Control-Allow-Origin'] = requestingOrigin; // Allow specific origin
+  } else {
+    // If the origin is not in the allowed list for production, do not set the ACAH header.
+    // Browsers will block the request if the header is missing or doesn't match.
+  }
   return headers;
 }
 
 export async function OPTIONS(request: NextRequest) {
+  const requestingOrigin = request.headers.get('Origin');
   // Handle preflight requests for CORS
-  return NextResponse.json({}, { headers: getCorsHeaders() });
+  return NextResponse.json({}, { headers: getCorsHeaders(requestingOrigin) });
 }
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { chatbotId: string } }
 ) {
-  const responseHeaders = getCorsHeaders();
+  const requestingOrigin = request.headers.get('Origin');
+  const responseHeaders = getCorsHeaders(requestingOrigin);
 
   if (!supabase) {
     return NextResponse.json({ error: 'Supabase client not initialized. Check server logs.' }, { status: 500, headers: responseHeaders });

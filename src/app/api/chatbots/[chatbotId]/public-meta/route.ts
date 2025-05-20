@@ -1,25 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Helper function to set CORS headers (can be shared or defined locally)
-function getCorsHeaders() {
+function getCorsHeaders(requestingOrigin?: string | null) {
   const headers: Record<string, string> = {
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
   };
-  headers['Access-Control-Allow-Origin'] = process.env.NODE_ENV === 'development' ? '*' : 'YOUR_PRODUCTION_DOMAIN_HERE';
+
+  const allowedOrigins = [
+    'https://rembrereere.myshopify.com',
+  ];
+
+  if (process.env.NODE_ENV === 'development') {
+    headers['Access-Control-Allow-Origin'] = '*';
+  } else if (requestingOrigin && allowedOrigins.includes(requestingOrigin)) {
+    headers['Access-Control-Allow-Origin'] = requestingOrigin;
+  } else {
+    // If the origin is not in the allowed list for production,
+    // do not set the ACAH header, or set it to a default safe value if necessary.
+    // Browsers will block the request if the header is missing or doesn't match.
+    // For now, we simply don't add it if not allowed, leading to default browser denial.
+  }
   return headers;
 }
 
 export async function OPTIONS(request: NextRequest) {
+  const requestingOrigin = request.headers.get('Origin');
   // Handle preflight requests for CORS
-  return NextResponse.json({}, { headers: getCorsHeaders() });
+  return NextResponse.json({}, { headers: getCorsHeaders(requestingOrigin) });
 }
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { chatbotId: string } }
 ) {
-  const responseHeaders = getCorsHeaders();
+  const requestingOrigin = request.headers.get('Origin');
+  const responseHeaders = getCorsHeaders(requestingOrigin);
   const chatbotId = params.chatbotId;
 
   if (!chatbotId) {
