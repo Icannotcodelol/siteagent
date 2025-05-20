@@ -266,6 +266,23 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
             })()}
           </div>
         ))}
+        {/* Loading/Typing indicator */}
+        {isLoading && (
+          <div className="flex justify-start items-end space-x-2 py-2"> {/* Added py-2 for some vertical spacing like other messages */}
+            {botAvatarUrl && (
+              <img src={botAvatarUrl} alt="Bot typing" className="w-7 h-7 rounded-full" />
+            )}
+            <div
+              className={`px-4 py-2 animate-pulse ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'} max-w-xs`} // Reduced max-width as "..." is short
+              style={{
+                background: primaryColor || '#9333ea',
+                color: textColor || '#fff',
+              }}
+            >
+              ...
+            </div>
+          </div>
+        )}
       </div>
       {/* Input Area */}
       <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200" style={{ background: secondaryColor || '#f3f4f6' }}>
