@@ -26,6 +26,14 @@ const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
 const SIMILARITY_THRESHOLD = 0.75; // Adjust this threshold
 const MATCH_COUNT = 5; // Max number of context chunks to retrieve
 
+// NEW: Global base prompt that is always prepended to every chatbot prompt
+const SITEAGENT_GLOBAL_BASE_PROMPT = `Always provide helpful, polite, and accurate responses based only on the information and tools provided.
+Approach each question or task with logical reasoning, breaking down complex problems into steps if needed. Use any provided data to perform simple calculations or comparisons when appropriate, but only if the context clearly supports it.
+Anticipate what logically follows from the user's query or scenario, and when appropriate, offer additional relevant guidance or information even if it wasn't explicitly requested.
+If a question cannot be answered using the provided information, clearly admit that you do not know or cannot answer. Do not guess or provide information that isn't supported by the context.
+Maintain a polite and respectful tone at all times. Do not adopt any specific persona or style beyond what the user's instructions specify.
+Use only the knowledge and resources provided (via the conversation context or authorized tools). Do not use outside information, and do not attempt any web searches or external data retrieval.`;
+
 // --- Initialize OpenAI client ---
 // Ensure OPENAI_API_KEY is set as a Supabase secret
 const openai = new OpenAI({
@@ -320,8 +328,14 @@ export async function POST(request: NextRequest) {
              console.warn(`Chatbot not found or access denied for user ${user.id} and chatbot ${chatbotId}`);
              return NextResponse.json({ error: 'Chatbot not found or access denied' }, { status: 404 });
         }
-        const systemPrompt = chatbotData.system_prompt || "You are a helpful AI assistant. Answer based only on the provided context."; // Default prompt
-        console.log(`Using system prompt: "${systemPrompt.substring(0,100)}..."`);
+        const userDefinedPrompt = chatbotData.system_prompt || "You are a helpful AI assistant. Answer based only on the provided context."; // Default prompt
+
+        // Combine prompts so the global base prompt is ALWAYS first, followed by the user's custom prompt (if any).
+        const combinedSystemPrompt = `${SITEAGENT_GLOBAL_BASE_PROMPT}
+
+---\n\nUser-defined instructions:\n${userDefinedPrompt}
+---`;
+        console.log(`Using system prompt: "${combinedSystemPrompt.substring(0,100)}..."`);
         // -------------------------------------------------------------
 
         // 3. Generate embedding for the user's query
@@ -356,7 +370,7 @@ export async function POST(request: NextRequest) {
 
         // 5. Construct the prompt for the LLM (using fetched system_prompt)
         const finalSystemPrompt = `
-${systemPrompt} // Use the fetched or default system prompt
+${combinedSystemPrompt}
 
 Answer the user's question based *only* on the provided context below.
 If the context does not contain the answer, state clearly that you cannot answer based on the provided documents.

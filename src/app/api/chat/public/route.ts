@@ -35,6 +35,14 @@ const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
 const SIMILARITY_THRESHOLD = 0.75; // Adjust this threshold
 const MATCH_COUNT = 5; // Max number of context chunks to retrieve
 
+// NEW: Global base prompt that is always prepended to every chatbot prompt
+const SITEAGENT_GLOBAL_BASE_PROMPT = `Always provide helpful, polite, and accurate responses based only on the information and tools provided.
+Approach each question or task with logical reasoning, breaking down complex problems into steps if needed. Use any provided data to perform simple calculations or comparisons when appropriate, but only if the context clearly supports it.
+Anticipate what logically follows from the user's query or scenario, and when appropriate, offer additional relevant guidance or information even if it wasn't explicitly requested.
+If a question cannot be answered using the provided information, clearly admit that you do not know or cannot answer. Do not guess or provide information that isn't supported by the context.
+Maintain a polite and respectful tone at all times. Do not adopt any specific persona or style beyond what the user's instructions specify.
+Use only the knowledge and resources provided (via the conversation context or authorized tools). Do not use outside information, and do not attempt any web searches or external data retrieval.`;
+
 // Shopify API version constant
 const SHOPIFY_API_VERSION = '2024-04';
 
@@ -719,7 +727,14 @@ export async function POST(request: NextRequest) {
             integrationGuidelines += `\n\nCalendly usage guideline: you may call \"create_calendly_meeting_link\" when the user explicitly requests to book a meeting. The \"event_type_uri\" parameter is optional.`;
         }
 
-        const systemPrompt = (baseSystemPrompt || "You are a helpful AI assistant. Answer based only on the provided context.") + integrationNote + integrationGuidelines;
+        const userDefinedPrompt = baseSystemPrompt || "You are a helpful AI assistant. Answer based only on the provided context.";
+
+        // Combine prompts so the global base prompt is ALWAYS first, followed by the user's custom prompt (if any),
+        // and finally any integration notes/guidelines.
+        const systemPrompt = `${SITEAGENT_GLOBAL_BASE_PROMPT}
+
+---\n\nUser-defined instructions:\n${userDefinedPrompt}
+---` + integrationNote + integrationGuidelines;
 
         console.log(`Using system prompt (first 100 chars): \"${systemPrompt.substring(0,100)}...\"`);
         // -------------------------------------------------------------
