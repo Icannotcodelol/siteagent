@@ -250,7 +250,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
           body: JSON.stringify({
               query: userMessageText,
               chatbotId: chatbotId,
-              history: messages.slice(1),
+              history: messages,
               sessionId: sessionId,
           }),
       });
