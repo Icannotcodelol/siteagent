@@ -30,7 +30,7 @@ type Action = {
 
 // --- Constants ---
 // Should match the ones used in the authenticated chat route and embedding function
-const OPENAI_CHAT_MODEL = 'gpt-4.1-mini';
+const OPENAI_CHAT_MODEL = 'gpt-4o';
 const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
 const SIMILARITY_THRESHOLD = 0.75; // Adjust this threshold
 const MATCH_COUNT = 5; // Max number of context chunks to retrieve
@@ -480,7 +480,7 @@ export async function POST(request: NextRequest) {
 
     const sessionId = sessionIdFromRequest || uuidv4(); // Use provided or generate new
 
-    console.log(`Received PUBLIC chat request for chatbot ${chatbotId}, session ${sessionId}: "${query}"`);
+    console.log(`Received PUBLIC chat request for chatbot ${chatbotId}, session ${sessionId}: \"${query}\"`);
 
     // --- Store User's Message FIRST ---
     // It's good practice to log the user's message before any processing that might fail
@@ -820,15 +820,44 @@ ${contextText}
 Conversation History is provided in the subsequent messages.`
         });
 
-        // Add Conversation History (if any, and if valid)
-        if (history && history.length > 0) {
-            messagesForOpenAI.push(...history.map(msg => ({ role: msg.role, content: msg.content })));
+        // --- SERVER-SIDE HISTORY FETCH ---
+        let historyFromDB: ChatMessage[] = [];
+        if (sessionId) { // Only fetch if sessionId is available
+            console.log(`Fetching history from DB for session: ${sessionId}, chatbot: ${chatbotId}`);
+            const { data: dbMessages, error: dbHistoryError } = await supabaseAdmin
+                .from('chat_messages')
+                .select('is_user_message, content')
+                .eq('chatbot_id', chatbotId)
+                .eq('session_id', sessionId)
+                .order('created_at', { ascending: true })
+                .limit(30); // Fetch last 30 messages
+
+            if (dbHistoryError) {
+                console.error("Error fetching chat history from DB:", dbHistoryError);
+                // Proceed without DB history if an error occurs
+            } else if (dbMessages) {
+                historyFromDB = dbMessages.map(r => ({
+                    role: r.is_user_message ? 'user' : 'assistant',
+                    content: r.content as string, // Ensure content is string
+                }));
+                console.log(`Fetched ${historyFromDB.length} messages from DB.`);
+            }
         }
+
+        // Add Conversation History (from DB, taking the last 15)
+        // This replaces the previous logic that used client-sent `history`
+        if (historyFromDB.length > 0) {
+            messagesForOpenAI.push(...historyFromDB.slice(-15).map(msg => ({ role: msg.role, content: msg.content })));
+        }
+        // --- END SERVER-SIDE HISTORY FETCH ---
 
         // Add current user query as the latest message
         messagesForOpenAI.push({ role: 'user', content: query });
 
-        console.log("[DEBUG] Messages being sent to OpenAI:", JSON.stringify(messagesForOpenAI, null, 2));
+        console.log("[DEBUG] Messages being sent to OpenAI (first 2 elements):", JSON.stringify(messagesForOpenAI.slice(0,2), null, 2));
+        if (messagesForOpenAI.length > 2) {
+            console.log(`[DEBUG] ... and ${messagesForOpenAI.length - 2} more history/user messages.`);
+        }
 
         // 5. Call OpenAI Chat Completions API *with* tool definitions so the model can decide to call Shopify helper
         const toolsToPass = openAiTools.filter((tool) => {

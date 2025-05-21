@@ -28,7 +28,7 @@ interface ChatMessage {
 }
 
 // --- Constants ---
-const OPENAI_CHAT_MODEL = 'gpt-4.1-mini'; // Or 'gpt-4' if preferred
+const OPENAI_CHAT_MODEL = 'gpt-4o'; // Changed from gpt-4.1-mini
 const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
 const SIMILARITY_THRESHOLD = 0.75; // Adjust this threshold
 const MATCH_COUNT = 5; // Max number of context chunks to retrieve
@@ -138,19 +138,21 @@ export async function POST(request: NextRequest) {
     // 1. Extract query and chatbotId from request body
     let query: string;
     let chatbotId: string;
-    let history: ChatMessage[] | undefined = undefined;
+    let history: ChatMessage[] | undefined = undefined; // Client-sent history, will be replaced by DB history
+    let sessionIdFromRequest: string | undefined;
+
     try {
         const body = await request.json();
         query = body.query;
         chatbotId = body.chatbotId;
-        // Extract optional history array (messages sent from client)
+        sessionIdFromRequest = body.sessionId; // Expect sessionId from client
+
+        // Client-sent history is no longer directly used for LLM context
+        // but can be logged or used for other purposes if needed.
         if (body.history && Array.isArray(body.history)) {
-            history = body.history.filter(
-                (msg: any) =>
-                    msg && typeof msg.role === 'string' && typeof msg.content === 'string' &&
-                    (msg.role === 'user' || msg.role === 'assistant')
-            );
+            // console.log("Client-sent history received, but will be overridden by server-fetched history.");
         }
+
         if (!query || typeof query !== 'string' || !chatbotId || typeof chatbotId !== 'string') {
             throw new Error('Missing or invalid "query" or "chatbotId" in request body.');
         }
@@ -158,7 +160,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `Invalid request body: ${e.message}` }, { status: 400 });
     }
 
-    console.log(`Received AUTH chat request for chatbot ${chatbotId}: "${query}"`);
+    const sessionId = sessionIdFromRequest || globalThis.crypto?.randomUUID?.() || (Date.now().toString() + Math.random().toString(16).slice(2));
+    console.log(`Received AUTH chat request for chatbot ${chatbotId}, session ${sessionId}: "${query}"`);
 
     // 2. Check user authentication (optional but recommended for authorization)
      const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -326,7 +329,7 @@ export async function POST(request: NextRequest) {
         // --- End Action Check ---
 
         // --- If no action triggered, proceed with RAG ---
-        console.log("No action triggered (auth), proceeding with RAG...");
+        console.log(`No action triggered (auth), proceeding with RAG for session: ${sessionId}`);
         
         // --- NEW: Fetch Chatbot details including system_prompt --- (RLS implicitly applied by client)
         console.log("Fetching chatbot details...");
@@ -403,11 +406,41 @@ ${contextText}
         console.log("Generating final answer with OpenAI (auth, with history)...");
         const messagesForOpenAI: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
         messagesForOpenAI.push({ role: 'system', content: finalSystemPrompt });
-        // Append the most recent 15 messages from history (if any) to stay within token limits
-        if (history && history.length > 0) {
-            const trimmedHistory = history.slice(-15);
-            messagesForOpenAI.push(...trimmedHistory.map(h => ({ role: h.role, content: h.content })));
+
+        // --- SERVER-SIDE HISTORY FETCH for authenticated route ---
+        let historyFromDB: ChatMessage[] = [];
+        if (sessionId) { // Only fetch if sessionId is available
+            console.log(`Fetching history from DB for session (auth): ${sessionId}, chatbot: ${chatbotId}`);
+            // Use supabaseAdmin for direct DB access to chat_messages if RLS prevents user client
+            const supabaseAdminForHistory = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+                process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+            );
+            const { data: dbMessages, error: dbHistoryError } = await supabaseAdminForHistory
+                .from('chat_messages')
+                .select('is_user_message, content')
+                .eq('chatbot_id', chatbotId)
+                .eq('session_id', sessionId)
+                .order('created_at', { ascending: true })
+                .limit(30); // Fetch last 30 messages
+
+            if (dbHistoryError) {
+                console.error("Error fetching chat history from DB (auth):", dbHistoryError);
+            } else if (dbMessages) {
+                historyFromDB = dbMessages.map(r => ({
+                    role: r.is_user_message ? 'user' : 'assistant',
+                    content: r.content as string,
+                }));
+                console.log(`Fetched ${historyFromDB.length} messages from DB (auth).`);
+            }
         }
+
+        // Append the most recent 15 messages from DB history
+        if (historyFromDB.length > 0) {
+            messagesForOpenAI.push(...historyFromDB.slice(-15).map(h => ({ role: h.role, content: h.content })));
+        }
+        // --- END SERVER-SIDE HISTORY FETCH ---
+
         // Finally, add the current user query as the latest message
         messagesForOpenAI.push({ role: 'user', content: query });
 
@@ -432,7 +465,7 @@ ${contextText}
 
           await supabaseAdminLog.from('chat_messages').insert({
             chatbot_id: chatbotId,
-            session_id: (globalThis.crypto?.randomUUID?.() ?? (Date.now().toString() + Math.random().toString(16).slice(2))),
+            session_id: sessionId, // <-- USE THE CONSISTENT SESSION ID HERE
             is_user_message: false,
             content: answer,
           });
