@@ -30,9 +30,9 @@ interface ChatInterfaceProps {
 
 // Utility to convert URLs in plain text AND Markdown links to clickable <a> links
 function renderTextWithLinks(text: string) {
-  // Regex to find Markdown links like [text](url) OR plain URLs
+  // Regex to find Markdown links like [text](url) OR plain URLs (http, https, mailto)
   // It captures: 1: preceding text, 2: link text (for MD), 3: URL (for MD or plain)
-  const combinedRegex = /([^]*?)(\[([^\]]+)\]\((https?:\/\/[^\)]+)\)|(https?:\/\/[^\s]+))/g;
+  const combinedRegex = /([^]*?)(\[([^\]]+)\]\(((?:https?|mailto):[^\)]+)\)|((?:https?|mailto):[^\s]+))/g;
 
   const elements: JSX.Element[] = [];
   let lastIndex = 0;
@@ -48,11 +48,19 @@ function renderTextWithLinks(text: string) {
     const url = match[4] || match[5]; // URL from (...URL...) or plain URL
 
     if (url) {
-      elements.push(
-        <a key={`link-${lastIndex}`} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
-          {linkText || url} 
-        </a>
-      );
+      if (url.startsWith('mailto:')) {
+        elements.push(
+          <a key={`link-${lastIndex}`} href={url} className="text-blue-600 underline break-all">
+            {linkText || url.substring(7)} {/* Show email address without mailto: prefix if no explicit text */}
+          </a>
+        );
+      } else {
+        elements.push(
+          <a key={`link-${lastIndex}`} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
+            {linkText || url}
+          </a>
+        );
+      }
     }
     lastIndex = combinedRegex.lastIndex;
   }

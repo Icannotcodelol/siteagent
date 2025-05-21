@@ -218,7 +218,12 @@ export default function ChatPreview(props: ChatPreviewProps) {
                 <div className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'}`} style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}>
                   <ReactMarkdown
                     components={{
-                      a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline" />
+                      a: ({node, href, ...props}) => {
+                        if (href && href.startsWith('mailto:')) {
+                          return <a {...props} href={href} className="text-blue-400 hover:underline" />
+                        }
+                        return <a {...props} href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline" />
+                      }
                     }}
                   >
                     {msg.text}
