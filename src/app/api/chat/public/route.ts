@@ -30,7 +30,7 @@ type Action = {
 
 // --- Constants ---
 // Should match the ones used in the authenticated chat route and embedding function
-const OPENAI_CHAT_MODEL = 'gpt-3.5-turbo-1106';
+const OPENAI_CHAT_MODEL = 'gpt-4.1-mini';
 const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
 const SIMILARITY_THRESHOLD = 0.75; // Adjust this threshold
 const MATCH_COUNT = 5; // Max number of context chunks to retrieve
@@ -813,7 +813,7 @@ export async function POST(request: NextRequest) {
         // System Prompt: Instructs on using history and provided context
         messagesForOpenAI.push({
             role: 'system',
-            content: `${systemPrompt}\n\nYou are answering the LATEST user question. Use the "Context from documents" below to answer it. Also, consider the "Conversation History" if provided, to understand the full dialogue. If the "Context from documents" does not contain the answer to the LATEST user question, state clearly that you cannot answer based on the provided documents. Do not make up information or answer based on prior knowledge outside the provided context.\n\nContext from documents (for the LATEST user question):
+            content: `${systemPrompt}\n\nYou are an AI assistant answering the LATEST user question. Your primary goal is to answer based on the "User-defined instructions", "integration notes", and "integration guidelines" that were provided earlier in this system prompt. These sections contain specific data, rules, tool usage guidelines, and examples for this particular chatbot. If the answer to the user\'s LATEST question is found within these primary instructions, provide it directly and prioritize it. This includes deciding if a tool/integration should be used based on its guidelines.\n\nIf, and only if, these primary instructions do not contain a direct answer or clear guidance for the user\'s LATEST question, then you may use the "Context from documents" below for supplementary information. Consider the "Conversation History" (if provided below) to understand the full dialogue. If no source (primary instructions, documents, or history) provides the answer, state clearly that you cannot answer based on the provided information. Do not make up information or answer based on prior knowledge outside of these provided sources.\n\nContext from documents (secondary source, for the LATEST user question):
 ---
 ${contextText}
 ---`

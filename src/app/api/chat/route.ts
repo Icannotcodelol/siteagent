@@ -21,7 +21,7 @@ type Action = {
 };
 
 // --- Constants ---
-const OPENAI_CHAT_MODEL = 'gpt-3.5-turbo'; // Or 'gpt-4' if preferred
+const OPENAI_CHAT_MODEL = 'gpt-4.1-mini'; // Or 'gpt-4' if preferred
 const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
 const SIMILARITY_THRESHOLD = 0.75; // Adjust this threshold
 const MATCH_COUNT = 5; // Max number of context chunks to retrieve
@@ -331,10 +331,7 @@ export async function POST(request: NextRequest) {
         const userDefinedPrompt = chatbotData.system_prompt || "You are a helpful AI assistant. Answer based only on the provided context."; // Default prompt
 
         // Combine prompts so the global base prompt is ALWAYS first, followed by the user's custom prompt (if any).
-        const combinedSystemPrompt = `${SITEAGENT_GLOBAL_BASE_PROMPT}
-
----\n\nUser-defined instructions:\n${userDefinedPrompt}
----`;
+        const combinedSystemPrompt = `${SITEAGENT_GLOBAL_BASE_PROMPT}\n\n---\n\nUser-defined instructions:\n${userDefinedPrompt}\n---`;
         console.log(`Using system prompt: "${combinedSystemPrompt.substring(0,100)}..."`);
         // -------------------------------------------------------------
 
@@ -372,11 +369,15 @@ export async function POST(request: NextRequest) {
         const finalSystemPrompt = `
 ${combinedSystemPrompt}
 
-Answer the user's question based *only* on the provided context below.
-If the context does not contain the answer, state clearly that you cannot answer based on the provided documents.
-Do not make up information or answer based on prior knowledge outside the context.
+You are an AI assistant. Your primary goal is to answer the user's query based on the "User-defined instructions" section provided above in this prompt.
+These "User-defined instructions" contain specific data, rules, and examples for this particular chatbot.
+If the answer to the user's LATEST question is found within these "User-defined instructions", provide it directly and prioritize it.
 
-Context from documents:
+If, and only if, the "User-defined instructions" do not contain a direct answer to the user's LATEST question, then you may use the "Context from documents" below for supplementary information.
+If neither the "User-defined instructions" nor the "Context from documents" provide the answer, state clearly that you cannot answer based on the provided information.
+Do not make up information or answer based on prior knowledge outside of these two provided sources.
+
+Context from documents (secondary source, for the LATEST user question):
 ---
 ${contextText}
 ---
