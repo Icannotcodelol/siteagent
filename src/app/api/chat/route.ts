@@ -20,6 +20,13 @@ type Action = {
   created_at: string;
 };
 
+// After the constant declarations and before initializeSupabaseClient (around other type declarations)
+// Add ChatMessage interface so we can type the history
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 // --- Constants ---
 const OPENAI_CHAT_MODEL = 'gpt-4.1-mini'; // Or 'gpt-4' if preferred
 const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
@@ -131,10 +138,19 @@ export async function POST(request: NextRequest) {
     // 1. Extract query and chatbotId from request body
     let query: string;
     let chatbotId: string;
+    let history: ChatMessage[] | undefined = undefined;
     try {
         const body = await request.json();
         query = body.query;
         chatbotId = body.chatbotId;
+        // Extract optional history array (messages sent from client)
+        if (body.history && Array.isArray(body.history)) {
+            history = body.history.filter(
+                (msg: any) =>
+                    msg && typeof msg.role === 'string' && typeof msg.content === 'string' &&
+                    (msg.role === 'user' || msg.role === 'assistant')
+            );
+        }
         if (!query || typeof query !== 'string' || !chatbotId || typeof chatbotId !== 'string') {
             throw new Error('Missing or invalid "query" or "chatbotId" in request body.');
         }
@@ -383,17 +399,21 @@ ${contextText}
 ---
 `;
 
-        // 6. Call OpenAI Chat Completions API
-        console.log("Generating final answer with OpenAI...");
+        // 6. Call OpenAI Chat Completions API (include conversation history for better memory)
+        console.log("Generating final answer with OpenAI (auth, with history)...");
+        const messagesForOpenAI: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
+        messagesForOpenAI.push({ role: 'system', content: finalSystemPrompt });
+        // Append the most recent 15 messages from history (if any) to stay within token limits
+        if (history && history.length > 0) {
+            const trimmedHistory = history.slice(-15);
+            messagesForOpenAI.push(...trimmedHistory.map(h => ({ role: h.role, content: h.content })));
+        }
+        // Finally, add the current user query as the latest message
+        messagesForOpenAI.push({ role: 'user', content: query });
+
         const chatCompletion = await openai.chat.completions.create({
             model: OPENAI_CHAT_MODEL,
-            messages: [
-                // Use the constructed prompt combining system instructions and context
-                { role: 'system', content: finalSystemPrompt },
-                // The user query is effectively included in the system prompt now
-                // but you could also add it explicitly if preferred:
-                { role: 'user', content: query }
-            ],
+            messages: messagesForOpenAI,
             temperature: 0.3,
             max_tokens: 500,
         });
