@@ -7,8 +7,50 @@ import "./globals.css";
 import { PostHogProvider } from './providers'
 
 export const metadata: Metadata = {
-  title: "SiteAgent",
-  description: "Create and manage your custom AI chatbots",
+  title: {
+    default: "Add AI Chatbot to Your Website Easily | SiteAgent",
+    template: "%s | SiteAgent",
+  },
+  description: "Easily add a custom AI chatbot to your website with SiteAgent. Boost engagement, automate support, and integrate with your data. No coding required to start.",
+  openGraph: {
+    title: "Add an AI Chatbot to Your Website | SiteAgent",
+    description: "Discover how to quickly add an intelligent AI chatbot to your website using SiteAgent. Enhance user experience and automate tasks.",
+    url: "https://siteagent.eu",
+    siteName: "SiteAgent",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "SiteAgent - Add AI Chatbot to Website",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Add AI Chatbot to Website | SiteAgent",
+    description: "Learn how to add a powerful AI chatbot to your website in minutes with SiteAgent. Improve customer interaction and support.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  // icons: { // Optional: Add favicons
+  //   icon: "/favicon.ico",
+  //   shortcut: "/favicon-16x16.png",
+  //   apple: "/apple-touch-icon.png",
+  // },
+  // manifest: "/site.webmanifest", // Optional: Path to your web app manifest
 };
 
 export default function RootLayout({

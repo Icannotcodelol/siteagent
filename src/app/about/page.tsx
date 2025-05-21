@@ -2,6 +2,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AuthButton } from '@/app/_components/auth-button';
 import { Facebook, Twitter, Linkedin, Github, ArrowRight, Check } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "About SiteAgent",
+  description: "Learn more about SiteAgent, our mission, and the team building the future of AI chatbots.",
+  openGraph: {
+    title: "About SiteAgent",
+    description: "Learn more about SiteAgent, our mission, and the team building the future of AI chatbots.",
+    // You can optionally override the site-wide OG image here if you have a specific one for this page
+  },
+  // You can also add page-specific twitter card info or other metadata here
+};
 
 // Consistent Navbar
 function PageNavbar() {
