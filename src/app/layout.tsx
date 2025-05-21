@@ -36,6 +36,14 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* DataFast Analytics Script */}
+        <Script
+          defer
+          data-website-id="682e196bcf3d65067036c6f7"
+          data-domain="siteagent.eu"
+          src="/js/script.js" // Proxied source
+          strategy="afterInteractive"
+        />
       </head>
       <body
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-gray-950`}

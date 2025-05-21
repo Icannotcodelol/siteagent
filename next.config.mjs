@@ -4,6 +4,18 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/js/script.js',
+        destination: 'https://datafa.st/js/script.js',
+      },
+      {
+        source: '/api/events',
+        destination: 'https://datafa.st/api/events',
+      },
+    ];
+  },
   // You can add other Next.js configuration options below as needed
 };
 
