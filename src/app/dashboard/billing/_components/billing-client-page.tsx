@@ -32,9 +32,9 @@ interface CardProps {
 }
 const Card = ({ children, className }: CardProps) => <div className={`bg-white shadow-md rounded-lg p-6 ${className || ''}`}>{children}</div>;
 const CardHeader = ({ children, className }: CardProps) => <div className={`mb-4 ${className || ''}`}>{children}</div>;
-const CardTitle = ({ children, className }: CardProps) => <h2 className={`text-xl font-semibold ${className || ''}`}>{children}</h2>;
-const CardDescription = ({ children, className }: CardProps) => <p className={`text-sm text-gray-600 ${className || ''}`}>{children}</p>;
-const CardContent = ({ children, className }: CardProps) => <div className={className || ''}>{children}</div>;
+const CardTitle = ({ children, className }: CardProps) => <h2 className={`text-xl font-semibold text-gray-900 ${className || ''}`}>{children}</h2>;
+const CardDescription = ({ children, className }: CardProps) => <p className={`text-sm text-gray-700 ${className || ''}`}>{children}</p>;
+const CardContent = ({ children, className }: CardProps) => <div className={`text-gray-800 ${className || ''}`}>{children}</div>;
 const CardFooter = ({ children, className }: CardProps) => <div className={`mt-6 pt-4 border-t border-gray-200 ${className || ''}`}>{children}</div>;
 // --- End UI Component Placeholders ---
 
@@ -213,7 +213,7 @@ export default function BillingClientPage({
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Subscription Management</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-900">Subscription Management</h1>
 
       {message && (
         <div className={`p-4 mb-6 rounded-md ${message.includes('Error') || message.includes('failed') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
@@ -229,19 +229,19 @@ export default function BillingClientPage({
         <CardContent>
           {initialSubscription && initialSubscription.plans ? (
             <div>
-              <p className="text-lg font-semibold">{initialSubscription.plans.name}</p>
-              <p>Status: <span className="font-medium capitalize">{initialSubscription.stripe_subscription_status || 'N/A'}</span></p>
+              <p className="text-lg font-semibold text-gray-900">{initialSubscription.plans.name}</p>
+              <p className="text-gray-700">Status: <span className="font-medium capitalize text-gray-800">{initialSubscription.stripe_subscription_status || 'N/A'}</span></p>
               {initialSubscription.stripe_subscription_status === 'active' && initialSubscription.current_period_end && (
-                <p>Renews on: {formatDate(initialSubscription.current_period_end)}</p>
+                <p className="text-gray-700">Renews on: {formatDate(initialSubscription.current_period_end)}</p>
               )}
               {initialSubscription.cancel_at_period_end && initialSubscription.current_period_end && (
                  <p className="text-orange-600">Set to cancel on: {formatDate(initialSubscription.current_period_end)}</p>
               )}
-               <p>Messages used this cycle: {initialSubscription.current_messages_used_in_cycle} / {initialSubscription.plans.max_messages_per_month + initialSubscription.plans.message_overage_allowance}</p>
+               <p className="text-gray-700">Messages used this cycle: {initialSubscription.current_messages_used_in_cycle} / {initialSubscription.plans.max_messages_per_month + initialSubscription.plans.message_overage_allowance}</p>
               {/* Add more details like chatbot count, data usage when that logic is available */}
             </div>
           ) : (
-            <p>You are currently on the Free plan or have no active subscription.</p>
+            <p className="text-gray-700">You are currently on the Free plan or have no active subscription.</p>
           )}
         </CardContent>
         <CardFooter>
@@ -256,7 +256,7 @@ export default function BillingClientPage({
       </Card>
 
       {/* Available Plans Section */} 
-      <h2 className="text-2xl font-semibold mb-6">Choose a Plan</h2>
+      <h2 className="text-2xl font-semibold mb-6 text-gray-900">Choose a Plan</h2>
       {errorFetchingPlans && <p className="text-red-500 mb-4">Error loading plans: {errorFetchingPlans}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {plans.map((plan) => {
