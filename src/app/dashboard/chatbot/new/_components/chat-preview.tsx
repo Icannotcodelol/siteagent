@@ -66,7 +66,19 @@ export default function ChatPreview(props: ChatPreviewProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [typingIndicatorDots, setTypingIndicatorDots] = useState('.');
-  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // Generate a sessionId once on mount if none exists
+  useEffect(() => {
+    if (!sessionId) {
+      try {
+        setSessionId(crypto.randomUUID());
+      } catch {
+        // Fallback for environments that might not support crypto.randomUUID
+        setSessionId(Math.random().toString(36).substring(2) + Date.now().toString(36));
+      }
+    }
+  }, [sessionId]);
 
   // Scroll to bottom when messages change without affecting parent page
   useEffect(() => {
@@ -113,8 +125,13 @@ export default function ChatPreview(props: ChatPreviewProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-            query: userMessage, 
-            chatbotId: chatbotId 
+            query: userMessage,
+            chatbotId: chatbotId,
+            sessionId: sessionId,
+            history: messages.map(m => ({
+              role: m.sender === 'user' ? 'user' : 'assistant',
+              content: m.text,
+            })),
         }),
       });
 
@@ -124,6 +141,11 @@ export default function ChatPreview(props: ChatPreviewProps) {
       }
 
       const result = await response.json();
+
+      // Capture sessionId returned from server (public route returns it)
+      if (result.sessionId && !sessionId) {
+          setSessionId(result.sessionId);
+      }
 
       // Add bot response to chat
       if (result.answer) {
@@ -148,6 +170,8 @@ export default function ChatPreview(props: ChatPreviewProps) {
           handleSendMessage();
       }
   };
+
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <div
