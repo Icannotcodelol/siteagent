@@ -463,7 +463,11 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
       </form>
       {/* Branding */}
       {showBranding !== false && (
-        <div className="text-xs text-gray-400 text-center py-2">Powered by SiteAgent</div>
+        <div className="text-xs text-gray-400 text-center py-2">
+          <a href="https://SiteAgent.eu" target="_blank" rel="noopener noreferrer" className="hover:underline">
+            Powered by SiteAgent
+          </a>
+        </div>
       )}
 
       {/* Proactive Message Bubble (only for full-page dashboard preview, not for embedded iframe) */}
