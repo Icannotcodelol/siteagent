@@ -171,6 +171,28 @@ export async function POST(request: NextRequest) {
      }
     // TODO: Optionally verify if this user actually owns/has access to this chatbotId
 
+    // -----------------------------------------------------------------
+    // NEW: Persist the user's message so that follow-up requests include
+    // the full conversation history (user + assistant messages).
+    // This mirrors the behaviour of the public chat endpoint.
+    // -----------------------------------------------------------------
+    try {
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+            process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+        );
+
+        await supabaseAdmin.from('chat_messages').insert({
+            chatbot_id: chatbotId,
+            session_id: sessionId,
+            is_user_message: true,
+            content: query,
+        });
+    } catch (persistErr) {
+        console.error('Failed to save user message (auth route):', persistErr);
+        // Non-fatal – continue processing so the user still gets a response
+    }
+
     try {
         // --- NEW: Check for and Execute Actions FIRST ---
         console.log("Checking for triggered actions (authenticated)...");
@@ -474,7 +496,7 @@ ${contextText}
         }
 
         // 7. Return the answer
-        return NextResponse.json({ answer: answer });
+        return NextResponse.json({ answer: answer, sessionId });
 
     } catch (error: any) {
         console.error('Authenticated chat processing error:', error);
