@@ -238,6 +238,23 @@ export async function ensureStripeCustomer(
   return customer.id;
 }
 
+// Utility to get the appropriate Stripe client (test vs live) depending on event.livemode
+const stripeLiveKey = process.env.STRIPE_SECRET_KEY_LIVE;
+const stripeTestKey = process.env.STRIPE_SECRET_KEY_TEST || process.env.STRIPE_SECRET_KEY;
+
+function getStripeClient(liveMode: boolean): Stripe {
+  if (liveMode) {
+    if (!stripeLiveKey) {
+      // Fallback to default stripe instance (may still be test)
+      console.warn('⚠️ STRIPE_SECRET_KEY_LIVE not set; using default Stripe key for live webhook event');
+      return stripe;
+    }
+    return new Stripe(stripeLiveKey, { apiVersion: '2024-04-10', typescript: true });
+  }
+  // test mode – reuse singleton to avoid creating many instances
+  return stripe;
+}
+
 /**
  * Processes Stripe webhook events and updates user subscription data in Supabase.
  *
@@ -249,6 +266,9 @@ export async function updateUserSubscriptionOnWebhookEvent(
   supabase: SupabaseClient
 ): Promise<void> {
   const eventType = event.type;
+  const liveMode = !!(event as any).livemode; // Stripe sets livemode boolean on event root
+  // Dynamically pick the correct Stripe key
+  const stripeClient = getStripeClient(liveMode);
   const dataObject = event.data.object as any; // Cast to any to access properties dynamically, or use type guards
 
   let userId: string | null = null;
@@ -271,7 +291,7 @@ export async function updateUserSubscriptionOnWebhookEvent(
     stripeCustomerId = typeof invoice.customer === 'string' ? invoice.customer : invoice.customer?.id || null;
     stripeSubscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id || null;
     if (!userId && stripeSubscriptionId) { // Try to get userId from subscription metadata if invoice doesn't have it directly
-        const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+        const sub = await stripeClient.subscriptions.retrieve(stripeSubscriptionId);
         userId = sub.metadata?.supabase_user_id || null;
     }
   }
@@ -289,7 +309,7 @@ export async function updateUserSubscriptionOnWebhookEvent(
   
   if (!userId && stripeSubscriptionId) { // Last resort for subscription events if metadata was missing
       try {
-        const sub = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+        const sub = await stripeClient.subscriptions.retrieve(stripeSubscriptionId);
         userId = sub.metadata?.supabase_user_id || null;
         if (!userId && typeof sub.customer === 'string') {
             stripeCustomerId = sub.customer;
@@ -318,11 +338,18 @@ export async function updateUserSubscriptionOnWebhookEvent(
         console.error('Missing critical IDs in checkout.session.completed');
         return;
       }
-      const priceId = session.line_items?.data[0]?.price?.id;
+      // Fetch the subscription first so we can reliably get the price used
+      const stripeSub = await stripeClient.subscriptions.retrieve(stripeSubscriptionId, {
+        expand: ['items.data.price'],
+      });
+      
+      const priceId = stripeSub.items.data[0]?.price.id;
       if (!priceId) {
-        console.error('Could not find priceId in checkout.session.completed');
+        console.error('Could not determine priceId from subscription in checkout.session.completed');
         return;
       }
+
+      // Look up our internal plan that matches this Stripe price
       const { data: plan, error: planError } = await supabase
         .from('plans')
         .select('id')
@@ -334,19 +361,19 @@ export async function updateUserSubscriptionOnWebhookEvent(
         return;
       }
       
-      const stripeSub = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+      const stripeSubForInsert = await stripeClient.subscriptions.retrieve(stripeSubscriptionId);
 
       const userSubDataForInsert: Partial<UserSubscription> = {
         user_id: userId!,
         plan_id: plan.id,
         stripe_customer_id: stripeCustomerId!,
         stripe_subscription_id: stripeSubscriptionId!,
-        stripe_subscription_status: stripeSub.status,
-        current_period_start: new Date(stripeSub.current_period_start * 1000).toISOString(),
-        current_period_end: new Date(stripeSub.current_period_end * 1000).toISOString(),
-        cancel_at_period_end: stripeSub.cancel_at_period_end,
-        trial_start_at: stripeSub.trial_start ? new Date(stripeSub.trial_start * 1000).toISOString() : null,
-        trial_end_at: stripeSub.trial_end ? new Date(stripeSub.trial_end * 1000).toISOString() : null,
+        stripe_subscription_status: stripeSubForInsert.status,
+        current_period_start: new Date(stripeSubForInsert.current_period_start * 1000).toISOString(),
+        current_period_end: new Date(stripeSubForInsert.current_period_end * 1000).toISOString(),
+        cancel_at_period_end: stripeSubForInsert.cancel_at_period_end,
+        trial_start_at: stripeSubForInsert.trial_start ? new Date(stripeSubForInsert.trial_start * 1000).toISOString() : null,
+        trial_end_at: stripeSubForInsert.trial_end ? new Date(stripeSubForInsert.trial_end * 1000).toISOString() : null,
         current_messages_used_in_cycle: 0, // Reset on new subscription
       };
 
@@ -369,7 +396,7 @@ export async function updateUserSubscriptionOnWebhookEvent(
          return;
       }
       // Update subscription period and reset usage count
-      const stripeSubscriptionForInvoice = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+      const stripeSubscriptionForInvoice = await stripeClient.subscriptions.retrieve(stripeSubscriptionId);
       const updateDataForInvoicePaid: Partial<UserSubscription> = {
         stripe_subscription_status: stripeSubscriptionForInvoice.status,
         current_period_start: new Date(stripeSubscriptionForInvoice.current_period_start * 1000).toISOString(),
@@ -396,7 +423,7 @@ export async function updateUserSubscriptionOnWebhookEvent(
          console.warn('Skipping invoice.payment_failed: missing userId or stripeSubscriptionId.');
          return;
       }
-      const stripeSubForPaymentFailure = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+      const stripeSubForPaymentFailure = await stripeClient.subscriptions.retrieve(stripeSubscriptionId);
       const updateDataForPaymentFailure: Partial<UserSubscription> = {
         stripe_subscription_status: stripeSubForPaymentFailure.status, // e.g., 'past_due' or 'unpaid'
       };
