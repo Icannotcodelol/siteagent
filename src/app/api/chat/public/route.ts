@@ -6,6 +6,7 @@ import { Pinecone } from '@pinecone-database/pinecone'; // Changed to standard N
 import { decrypt } from '@/lib/encryption';
 import { getValidCalendlyAccessToken } from '@/lib/calendly';
 import { v4 as uuidv4 } from 'uuid'; // Import uuid
+import { canSendMessage, incrementMessageCount } from '@/lib/services/subscriptionService';
 
 // Define ChatMessage type for conversation history
 interface ChatMessage {
@@ -443,7 +444,6 @@ const openAiTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
 
 // --- Main POST Handler ---
 export async function POST(request: NextRequest) {
-
     // Re-check environment variables per request in case they failed init
     if (!openaiApiKey) {
         return NextResponse.json({ error: "Server configuration error: OpenAI key missing." }, { status: 500 });
@@ -482,31 +482,49 @@ export async function POST(request: NextRequest) {
 
     console.log(`Received PUBLIC chat request for chatbot ${chatbotId}, session ${sessionId}: \"${query}\"`);
 
-    // --- Store User's Message FIRST ---
-    // It's good practice to log the user's message before any processing that might fail
+    // --- Step 1: Fetch Chatbot Owner ID ---
+    let ownerId: string;
+    try {
+        const { data: chatbotOwnerData, error: ownerError } = await supabaseAdmin
+            .from('chatbots')
+            .select('user_id')
+            .eq('id', chatbotId)
+            .single();
+        if (ownerError || !chatbotOwnerData?.user_id) {
+            console.error(`Error fetching owner for chatbot ${chatbotId}:`, ownerError?.message);
+            return NextResponse.json({ error: 'Chatbot not found or configuration error.' }, { status: 404 });
+        }
+        ownerId = chatbotOwnerData.user_id;
+    } catch (e: any) {
+        console.error(`Unexpected error fetching chatbot owner for ${chatbotId}:`, e.message);
+        return NextResponse.json({ error: 'Server error fetching chatbot details.' }, { status: 500 });
+    }
+
+    // --- Step 2: PERMISSION CHECK: canSendMessage --- 
+    const userCanSend = await canSendMessage(ownerId, supabaseAdmin);
+    if (!userCanSend) {
+        console.warn(`User ${ownerId} (creator of chatbot ${chatbotId}) has reached their message limit.`);
+        return NextResponse.json({ error: 'This chatbot is temporarily unavailable due to high message volume. Please try again later.', sessionId }, { status: 503 });
+    }
+
+    // --- Step 3: Store User's Message ---
     try {
         const { error: userMessageError } = await supabaseAdmin.from('chat_messages').insert({
             chatbot_id: chatbotId,
-            session_id: sessionId, // Use the determined sessionId
+            session_id: sessionId,
             is_user_message: true,
             content: query,
         });
         if (userMessageError) {
             console.error("Error saving user's message:", userMessageError);
-            // Decide if this is critical enough to stop. For now, just log.
         }
     } catch (e) {
         console.error("Exception saving user's message:", e);
     }
 
-    // --- NO USER AUTH CHECK HERE ---
-
-    // Optional: Add security checks like verifying the request origin (CORS handled by Next.js config usually)
-    // or validating chatbotId exists and is maybe marked as 'publicly embeddable' in your DB.
-
+    // --- Step 4: Main processing logic (Actions, RAG, LLM call) ---
     try {
-        // --- NEW: Check for and Execute Actions FIRST ---
-        console.log("Checking for triggered actions...");
+        // --- ACTION CHECK LOGIC (existing code) ---
         const { data: actions, error: actionsError } = await supabaseAdmin
             .from('chatbot_actions')
             .select('*')
@@ -514,17 +532,14 @@ export async function POST(request: NextRequest) {
         
         if (actionsError) {
             console.error("Error fetching actions:", actionsError);
-            // Don't fail the request, just log and proceed to RAG
         } else if (actions && actions.length > 0) {
             const lowerCaseQuery = query.toLowerCase();
             let triggeredAction: Action | null = null;
 
             for (const action of actions as Action[]) {
-                // Simple keyword check (case-insensitive)
                 if (action.trigger_keywords.some(keyword => lowerCaseQuery.includes(keyword.toLowerCase()))) {
                     triggeredAction = action;
-                    console.log(`Action triggered: "${action.name}" by query: "${query}"`);
-                    break; // Execute the first matching action
+                    break; 
                 }
             }
 
@@ -640,45 +655,43 @@ export async function POST(request: NextRequest) {
 
                     // Action succeeded
                     if (triggeredAction.success_message) {
+                        await incrementMessageCount(ownerId, supabaseAdmin);
                         return NextResponse.json({ answer: substitute(triggeredAction.success_message) }, { status: 200 });
                     } else {
+                        await incrementMessageCount(ownerId, supabaseAdmin);
                         return NextResponse.json({ answer: `Okay, I have performed the action: ${triggeredAction.name}.` }, { status: 200 });
                     }
 
                 } catch (execError: any) {
-                    // Catch errors from secret fetching or template processing too
                     console.error(`Error preparing or executing action fetch for ${triggeredAction.name}:`, execError);
-                     return NextResponse.json({ answer: `I encountered an unexpected error when trying to perform the action '${triggeredAction.name}'. Details: ${execError.message}` }, { status: 200 });
+                    // Do NOT increment count here as the action failed to deliver a response to user
+                    return NextResponse.json({ answer: `I encountered an unexpected error when trying to perform the action '${triggeredAction.name}'. Details: ${execError.message}` }, { status: 200 });
                 }
-            }
+            } 
         }
-        // --- End Action Check ---
+        // --- End Action Check (If action returned, code execution stops above) ---
+        
+        console.log("No direct action response, proceeding with RAG/LLM for session:", sessionId);
 
-        // --- If no action was triggered, proceed with RAG --- 
-        console.log("No action triggered, proceeding with RAG for session:", sessionId);
-
-        // --- Fetch Chatbot details including system_prompt ---
-        console.log("Fetching chatbot details (public)...");
-        const { data: chatbotData, error: chatbotFetchError } = await supabaseAdmin
+        // --- Fetch Chatbot details (system_prompt, integrations etc.) ---
+        const { data: chatbotDetails, error: chatbotFetchError } = await supabaseAdmin
             .from('chatbots')
-            .select('id, name, user_id, system_prompt, integration_hubspot, integration_jira, integration_calendly')
+            .select('id, name, system_prompt, integration_hubspot, integration_jira, integration_calendly') // user_id already fetched as ownerId
             .eq('id', chatbotId)
-            .single(); // Use single, expect it to exist if ID is valid
+            .single(); 
 
         if (chatbotFetchError) {
-            // This could be a non-existent ID or DB error
-            console.error('Error fetching chatbot data (public):', chatbotFetchError);
-            // Don't expose detailed DB errors publicly
+            console.error('Error fetching chatbot details (public): ', chatbotFetchError);
             return NextResponse.json({ error: 'Invalid chatbot specified or server error.' }, { status: 404 });
         }
-        // Note: No check needed if chatbotData is null, as .single() would error above if not found.
+        // ... (rest of your logic for system_prompt, integration flags, Pinecone, LLM call remains)
+        // Ensure `chatbotData` used below is now `chatbotDetails`
         const {
             system_prompt: baseSystemPrompt,
             integration_hubspot,
             integration_jira,
             integration_calendly,
-            user_id: ownerId,
-        } = chatbotData as any;
+        } = chatbotDetails as any;
 
         // Determine which integrations are BOTH toggled on for this chatbot AND actually connected at the account level
         let hubspotConnected = false;
@@ -879,14 +892,10 @@ Conversation History is provided in the subsequent messages.`
         });
 
         const firstChoice = initialCompletion.choices[0];
-
-        // Check if the model requested a tool call
         const toolCalls = (firstChoice.message as any).tool_calls as any[] | undefined;
-        if (toolCalls?.length) {
-            // Always include the assistant message containing the tool calls
-            messagesForOpenAI.push(firstChoice.message as any);
 
-            // Iterate over every tool call and respond – if we don't implement a tool yet, return a stub so the model can continue.
+        if (toolCalls?.length) {
+            messagesForOpenAI.push(firstChoice.message as any);
             for (const toolCall of toolCalls) {
                 try {
                     const fnName = toolCall.function?.name;
@@ -989,12 +998,13 @@ Conversation History is provided in the subsequent messages.`
               is_user_message: false,
               content: finalAnswer ?? '',
             });
+            await incrementMessageCount(ownerId, supabaseAdmin);
             return NextResponse.json({ answer: finalAnswer ?? 'I am unable to complete the requested action.', sessionId }, { status: 200 });
         }
 
-        // No tool call: use content returned in first choice
         const answer = firstChoice.message?.content?.trim();
         if (!answer) {
+            // No increment if no answer generated
             throw new Error('OpenAI returned no answer.');
         }
         await supabaseAdmin.from('chat_messages').insert({
@@ -1003,11 +1013,12 @@ Conversation History is provided in the subsequent messages.`
           is_user_message: false,
           content: answer,
         });
+        await incrementMessageCount(ownerId, supabaseAdmin);
         return NextResponse.json({ answer, sessionId }, { status: 200 });
 
     } catch (error: any) {
         console.error(`Error processing public chat request for session ${sessionId}:`, error);
-        // Return a generic error to the client
+        // Do NOT increment count here as an error occurred before successful response generation
         return NextResponse.json({ error: 'An internal error occurred. Please try again later.', sessionId }, { status: 500 });
     }
 }
