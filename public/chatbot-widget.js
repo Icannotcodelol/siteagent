@@ -90,11 +90,20 @@
 
   function applyIcon(url) {
     if (!url) return;
+    // Clear previous content (SVG or old img)
+    launcherBtn.innerHTML = ''; 
     const img = document.createElement('img');
     img.src = url;
     img.alt = 'Chatbot';
+    // Style the image to fit the circular button
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.borderRadius = '50%'; // Ensure the image itself is circular if not already
+    img.style.objectFit = 'cover';    // Cover the area, might crop
+
     launcherBtn.appendChild(img);
-    launcherBtn.style.backgroundColor = 'transparent';
+    launcherBtn.style.backgroundColor = 'transparent'; // Ensure background is transparent for the image
+    launcherBtn.style.padding = '0'; // Remove padding if any was set for SVG
   }
 
   if (launcherIcon) {
@@ -304,6 +313,19 @@
         proactiveBubble = null;
         proactiveDismissed = true; // Ensure it doesn't try to show again in this session
         console.log('[SiteAgent Widget] Proactive bubble removed due to iframe interaction.');
+      }
+    }
+  });
+
+  // ----- Add event listener for messages from iframe (e.g., avatar updates) -----
+  window.addEventListener('message', function(event) {
+    // Optional: Check event.origin for security if you know the iframe's origin
+    // For example: if (event.origin !== new URL(embedUrl).origin) return;
+
+    if (event.data && event.data.type === 'siteagent-avatar-update') {
+      if (event.data.avatarUrl) {
+        launcherIcon = event.data.avatarUrl; // Update our launcherIcon variable
+        applyIcon(event.data.avatarUrl);
       }
     }
   });

@@ -103,7 +103,17 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
   useEffect(() => {
     // Ensure this runs client-side only
     setBaseOrigin(window.location.origin);
-  }, []);
+  }, []); // Runs once on mount to set baseOrigin
+
+  // useEffect to post message when botAvatarUrl changes or is initially available
+  useEffect(() => {
+    if (botAvatarUrl && window.parent !== window) {
+      window.parent.postMessage({
+        type: 'siteagent-avatar-update',
+        avatarUrl: botAvatarUrl
+      }, baseOrigin || '*'); // Use baseOrigin if available, otherwise wildcard for safety in dev
+    }
+  }, [botAvatarUrl, baseOrigin]); // Trigger also when baseOrigin is set
 
   // Generate a sessionId on first mount if none exists (client-side only)
   useEffect(() => {
