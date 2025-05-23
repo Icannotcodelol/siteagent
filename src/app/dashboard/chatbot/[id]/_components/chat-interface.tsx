@@ -88,15 +88,25 @@ function renderTextWithLinks(text: string, backgroundColor?: string | null, isAI
 function isLightColor(color: string): boolean {
   if (!color) return true; // Default to light if no color
   
-  // Remove # if present
-  const hex = color.replace('#', '');
+  // Remove # if present and handle 3-digit hex
+  let hex = color.replace('#', '');
+  
+  // Convert 3-digit hex to 6-digit
+  if (hex.length === 3) {
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  }
+  
+  // Ensure we have a valid 6-digit hex
+  if (hex.length !== 6) {
+    return true; // Default to light for invalid colors
+  }
   
   // Convert to RGB
   const r = parseInt(hex.substr(0, 2), 16);
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
   
-  // Calculate luminance
+  // Calculate luminance using standard formula
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   
   return luminance > 0.5;
@@ -104,17 +114,27 @@ function isLightColor(color: string): boolean {
 
 // Utility function to get appropriate input text color
 function getInputTextColor(backgroundColor?: string | null, textColor?: string | null): string {
-  // If no background color, use default dark text
+  console.log('[Input Color Debug]', { backgroundColor, textColor });
+  
+  // If no background color, use default dark text for readability
   if (!backgroundColor) {
-    return textColor || '#222';
+    console.log('[Input Color Debug] No background color, using #222');
+    return '#222';
   }
   
-  // If background is light, ensure text is dark
-  if (isLightColor(backgroundColor)) {
+  const isLight = isLightColor(backgroundColor);
+  console.log('[Input Color Debug] Background color analysis:', { 
+    backgroundColor, 
+    isLight, 
+    willUse: isLight ? '#222' : (textColor || '#fff')
+  });
+  
+  // If background is light (like white #ffffff), always ensure text is dark for visibility
+  if (isLight) {
     return '#222'; // Always use dark text on light backgrounds
   }
   
-  // If background is dark, use light text
+  // If background is dark, use light text or provided textColor
   return textColor || '#fff';
 }
 
