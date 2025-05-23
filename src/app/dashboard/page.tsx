@@ -4,8 +4,6 @@ import ChatbotList from './_components/ChatbotList'
 import { disconnectOAuthServiceAction } from '@/app/actions/oauth'
 import DisconnectButton from './_components/disconnect-button'
 import Link from 'next/link'
-import DashboardLayout from './_components/dashboard-layout'
-import LogoutButton from './_components/LogoutButton'
 import { Button } from '@/app/_components/ui/button'
 import { Suspense } from 'react'
 
@@ -126,7 +124,6 @@ export default async function DashboardPage() {
 
   if (conversationCountsError) {
     console.error("Error fetching chatbot conversation counts:", conversationCountsError);
-    // Handle error as appropriate, e.g., show a notification or default to 0
   }
 
   const conversationCountsMap = new Map<string, number>();
@@ -142,7 +139,7 @@ export default async function DashboardPage() {
     description: row.description ?? null,
     created_at: row.created_at,
     messageCount: row.chat_messages?.[0]?.count ?? 0,
-    conversationCount: conversationCountsMap.get(row.id) || 0, // Use fetched count or default to 0
+    conversationCount: conversationCountsMap.get(row.id) || 0,
   }))
 
   // -------------------------
@@ -152,13 +149,11 @@ export default async function DashboardPage() {
   // Total conversations (across all chatbots)
   const { data: totalConversationsData, error: totalConversationsError } = await supabase
     .rpc('f_total_conversations', { p_user: user.id });
-  // TODO: Handle totalConversationsError if needed, e.g., log or show a fallback
   const totalConversations = totalConversationsData ?? 0;
 
   // Total messages (assistant + user)
   const { data: totalMessagesData, error: totalMessagesError } = await supabase
     .rpc('f_total_messages', { p_user: user.id });
-  // TODO: Handle totalMessagesError if needed
   const totalMessages = totalMessagesData ?? 0;
 
   // Active chatbots – treat all user chatbots as active for now
@@ -209,11 +204,15 @@ export default async function DashboardPage() {
   // -------------------------
 
   return (
-    <DashboardLayout authButtonSlot={<LogoutButton />}>
-      {/* Top bar content now part of DashboardLayout or handled differently */}
-      {/* Page title can be managed within DashboardLayout or as a specific component */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-white">Overview</h1>
+    <div className="mx-auto max-w-[1600px] px-6 py-8 lg:px-8">
+      {/* Page header */}
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+          <p className="mt-1 text-sm text-gray-400">
+            Overview of your chatbot performance and analytics
+          </p>
+        </div>
         <Button asChild>
           <Link href="/dashboard/chatbot/new">
             + Create New Chatbot
@@ -226,7 +225,7 @@ export default async function DashboardPage() {
         {/* Stats */}
         <section>
           <h2 className="text-xl font-semibold text-gray-200 mb-4">Usage Metrics</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               label="Total Conversations"
               value={totalConversations}
@@ -272,15 +271,6 @@ export default async function DashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-gray-200">Your Chatbots</h2>
-            {/* TODO: Implement Export and Sort functionality with dark theme styles */}
-            {/* <div className="flex items-center space-x-2">
-              <Button variant="outline" className="border-gray-700 hover:bg-gray-700 hover:text-white">
-                Export
-              </Button>
-              <Button variant="outline" className="border-gray-700 hover:bg-gray-700 hover:text-white">
-                Sort By
-              </Button>
-            </div> */}
           </div>
 
           {chatbotError && (
@@ -297,7 +287,7 @@ export default async function DashboardPage() {
         {/* Connected services */}
         <section>
           <h2 className="text-xl font-semibold text-gray-200 mb-4">Connected Services</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <ServiceCard
               name="HubSpot"
               connected={isHubspotConnected}
@@ -360,7 +350,7 @@ export default async function DashboardPage() {
           </div>
         </section>
       </div>
-    </DashboardLayout>
+    </div>
   )
 }
 

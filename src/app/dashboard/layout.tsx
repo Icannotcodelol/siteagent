@@ -4,9 +4,10 @@
 // import { createServerClient, type CookieOptions } from '@supabase/ssr' // Remove direct import
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import LogoutButton from './_components/LogoutButton'
 import { createClient } from '@/lib/supabase/server' // Import shared client function
-import Image from 'next/image'; // Import Next.js Image component
+import Link from 'next/link'
+import Image from 'next/image'
+import UserMenu from './_components/user-menu'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Call createClient without arguments
@@ -41,24 +42,35 @@ export default async function DashboardLayout({ children }: { children: React.Re
   // User is authenticated, render the layout
   return (
     <div className="min-h-screen flex flex-col bg-gray-950 text-white">
-      <header className="bg-gray-900 text-white p-4 flex justify-between items-center shadow-md border-b border-gray-800">
-        <div className="flex items-center gap-2">
-          {/* Replace existing logo with Next.js Image component */}
-          <Image src="/sitelogo.svg" alt="SiteAgent Logo" width={150} height={32} priority /> 
-          {/* <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600">
-            <span className="text-lg font-bold text-white">S</span>
+      <header className="bg-gray-900 text-white border-b border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo - Using actual logo file */}
+            <Link href="/dashboard" className="flex items-center space-x-3 group">
+              <Image 
+                src="/sitelogo.svg" 
+                alt="SiteAgent Logo" 
+                width={32} 
+                height={32}
+                className="transition-opacity group-hover:opacity-80"
+                priority
+              />
+              <span className="text-xl font-semibold group-hover:text-indigo-400 transition-colors">
+                SiteAgent
+              </span>
+            </Link>
+
+            {/* User Menu - Single, proper dropdown */}
+            <UserMenu user={data.user} />
           </div>
-          <h1 className="text-xl font-semibold">SiteAgent Chatbots</h1> */}
-        </div>
-        <div className="flex items-center space-x-4">
-          <span className="text-sm text-gray-300">{data.user.email}</span>
-          <LogoutButton />
         </div>
       </header>
-      <main className="flex-grow p-6 bg-gray-950">
+      
+      <main className="flex-grow">
         {children}
       </main>
-      <footer className="bg-gray-900 text-center p-2 text-sm text-gray-400 border-t border-gray-800">
+      
+      <footer className="bg-gray-900 text-center p-4 text-sm text-gray-400 border-t border-gray-800">
         &copy; {new Date().getFullYear()} SiteAgent
       </footer>
     </div>

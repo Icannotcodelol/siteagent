@@ -14,12 +14,12 @@ interface ActionResult {
 }
 
 // Update the input data type to include optional system_prompt,
-// pasted_text, and website_url
+// pasted_text, and website_urls (array)
 interface CreateChatbotData {
     name: string;
     system_prompt?: string; // Optional: allow empty/null prompt
     pasted_text?: string;   // Optional: text pasted by user
-    website_url?: string;   // Optional: URL to scrape
+    website_urls?: string[];   // Optional: URLs to scrape (changed to array)
     primary_color?: string | null;
     secondary_color?: string | null;
     background_color?: string | null;
@@ -34,12 +34,12 @@ interface CreateChatbotData {
     show_branding?: boolean | null;
 }
 
-// Interface for Update - ADD optional data sources
+// Interface for Update - ADD optional data sources (array)
 interface UpdateChatbotData {
     name: string;
     system_prompt?: string;
     pasted_text?: string;   // Optional: text pasted by user
-    website_url?: string;   // Optional: URL to scrape
+    website_urls?: string[];   // Optional: URLs to scrape (changed to array)
     primary_color?: string | null;
     secondary_color?: string | null;
     background_color?: string | null;
@@ -81,7 +81,7 @@ export async function createChatbotAction(
   const chatbotName = data.name.trim()
   const systemPrompt = data.system_prompt?.trim() || null;
   const pastedText = data.pasted_text?.trim() || null; // Get pasted text
-  const websiteUrl = data.website_url?.trim() || null; // Get website URL
+  const websiteUrls = data.website_urls || []; // Get website URLs
 
   if (!chatbotName) {
       return { success: false, error: 'Chatbot name cannot be empty.' };
@@ -142,43 +142,45 @@ export async function createChatbotAction(
         }
     }
 
-    // 6. Handle Website URL (Insert into documents table)
-    if (websiteUrl && newChatbotId) {
-        if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
-             return { success: false, error: 'Invalid website URL format. Please include http:// or https://' };
-        } else {
-            let insertedDocId: string | null = null;
-            const { data: urlDocData, error: urlDocError } = await supabase
-                .from('documents')
-                .insert({
-                    chatbot_id: newChatbotId,
-                    user_id: user.id,
-                    file_name: websiteUrl,
-                    embedding_status: 'pending'
-                })
-                .select('id')
-                .single();
-
-            if (urlDocError || !urlDocData?.id) {
-                console.error('Error inserting minimal website URL document:', urlDocError);
-                return { success: false, error: `Failed to save website URL for scraping (minimal): ${urlDocError?.message ?? 'Unknown error'}` };
+    // 6. Handle Website URLs (Insert into documents table)
+    if (websiteUrls.length > 0 && newChatbotId) {
+        for (const websiteUrl of websiteUrls) {
+            const trimmedUrl = websiteUrl.trim();
+            if (!trimmedUrl) continue; // Skip empty URLs
+            
+            if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+                 return { success: false, error: `Invalid website URL format: ${trimmedUrl}. Please include http:// or https://` };
             } else {
+                let insertedDocId: string | null = null;
+                const { data: urlDocData, error: urlDocError } = await supabase
+                    .from('documents')
+                    .insert({
+                        chatbot_id: newChatbotId,
+                        user_id: user.id,
+                        file_name: trimmedUrl,
+                        embedding_status: 'pending'
+                    })
+                    .select('id')
+                    .single();
+
+                if (urlDocError || !urlDocData?.id) {
+                    console.error('Error inserting website URL document:', urlDocError);
+                    return { success: false, error: `Failed to save website URL for scraping: ${trimmedUrl} - ${urlDocError?.message ?? 'Unknown error'}` };
+                }
                 insertedDocId = urlDocData.id;
-                console.log(`Successfully inserted minimal document ${insertedDocId} for URL scraping.`);
+                console.log(`Successfully inserted document ${insertedDocId} for URL scraping: ${trimmedUrl}`);
                 
-                // Directly invoke the scrape function - We still need to invoke it, 
-                // but it will fail if it requires columns we didn't insert (like file_name).
-                // Let's see if the INSERT itself works first.
+                // Directly invoke the scrape function
                 try {
                     const { error: invokeError } = await supabase.functions.invoke(
                         'scrape-website',
                         { body: { documentId: insertedDocId } } 
                     );
                     if (invokeError) throw invokeError;
-                    console.log(`Invoked scrape-website function for minimal doc ${insertedDocId}`);
+                    console.log(`Invoked scrape-website function for doc ${insertedDocId} (URL: ${trimmedUrl})`);
                 } catch (invokeError: any) {
-                    console.error(`Error invoking scrape-website for minimal doc ${insertedDocId}:`, invokeError);
-                    return { success: false, error: `Chatbot created, but failed to start scraping (minimal): ${invokeError.message}` };
+                    console.error(`Error invoking scrape-website for doc ${insertedDocId} (URL: ${trimmedUrl}):`, invokeError);
+                    return { success: false, error: `Chatbot created, but failed to start scraping for ${trimmedUrl}: ${invokeError.message}` };
                 }
             }
         }
@@ -229,7 +231,7 @@ export async function updateChatbotAction(
     const chatbotName = data.name.trim()
     const systemPrompt = data.system_prompt?.trim() || null
     const pastedText = data.pasted_text?.trim() || null; // Get pasted text
-    const websiteUrl = data.website_url?.trim() || null; // Get website URL
+    const websiteUrls = data.website_urls || []; // Get website URLs
 
     if (!chatbotName) {
         return { success: false, error: 'Chatbot name cannot be empty.' }
@@ -293,41 +295,45 @@ export async function updateChatbotAction(
             console.log(`Successfully added minimal pasted text for chatbot ${chatbotId}`);
         }
     
-        // 4. Handle Website URL (Insert NEW document)
-        if (websiteUrl) { 
-            if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
-                 return { success: false, error: 'Chatbot updated, but invalid website URL format provided.' };
-            } else {
-                let insertedDocId: string | null = null;
-                const { data: urlDocData, error: urlDocError } = await supabase
-                    .from('documents')
-                    .insert({
-                        chatbot_id: chatbotId,
-                        user_id: user.id,
-                        file_name: websiteUrl,
-                        embedding_status: 'pending'
-                    })
-                    .select('id')
-                    .single();
-
-                if (urlDocError || !urlDocData?.id) {
-                    console.error(`Error inserting minimal website URL doc during update for chatbot ${chatbotId}:`, urlDocError);
-                    return { success: false, error: `Chatbot updated, but failed to save website URL (minimal): ${urlDocError?.message ?? 'Unknown error'}` };
+        // 4. Handle Website URLs (Insert NEW documents)
+        if (websiteUrls.length > 0) {
+            for (const websiteUrl of websiteUrls) {
+                const trimmedUrl = websiteUrl.trim();
+                if (!trimmedUrl) continue; // Skip empty URLs
+                
+                if (!trimmedUrl.startsWith('http://') && !trimmedUrl.startsWith('https://')) {
+                     return { success: false, error: `Chatbot updated, but invalid website URL format: ${trimmedUrl}. Please include http:// or https://` };
                 } else {
+                    let insertedDocId: string | null = null;
+                    const { data: urlDocData, error: urlDocError } = await supabase
+                        .from('documents')
+                        .insert({
+                            chatbot_id: chatbotId,
+                            user_id: user.id,
+                            file_name: trimmedUrl,
+                            embedding_status: 'pending'
+                        })
+                        .select('id')
+                        .single();
+
+                    if (urlDocError || !urlDocData?.id) {
+                        console.error(`Error inserting website URL doc during update for chatbot ${chatbotId}:`, urlDocError);
+                        return { success: false, error: `Chatbot updated, but failed to save website URL: ${trimmedUrl} - ${urlDocError?.message ?? 'Unknown error'}` };
+                    }
                     insertedDocId = urlDocData.id;
-                    console.log(`Successfully added minimal website URL doc ${insertedDocId} for chatbot ${chatbotId}`);
+                    console.log(`Successfully added website URL doc ${insertedDocId} for chatbot ${chatbotId} (URL: ${trimmedUrl})`);
                     
-                    // Invoke scrape function - see comment in createChatbotAction
+                    // Invoke scrape function
                     try {
                         const { error: invokeError } = await supabase.functions.invoke(
                             'scrape-website',
                             { body: { documentId: insertedDocId } } 
                         );
                         if (invokeError) throw invokeError;
-                        console.log(`Invoked scrape-website function for minimal doc ${insertedDocId}`);
+                        console.log(`Invoked scrape-website function for doc ${insertedDocId} (URL: ${trimmedUrl})`);
                     } catch (invokeError: any) {
-                        console.error(`Error invoking scrape-website for minimal doc ${insertedDocId} during update:`, invokeError);
-                        return { success: false, error: `Chatbot updated, but failed to start scraping (minimal): ${invokeError.message}` };
+                        console.error(`Error invoking scrape-website for doc ${insertedDocId} (URL: ${trimmedUrl}) during update:`, invokeError);
+                        return { success: false, error: `Chatbot updated, but failed to start scraping for ${trimmedUrl}: ${invokeError.message}` };
                     }
                 }
             }

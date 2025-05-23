@@ -6,6 +6,7 @@ import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/clie
 import { createChatbotAction, updateChatbotAction } from '../actions'
 import { useRouter } from 'next/navigation'
 import PromptInput from './prompt-input' // Import the new component
+import MultipleDomainInput from './multiple-domain-input'
 
 // Import components for tabs (adjust paths if necessary)
 import DocumentUploadForm from '../../[id]/_components/document-upload-form' 
@@ -64,7 +65,7 @@ export default function ChatbotBuilderForm({
   const [name, setName] = useState(initialName)
   const [systemPrompt, setSystemPrompt] = useState(initialSystemPrompt)
   const [pastedText, setPastedText] = useState('');
-  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [websiteUrls, setWebsiteUrls] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>('settings');
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -104,7 +105,7 @@ export default function ChatbotBuilderForm({
     setName(initialName);
     setSystemPrompt(initialSystemPrompt);
     setPastedText('');
-    setWebsiteUrl('');
+    setWebsiteUrls([]);
   }, [initialName, initialSystemPrompt, chatbotId]);
 
   const handleSave = async () => {
@@ -120,7 +121,7 @@ export default function ChatbotBuilderForm({
       name: name.trim(),
       system_prompt: systemPrompt.trim(),
       pasted_text: pastedText.trim(),
-      website_url: websiteUrl.trim(),
+      website_urls: websiteUrls.filter(url => url.trim()),
       primary_color: primaryColor || null,
       secondary_color: secondaryColor || null,
       background_color: backgroundColor || null,
@@ -142,7 +143,7 @@ export default function ChatbotBuilderForm({
           name: dataToSave.name, 
           system_prompt: dataToSave.system_prompt,
           pasted_text: dataToSave.pasted_text, // Pass pasted text
-          website_url: dataToSave.website_url,  // Pass website URL
+          website_urls: dataToSave.website_urls,  // Pass website URLs array
           primary_color: dataToSave.primary_color,
           secondary_color: dataToSave.secondary_color,
           background_color: dataToSave.background_color,
@@ -282,14 +283,10 @@ export default function ChatbotBuilderForm({
                     <label htmlFor="website-url" className="block text-sm font-medium text-gray-300 mb-1">
                         Scrape Website
                     </label>
-                    <p className="text-xs text-gray-500 mb-2">Enter a URL to scrape text content from the website.</p>
-                    <input
-                        type="url" // Use URL type for basic validation
-                        id="website-url"
-                        value={websiteUrl}
-                        onChange={(e) => { const v=e.target.value; setWebsiteUrl(v); }}
-                        placeholder="https://example.com"
-                        className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
+                    <p className="text-xs text-gray-500 mb-2">Enter URLs to scrape text content from websites.</p>
+                    <MultipleDomainInput
+                        domains={websiteUrls}
+                        onChange={setWebsiteUrls}
                         disabled={isPending}
                     />
                  </div>
