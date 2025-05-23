@@ -27,6 +27,14 @@ export default function CreateChatbotForm() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
+        
+        // Handle specific limit exceeded error
+        if (response.status === 403 && errorData.error?.includes('limit reached')) {
+          setError(`${errorData.error} Please upgrade your plan or delete an existing chatbot to create a new one.`)
+          setLoading(false)
+          return
+        }
+        
         throw new Error(errorData.error || `Failed to create chatbot (Status: ${response.status})`)
       }
 

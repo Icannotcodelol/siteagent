@@ -3,31 +3,36 @@ import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import type { CookieOptions } from '@supabase/ssr'
+import { canCreateChatbot } from '@/lib/services/subscriptionService'
 
 // Helper function to create Supabase client within Route Handler
-// Needed because Route Handlers don't directly use the layout's context
 function createRouteHandlerClient() {
-    const cookieStore = cookies()
-    return createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          // Route Handlers need request/response for setting cookies
-          // but for simple inserts based on auth, we might not need set/remove here
-          // If needed later, pass request/response objects
-          set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: '', ...options })
-          },
+  const cookieStore = cookies()
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-      }
-    )
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch (error) {
+            // set() was called from a Server Component
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch (error) {
+            // delete() was called from a Server Component
+          }
+        },
+      },
+    }
+  )
 }
 
 export async function POST(request: NextRequest) {
@@ -39,7 +44,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // 2. Parse request body
+  // 2. Check if user can create another chatbot based on their plan
+  const userCanCreate = await canCreateChatbot(user.id, supabase)
+  if (!userCanCreate) {
+    return NextResponse.json({ 
+      error: 'Chatbot limit reached. You have reached the maximum number of chatbots allowed for your current plan. Please upgrade your plan or delete an existing chatbot to create a new one.' 
+    }, { status: 403 })
+  }
+
+  // 3. Parse request body
   let name: string
   try {
     const body = await request.json()
@@ -52,7 +65,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body. Please provide a \'name\' field.' }, { status: 400 })
   }
 
-  // 3. Insert into Supabase
+  // 4. Insert into Supabase
   const { data: newChatbot, error: insertError } = await supabase
     .from('chatbots')
     .insert({ user_id: user.id, name: name })
@@ -65,6 +78,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create chatbot. ' + insertError.message }, { status: 500 })
   }
 
-  // 4. Return success response
+  // 5. Return success response
   return NextResponse.json(newChatbot, { status: 201 })
 } 

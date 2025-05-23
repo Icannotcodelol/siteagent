@@ -4,6 +4,8 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import { v4 as uuidv4 } from 'uuid'
+import { canCreateChatbot } from '@/lib/services/subscriptionService'
 
 interface ActionResult {
   success: boolean;
@@ -66,6 +68,16 @@ export async function createChatbotAction(
     return { success: false, error: 'You must be logged in to create a chatbot.' };
   }
 
+  // 2. Check if user can create another chatbot based on their plan
+  const userCanCreate = await canCreateChatbot(user.id, supabase)
+  if (!userCanCreate) {
+    return { 
+      success: false, 
+      error: 'Chatbot limit reached. You have reached the maximum number of chatbots allowed for your current plan. Please upgrade your plan or delete an existing chatbot to create a new one.' 
+    };
+  }
+
+  // 3. Validate and prepare data
   const chatbotName = data.name.trim()
   const systemPrompt = data.system_prompt?.trim() || null;
   const pastedText = data.pasted_text?.trim() || null; // Get pasted text
@@ -78,7 +90,7 @@ export async function createChatbotAction(
   let newChatbotId: string | null = null;
 
   try {
-    // 2. Insert new chatbot basic info (name, prompt)
+    // 4. Insert new chatbot basic info (name, prompt)
     const { data: newChatbot, error: insertError } = await supabase
       .from('chatbots')
       .insert({ 
@@ -115,7 +127,7 @@ export async function createChatbotAction(
 
     // --- Handle additional data sources (asynchronously is ideal, but start simple) ---
     
-    // 3. Handle Pasted Text (Insert into documents table)
+    // 5. Handle Pasted Text (Insert into documents table)
     if (pastedText && newChatbotId) {
         const { error: textDocError } = await supabase.from('documents').insert({
             chatbot_id: newChatbotId,
@@ -130,7 +142,7 @@ export async function createChatbotAction(
         }
     }
 
-    // 4. Handle Website URL (Insert into documents table)
+    // 6. Handle Website URL (Insert into documents table)
     if (websiteUrl && newChatbotId) {
         if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
              return { success: false, error: 'Invalid website URL format. Please include http:// or https://' };
@@ -174,11 +186,11 @@ export async function createChatbotAction(
     
     // --- End Handle additional data sources ---
 
-    // 5. Revalidate paths
+    // 7. Revalidate paths
     revalidatePath('/') 
     revalidatePath('/chatbot/[id]', 'page')
 
-    // 6. Final check and return success
+    // 8. Final check and return success
     if (newChatbotId) { // Explicitly check if ID is not null
         return { success: true, chatbotId: newChatbotId };
     } else {
