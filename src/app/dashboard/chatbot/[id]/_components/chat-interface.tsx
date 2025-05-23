@@ -84,6 +84,40 @@ function renderTextWithLinks(text: string, backgroundColor?: string | null, isAI
   return elements.length > 0 ? <>{elements}</> : <>{text}</>; // Fallback to raw text if no links found or error
 }
 
+// Utility function to determine if a color is light or dark
+function isLightColor(color: string): boolean {
+  if (!color) return true; // Default to light if no color
+  
+  // Remove # if present
+  const hex = color.replace('#', '');
+  
+  // Convert to RGB
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+  
+  // Calculate luminance
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  return luminance > 0.5;
+}
+
+// Utility function to get appropriate input text color
+function getInputTextColor(backgroundColor?: string | null, textColor?: string | null): string {
+  // If no background color, use default dark text
+  if (!backgroundColor) {
+    return textColor || '#222';
+  }
+  
+  // If background is light, ensure text is dark
+  if (isLightColor(backgroundColor)) {
+    return '#222'; // Always use dark text on light backgrounds
+  }
+  
+  // If background is dark, use light text
+  return textColor || '#fff';
+}
+
 export default function ChatInterface({ chatbotId, primaryColor, secondaryColor, backgroundColor, textColor, fontFamily, welcomeMessage, botAvatarUrl, userAvatarUrl, chatBubbleStyle, headerText, inputPlaceholder, showBranding }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     { id: crypto.randomUUID(), sender: 'ai', text: welcomeMessage || 'How can I help you today?' }
@@ -458,7 +492,10 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             disabled={isLoading}
-            style={{ color: textColor || '#222', fontFamily: fontFamily || 'inherit' }}
+            style={{ 
+              color: getInputTextColor(backgroundColor, textColor), 
+              fontFamily: fontFamily || 'inherit' 
+            }}
             onFocus={handleUserInteraction} // Focusing input is also an interaction
           />
           <button
