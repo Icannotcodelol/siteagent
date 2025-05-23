@@ -29,7 +29,7 @@ interface ChatInterfaceProps {
 }
 
 // Utility to convert URLs in plain text AND Markdown links to clickable <a> links
-function renderTextWithLinks(text: string) {
+function renderTextWithLinks(text: string, backgroundColor?: string | null, isAIMessage?: boolean) {
   // Regex to find Markdown links like [text](url) OR plain URLs (http, https, mailto)
   // It captures: 1: preceding text, 2: link text (for MD), 3: URL (for MD or plain)
   const combinedRegex = /([^]*?)(\[([^\]]+)\]\(((?:https?|mailto):[^\)]+)\)|((?:https?|mailto):[^\s]+))/g;
@@ -37,6 +37,17 @@ function renderTextWithLinks(text: string) {
   const elements: JSX.Element[] = [];
   let lastIndex = 0;
   let match;
+
+  // Determine link styling based on context
+  const getLinkClasses = () => {
+    if (isAIMessage) {
+      // For AI messages (bot bubbles), use high contrast white/light colors
+      return "text-white underline decoration-2 hover:text-blue-100 font-medium break-all";
+    } else {
+      // For user messages, use standard blue
+      return "text-blue-600 underline decoration-2 hover:text-blue-800 font-medium break-all";
+    }
+  };
 
   while ((match = combinedRegex.exec(text)) !== null) {
     // Add any text before this match
@@ -50,13 +61,13 @@ function renderTextWithLinks(text: string) {
     if (url) {
       if (url.startsWith('mailto:')) {
         elements.push(
-          <a key={`link-${lastIndex}`} href={url} className="text-blue-600 underline break-all">
+          <a key={`link-${lastIndex}`} href={url} className={getLinkClasses()}>
             {linkText || url.substring(7)} {/* Show email address without mailto: prefix if no explicit text */}
           </a>
         );
       } else {
         elements.push(
-          <a key={`link-${lastIndex}`} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline break-all">
+          <a key={`link-${lastIndex}`} href={url} target="_blank" rel="noopener noreferrer" className={getLinkClasses()}>
             {linkText || url}
           </a>
         );
@@ -378,7 +389,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
                   <div
                     className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'} bg-gray-700 text-white whitespace-pre-wrap`}
                   >
-                    <p className="text-sm">{renderTextWithLinks(message.text)}</p>
+                    <p className="text-sm">{renderTextWithLinks(message.text, backgroundColor, false)}</p>
                   </div>
                 );
               }
@@ -412,7 +423,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
                   className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'}`}
                   style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{renderTextWithLinks(message.text)}</p>
+                  <p className="text-sm whitespace-pre-wrap">{renderTextWithLinks(message.text, backgroundColor, true)}</p>
                 </div>
               );
             })()}

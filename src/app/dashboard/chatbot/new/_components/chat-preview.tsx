@@ -244,9 +244,9 @@ export default function ChatPreview(props: ChatPreviewProps) {
                     components={{
                       a: ({node, href, ...props}) => {
                         if (href && href.startsWith('mailto:')) {
-                          return <a {...props} href={href} className="text-blue-400 hover:underline" />
+                          return <a {...props} href={href} className="text-white underline decoration-2 hover:text-blue-100 font-medium" />
                         }
-                        return <a {...props} href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline" />
+                        return <a {...props} href={href} target="_blank" rel="noopener noreferrer" className="text-white underline decoration-2 hover:text-blue-100 font-medium" />
                       }
                     }}
                   >
