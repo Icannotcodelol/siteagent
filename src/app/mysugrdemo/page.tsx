@@ -15,7 +15,8 @@ export default function MySugrDemo() {
       {/* MySugr demo chatbot script - only for this page */}
       <Script
         src="https://www.siteagent.eu/chatbot-widget.js"
-        data-chatbot-id="206ba9fb-7f2e-48aa-8290-b2ef318380d5"
+        data-chatbot-id="d92f5fd4-a883-4a56-9bd8-46dc8707d8f6"
+        data-launcher-icon="https://www.mysugr.com/files/styles/large/public/pictures/people/Blog_logo_mysugr.jpg?itok=4b8N3sWV"
         async
         strategy="afterInteractive"
       />
