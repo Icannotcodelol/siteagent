@@ -66,35 +66,72 @@ export async function DELETE(request: NextRequest) {
        throw new Error(`Failed to fetch associated documents: ${docFetchError.message}`);
     }
 
-    // 5. Delete documents from Storage (if any)
-    let documentIdsToDelete: string[] = []; // Keep track of document IDs
+    // 5. Queue vector cleanup for all documents BEFORE deleting them
+    let documentIdsToDelete: string[] = [];
     if (documents && documents.length > 0) {
-        documentIdsToDelete = documents.map(doc => doc.id); // Store the IDs
+        documentIdsToDelete = documents.map(doc => doc.id);
+        
+        console.log(`Queueing vector cleanup for ${documentIdsToDelete.length} documents...`);
+        
+        // Queue cleanup jobs for each document
+        for (const docId of documentIdsToDelete) {
+            await supabaseAdmin
+                .from('vector_cleanup_queue')
+                .insert({
+                    document_id: docId,
+                    chatbot_id: chatbotId,
+                    created_at: new Date().toISOString()
+                });
+        }
+
+        // Trigger immediate cleanup for all documents
+        try {
+            const cleanupUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/internal/cleanup-vectors`;
+            const response = await fetch(cleanupUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${process.env.INTERNAL_API_SECRET}`,
+                },
+                body: JSON.stringify({
+                    chatbotId,
+                    documentIds: documentIdsToDelete
+                })
+            });
+
+            if (response.ok) {
+                console.log(`Successfully triggered immediate vector cleanup for chatbot ${chatbotId}`);
+            } else {
+                console.warn(`Failed to trigger immediate vector cleanup: ${response.status}`);
+            }
+        } catch (cleanupError) {
+            console.error('Failed to trigger immediate vector cleanup:', cleanupError);
+            // Continue with deletion - background job will handle cleanup
+        }
+
+        // Delete documents from Storage
         const storagePaths = documents.map(doc => doc.storage_path).filter(path => !!path);
         if (storagePaths.length > 0) {
             console.log(`Deleting ${storagePaths.length} files from storage...`);
             const { error: storageError } = await supabaseAdmin.storage
-                .from('documents') // Assuming the same bucket name
+                .from('documents')
                 .remove(storagePaths);
             if (storageError) {
-                 // Log error but maybe continue? Deleting DB records might be more critical.
-                 console.error(`Error deleting files from storage (continuing deletion):`, storageError);
-                 // Potentially throw new Error(`Failed to delete associated files from storage: ${storageError.message}`);
+                console.error(`Error deleting files from storage (continuing deletion):`, storageError);
             }
         }
     }
 
     // 6. Delete associated document_chunks (using fetched document IDs)
+    // Note: This will also be handled by CASCADE DELETE when documents are deleted
     if (documentIdsToDelete.length > 0) {
         console.log(`Deleting document chunks for ${documentIdsToDelete.length} documents...`);
         const { error: chunkDeleteError } = await supabaseAdmin
             .from('document_chunks')
             .delete()
-            // Filter by document_id IN the list of IDs belonging to the chatbot
             .in('document_id', documentIdsToDelete); 
         
         if (chunkDeleteError) {
-            // Include more context in error
             throw new Error(`Failed to delete associated document chunks for documents [${documentIdsToDelete.join(', ')}]: ${chunkDeleteError.message}`);
         }
         console.log(`Deleted document chunks for chatbot ${chatbotId}`);
@@ -103,32 +140,28 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 7. Delete associated documents from DB (if any)
-    if (documentIdsToDelete.length > 0) { // Also only delete if IDs exist
+    if (documentIdsToDelete.length > 0) {
         console.log(`Deleting document records for chatbot ${chatbotId}...`);
         const { error: docDeleteError } = await supabaseAdmin
             .from('documents')
             .delete()
-             // Use .in() here too for consistency, although .eq('chatbot_id', chatbotId) would also work
             .in('id', documentIdsToDelete);
          if (docDeleteError) {
             throw new Error(`Failed to delete associated documents: ${docDeleteError.message}`);
         }
          console.log(`Deleted document records for chatbot ${chatbotId}`);
-     } // No need for an else here, step 6 already logged if no docs
+     }
 
     // 8. Delete the chatbot itself
     const { error: chatbotDeleteError } = await supabaseAdmin
       .from('chatbots')
       .delete()
       .eq('id', chatbotId);
-      // Note: No user_id check here as we use admin client, ownership checked before
 
     if (chatbotDeleteError) {
       throw new Error(`Failed to delete chatbot record: ${chatbotDeleteError.message}`);
     }
-    console.log(`Successfully deleted chatbot ${chatbotId}`);
-
-    // --- Deletion Complete ---
+    console.log(`Successfully deleted chatbot ${chatbotId} and queued vector cleanup`);
 
     // Return success (No Content)
     return new NextResponse(null, { status: 204 });
