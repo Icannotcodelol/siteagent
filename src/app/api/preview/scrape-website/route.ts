@@ -1,0 +1,363 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import { v4 as uuidv4 } from 'uuid';
+import OpenAI from 'openai';
+
+// Rate limiting storage (in production, use Redis)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+// Initialize clients
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+// Rate limiting function
+function checkRateLimit(clientIP: string): boolean {
+  const now = Date.now();
+  const windowMs = 24 * 60 * 60 * 1000; // 24 hours
+  const maxRequests = 3;
+
+  const userLimit = rateLimitStore.get(clientIP);
+  
+  if (!userLimit || now > userLimit.resetTime) {
+    rateLimitStore.set(clientIP, { count: 1, resetTime: now + windowMs });
+    return true;
+  }
+  
+  if (userLimit.count >= maxRequests) {
+    return false;
+  }
+  
+  userLimit.count++;
+  return true;
+}
+
+// Simple text sanitization function
+function sanitizeText(text: string): string {
+  return text
+    .replace(/\u0000/g, '') // Remove null characters
+    .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '') // Remove other control characters
+    .replace(/\uFFFD/g, '') // Remove replacement characters
+    .trim();
+}
+
+// Simple text splitter function
+function splitTextIntoChunks(text: string, chunkSize: number = 1000, overlap: number = 200): string[] {
+  const chunks: string[] = [];
+  let start = 0;
+  
+  // Validate inputs
+  if (!text || text.length === 0) {
+    return [];
+  }
+  
+  if (chunkSize <= 0) {
+    chunkSize = 1000;
+  }
+  
+  if (overlap >= chunkSize) {
+    overlap = Math.floor(chunkSize / 2);
+  }
+  
+  // Limit text size to prevent memory issues (max 500KB)
+  const maxTextSize = 500000;
+  if (text.length > maxTextSize) {
+    text = text.substring(0, maxTextSize);
+  }
+  
+  // Prevent infinite loops with a maximum chunk count
+  const maxChunks = 1000;
+  let chunkCount = 0;
+  
+  while (start < text.length && chunkCount < maxChunks) {
+    const end = Math.min(start + chunkSize, text.length);
+    const chunk = text.slice(start, end);
+    
+    if (chunk.trim().length > 0) {
+      chunks.push(chunk);
+      chunkCount++;
+    }
+    
+    // Move start position, ensuring we make progress
+    const nextStart = end - overlap;
+    if (nextStart <= start) {
+      start = end; // Ensure we always move forward
+    } else {
+      start = nextStart;
+    }
+    
+    // Break if we've reached the end
+    if (end >= text.length) {
+      break;
+    }
+  }
+  
+  return chunks;
+}
+
+// Generate suggested questions based on content
+async function generateSuggestedQuestions(content: string): Promise<string[]> {
+  try {
+    const prompt = `Based on the following website content, generate 3-4 relevant questions that someone might ask about this information. Return only the questions, one per line, without numbering or bullet points:
+
+${content.substring(0, 2000)}...`;
+
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 200,
+      temperature: 0.7,
+    });
+
+    const questions = response.choices[0]?.message?.content
+      ?.split('\n')
+      .filter(q => q.trim().length > 0)
+      .map(q => q.trim().replace(/^[0-9.-]+\s*/, ''))
+      .slice(0, 4) || [];
+
+    return questions;
+  } catch (error) {
+    console.error('Error generating suggested questions:', error);
+    return [
+      'What is this website about?',
+      'Can you summarize the main information?',
+      'What services or products are offered?'
+    ];
+  }
+}
+
+// Simple web scraping function
+async function scrapeWebsite(url: string): Promise<string> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; SiteAgent-Preview/1.0)',
+      },
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+    
+    // Limit HTML size to prevent memory issues (max 2MB)
+    const maxHtmlSize = 2 * 1024 * 1024;
+    const limitedHtml = html.length > maxHtmlSize ? html.substring(0, maxHtmlSize) : html;
+    
+    // Simple HTML to text conversion (remove tags and clean up)
+    let textContent = limitedHtml
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove scripts
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Remove styles
+      .replace(/<nav[^>]*>[\s\S]*?<\/nav>/gi, '') // Remove navigation
+      .replace(/<header[^>]*>[\s\S]*?<\/header>/gi, '') // Remove headers
+      .replace(/<footer[^>]*>[\s\S]*?<\/footer>/gi, '') // Remove footers
+      .replace(/<aside[^>]*>[\s\S]*?<\/aside>/gi, '') // Remove sidebars
+      .replace(/<!--[\s\S]*?-->/g, '') // Remove comments
+      .replace(/<[^>]*>/g, ' ') // Remove HTML tags
+      .replace(/\s+/g, ' ') // Normalize whitespace
+      .trim();
+
+    // Limit final text content (max 200KB)
+    const maxTextSize = 200000;
+    if (textContent.length > maxTextSize) {
+      textContent = textContent.substring(0, maxTextSize);
+    }
+
+    if (textContent.length < 100) {
+      throw new Error('Website content too short or empty');
+    }
+
+    return textContent;
+  } catch (error) {
+    console.error('Error scraping website:', error);
+    throw new Error(`Failed to scrape website: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+// Validate URL
+function isValidUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.protocol === 'http:' || urlObj.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+// Process website and create embeddings
+async function processWebsite(sessionToken: string, content: string) {
+  try {
+    // Update status to processing
+    await supabase
+      .from('preview_sessions')
+      .update({ embedding_status: 'processing' })
+      .eq('session_token', sessionToken);
+
+    // Sanitize content to remove problematic characters
+    const sanitizedContent = sanitizeText(content);
+    
+    if (!sanitizedContent.trim()) {
+      throw new Error('No valid text content after sanitization');
+    }
+
+    // Split text into chunks
+    const chunks = splitTextIntoChunks(sanitizedContent);
+    
+    // Generate embeddings for each chunk
+    const embeddings = await openai.embeddings.create({
+      model: 'text-embedding-ada-002',
+      input: chunks,
+    });
+
+    // Store chunks with embeddings
+    const chunkData = chunks.map((chunk: string, index: number) => ({
+      session_token: sessionToken,
+      chunk_text: sanitizeText(chunk),
+      embedding: embeddings.data[index].embedding,
+      token_count: Math.ceil(chunk.length / 4), // Rough token estimate
+    }));
+
+    const { error: insertError } = await supabase
+      .from('preview_document_chunks')
+      .insert(chunkData);
+
+    if (insertError) {
+      console.error('Error inserting chunks:', insertError);
+      throw new Error(`Failed to insert chunks: ${insertError.message}`);
+    }
+
+    // Generate suggested questions
+    const suggestedQuestions = await generateSuggestedQuestions(sanitizedContent);
+
+    // Update session with completion status and suggested questions
+    await supabase
+      .from('preview_sessions')
+      .update({ 
+        embedding_status: 'completed',
+        suggested_questions: suggestedQuestions,
+        content_text: sanitizedContent.substring(0, 10000) // Store first 10k chars for reference
+      })
+      .eq('session_token', sessionToken);
+
+  } catch (error) {
+    console.error('Error processing website:', error);
+    await supabase
+      .from('preview_sessions')
+      .update({ 
+        embedding_status: 'failed',
+        error_message: error instanceof Error ? error.message : 'Unknown error'
+      })
+      .eq('session_token', sessionToken);
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    // Get client IP for rate limiting
+    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+                     request.headers.get('x-real-ip') || 
+                     '127.0.0.1';
+
+    // Check rate limit
+    if (!checkRateLimit(clientIP)) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. You can only create 3 previews per day.' },
+        { status: 429 }
+      );
+    }
+
+    // Parse request body
+    const body = await request.json();
+    const { url } = body;
+
+    if (!url || typeof url !== 'string') {
+      return NextResponse.json(
+        { error: 'URL is required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate URL
+    if (!isValidUrl(url)) {
+      return NextResponse.json(
+        { error: 'Invalid URL format' },
+        { status: 400 }
+      );
+    }
+
+    // Generate session token
+    const sessionToken = uuidv4();
+
+    // Create preview session
+    const { data: session, error: sessionError } = await supabase
+      .from('preview_sessions')
+      .insert({
+        session_token: sessionToken,
+        content_type: 'website',
+        content_data: {
+          url: url,
+        },
+        client_ip: clientIP,
+      })
+      .select()
+      .single();
+
+    if (sessionError) {
+      console.error('Error creating preview session:', sessionError);
+      return NextResponse.json(
+        { error: 'Failed to create preview session' },
+        { status: 500 }
+      );
+    }
+
+    // Scrape website content
+    let content = '';
+    try {
+      content = await scrapeWebsite(url);
+    } catch (error) {
+      console.error('Error scraping website:', error);
+      await supabase
+        .from('preview_sessions')
+        .update({ 
+          embedding_status: 'failed',
+          error_message: error instanceof Error ? error.message : 'Failed to scrape website'
+        })
+        .eq('session_token', sessionToken);
+      
+      return NextResponse.json(
+        { error: 'Failed to scrape website content' },
+        { status: 500 }
+      );
+    }
+
+    if (!content.trim()) {
+      return NextResponse.json(
+        { error: 'No content found on the website' },
+        { status: 400 }
+      );
+    }
+
+    // Process website asynchronously
+    processWebsite(sessionToken, content).catch(console.error);
+
+    return NextResponse.json({
+      sessionToken,
+      status: 'processing',
+      message: 'Website scraped successfully. Processing embeddings...'
+    });
+
+  } catch (error) {
+    console.error('Error in scrape-website route:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+} 

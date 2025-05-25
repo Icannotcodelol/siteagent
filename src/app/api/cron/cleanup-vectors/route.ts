@@ -1,96 +1,123 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClient(
+const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
 export async function GET(request: NextRequest) {
-    // Verify cron secret
-    const authHeader = request.headers.get('Authorization');
-    const expectedAuth = `Bearer ${process.env.CRON_SECRET}`;
-    
-    if (!authHeader || authHeader !== expectedAuth) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     try {
-        // Get pending cleanup jobs (older than 5 minutes to avoid race conditions)
-        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        // Verify this is a legitimate cron request
+        const authHeader = request.headers.get('authorization');
+        if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        console.log('Starting cleanup process...');
+
+        // Clean up expired preview sessions
+        console.log('Cleaning up expired preview sessions...');
+        const { error: previewCleanupError } = await supabase.rpc('cleanup_expired_preview_sessions');
         
-        const { data: pendingJobs, error } = await supabaseAdmin
+        if (previewCleanupError) {
+            console.error('Error cleaning up preview sessions:', previewCleanupError);
+        } else {
+            console.log('Preview sessions cleanup completed');
+        }
+
+        // Process pending vector cleanup queue
+        console.log('Processing vector cleanup queue...');
+        
+        const { data: pendingCleanups, error: fetchError } = await supabase
             .from('vector_cleanup_queue')
             .select('*')
             .eq('status', 'pending')
-            .lt('created_at', fiveMinutesAgo)
-            .limit(10); // Process in batches
+            .limit(10);
 
-        if (error) {
-            throw error;
+        if (fetchError) {
+            console.error('Error fetching pending cleanups:', fetchError);
+            return NextResponse.json({ error: 'Failed to fetch pending cleanups' }, { status: 500 });
         }
 
-        if (!pendingJobs || pendingJobs.length === 0) {
-            return NextResponse.json({ message: 'No pending cleanup jobs' });
-        }
+        let processedCount = 0;
+        let errorCount = 0;
 
-        console.log(`Processing ${pendingJobs.length} pending vector cleanup jobs`);
-
-        const results = [];
-        for (const job of pendingJobs) {
+        for (const cleanup of pendingCleanups || []) {
             try {
                 // Mark as processing
-                await supabaseAdmin
+                await supabase
                     .from('vector_cleanup_queue')
                     .update({ status: 'processing' })
-                    .eq('id', job.id);
+                    .eq('id', cleanup.id);
 
-                // Call internal cleanup API
-                const cleanupUrl = `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/internal/cleanup-vectors`;
-                const response = await fetch(cleanupUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${process.env.INTERNAL_API_SECRET}`,
-                    },
-                    body: JSON.stringify({
-                        documentId: job.document_id,
-                        chatbotId: job.chatbot_id
-                    })
-                });
+                // Delete document chunks for this document
+                const { error: deleteError } = await supabase
+                    .from('document_chunks')
+                    .delete()
+                    .eq('document_id', cleanup.document_id);
 
-                if (response.ok) {
-                    results.push({ jobId: job.id, status: 'success' });
-                    console.log(`Successfully processed cleanup job ${job.id} for document ${job.document_id}`);
-                } else {
-                    const errorText = await response.text();
-                    throw new Error(`Cleanup API returned ${response.status}: ${errorText}`);
+                if (deleteError) {
+                    throw deleteError;
                 }
 
-            } catch (jobError: any) {
-                console.error(`Failed to process cleanup job ${job.id}:`, jobError);
-                
-                // Mark job as failed
-                await supabaseAdmin
+                // Mark as completed
+                await supabase
                     .from('vector_cleanup_queue')
                     .update({ 
-                        status: 'failed', 
-                        processed_at: new Date().toISOString(),
-                        error_message: jobError.message 
+                        status: 'completed',
+                        processed_at: new Date().toISOString()
                     })
-                    .eq('id', job.id);
+                    .eq('id', cleanup.id);
 
-                results.push({ jobId: job.id, status: 'failed', error: jobError.message });
+                processedCount++;
+                console.log(`Cleaned up vectors for document ${cleanup.document_id}`);
+
+            } catch (error) {
+                console.error(`Error processing cleanup for document ${cleanup.document_id}:`, error);
+                
+                // Mark as failed
+                await supabase
+                    .from('vector_cleanup_queue')
+                    .update({ 
+                        status: 'failed',
+                        error_message: error instanceof Error ? error.message : 'Unknown error',
+                        processed_at: new Date().toISOString()
+                    })
+                    .eq('id', cleanup.id);
+
+                errorCount++;
             }
         }
 
-        return NextResponse.json({ 
-            message: `Processed ${pendingJobs.length} cleanup jobs`,
-            results 
+        // Clean up old completed/failed records (older than 7 days)
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+        const { error: oldRecordsError } = await supabase
+            .from('vector_cleanup_queue')
+            .delete()
+            .in('status', ['completed', 'failed'])
+            .lt('processed_at', sevenDaysAgo.toISOString());
+
+        if (oldRecordsError) {
+            console.error('Error cleaning up old records:', oldRecordsError);
+        }
+
+        console.log(`Cleanup process completed. Processed: ${processedCount}, Errors: ${errorCount}`);
+
+        return NextResponse.json({
+            success: true,
+            processed: processedCount,
+            errors: errorCount,
+            message: 'Cleanup process completed successfully'
         });
 
-    } catch (error: any) {
-        console.error('Cron job error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error) {
+        console.error('Cleanup process failed:', error);
+        return NextResponse.json(
+            { error: 'Cleanup process failed' },
+            { status: 500 }
+        );
     }
 } 

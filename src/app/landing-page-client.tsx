@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Button, cn } from "@/app/_components/ui/button";
 import IntegrationsBar from "@/app/_components/ui/integrations-bar";
+import LivePreview from "@/app/_components/live-preview";
 import { createClient } from '@/lib/supabase/client';
 // AuthButton import is removed as it will be passed as a prop
 
@@ -287,7 +288,7 @@ function HeroSection() {
         <div className="flex flex-col items-center justify-center text-center">
           <div className="mb-6 inline-flex items-center rounded-full border border-gray-700 bg-gray-800/80 px-3 py-1 backdrop-blur transition-all duration-300 hover:border-gray-600 hover:bg-gray-800">
             <span className="mr-2 rounded-full bg-blue-600 px-1.5 py-0.5 text-xs font-medium text-white">NEW</span>
-            <span className="text-sm text-gray-300">Introducing Actions for third-party integrations</span>
+            <span className="text-sm text-gray-300">Try our AI chatbot instantly - no signup required!</span>
           </div>
           <h1 className="mb-6 max-w-4xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
             Build AI Chatbots That{" "}
@@ -312,13 +313,13 @@ function HeroSection() {
               </span>
               <span className="absolute inset-0 z-0 translate-y-[105%] bg-blue-500 transition-transform duration-300 group-hover:translate-y-0"></span>
             </Button>
-            <Link href="#how-it-works">
+            <Link href="#live-preview">
               <Button
                 size="lg"
                 variant="outline"
                 className="border-gray-700 text-gray-300 transition-all duration-300 hover:border-gray-600 hover:bg-gray-800/50 hover:text-white hover:shadow-lg"
               >
-                See How It Works
+                Try Live Preview
               </Button>
             </Link>
           </div>
@@ -335,88 +336,14 @@ function HeroSection() {
               <span>No coding required</span>
             </div>
           </div>
-          <div
-            ref={previewRef}
-            className="mt-16 w-full max-w-5xl rounded-lg border border-gray-800 bg-gray-900/80 shadow-2xl transition-all duration-200 ease-out hover:border-gray-700 hover:shadow-blue-900/10"
-          >
-            <div className="rounded-t-lg border-b border-gray-800 bg-gray-800/80 px-4 py-2 backdrop-blur">
-              <div className="flex items-center space-x-1">
-                <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                <div className="ml-2 text-xs text-gray-400">SiteAgent Dashboard</div>
-              </div>
-            </div>
-            <div className="p-4 bg-gray-900 text-white rounded-b-lg h-[350px] overflow-y-auto">
-              <div className="mb-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow">
-                    <div className="flex items-start space-x-2">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-xs flex-shrink-0 mt-0.5">
-                        <span>💬</span>
-                      </div>
-                      <div>
-                        <div className="text-base font-semibold text-white">1,234</div>
-                        <div className="text-2xs text-gray-400 truncate">Total Conversations</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow">
-                    <div className="flex items-start space-x-2">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-500/20 text-purple-400 text-xs flex-shrink-0 mt-0.5">
-                         <span>🤖</span>
-                      </div>
-                      <div>
-                        <div className="text-base font-semibold text-white">5</div>
-                        <div className="text-2xs text-gray-400 truncate">Active Chatbots</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="hidden sm:block rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow">
-                    <div className="flex items-start space-x-2">
-                      <div className="flex h-5 w-5 items-center justify-center rounded-full bg-yellow-500/20 text-yellow-400 text-xs flex-shrink-0 mt-0.5">
-                        <span>🔌</span>
-                      </div>
-                      <div>
-                        <div className="text-base font-semibold text-white">3</div>
-                        <div className="text-2xs text-gray-400 truncate">Connected Services</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-md font-semibold text-gray-200">Your Chatbots</h2>
-                </div>
-                <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow mb-2">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-white">Support ProBot</h3>
-                      <p className="text-2xs text-gray-400">Updated: 2 hours ago</p>
-                    </div>
-                    <div className="px-1.5 py-0.5 text-2xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-sm cursor-default">View</div>
-                  </div>
-                  <div className="mt-1.5 flex space-x-3 text-2xs text-gray-400">
-                    <div><span className="font-medium text-white">150</span> Msgs</div>
-                    <div><span className="font-medium text-white">25</span> Convos</div>
-                  </div>
-                </div>
-                <div className="rounded-md border border-gray-700 bg-gray-800 p-2.5 shadow opacity-80">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-sm font-medium text-white">FAQ Assistant</h3>
-                      <p className="text-2xs text-gray-400">Updated: 1 day ago</p>
-                    </div>
-                    <div className="px-1.5 py-0.5 text-2xs font-medium text-gray-300 bg-gray-700 hover:bg-gray-600 rounded-sm cursor-default">View</div>
-                  </div>
-                   <div className="mt-1.5 flex space-x-3 text-2xs text-gray-400">
-                    <div><span className="font-medium text-white">88</span> Msgs</div>
-                    <div><span className="font-medium text-white">12</span> Convos</div>
-                  </div>
-                </div>
-              </div>
+          
+          {/* Live Preview Section */}
+          <div id="live-preview" className="mt-16 w-full">
+            <div
+              ref={previewRef}
+              className="transition-all duration-200 ease-out"
+            >
+              <LivePreview />
             </div>
           </div>
         </div>
