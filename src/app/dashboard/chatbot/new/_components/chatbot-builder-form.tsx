@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient as createSupabaseBrowserClient } from '@/lib/supabase/client'
 // We will update the action import later
 import { createChatbotAction, updateChatbotAction } from '../actions'
 import { useRouter } from 'next/navigation'
 import PromptInput from './prompt-input' // Import the new component
 import MultipleDomainInput from './multiple-domain-input'
+import { useAutoSave } from '@/lib/hooks/use-auto-save'
+import { SaveStatus } from '@/app/_components/ui/save-status'
 
 // Import components for tabs (adjust paths if necessary)
 import DocumentUploadForm from '../../[id]/_components/document-upload-form' 
@@ -85,6 +87,7 @@ export default function ChatbotBuilderForm({
   const [showBranding, setShowBranding] = useState<boolean>(initialShowBranding);
   const { setAppearance } = useChatbotAppearance();
   const supabase = createSupabaseBrowserClient();
+  const [localDocuments, setLocalDocuments] = useState(documents);
 
   const popularFontFamilies = [
     { name: "Inter (Modern Sans-Serif)", value: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif" },
@@ -108,6 +111,93 @@ export default function ChatbotBuilderForm({
     setWebsiteUrls([]);
   }, [initialName, initialSystemPrompt, chatbotId]);
 
+  // Prepare data for auto-save
+  const formData = useMemo(() => ({
+    name: name.trim(),
+    system_prompt: systemPrompt.trim(),
+    pasted_text: pastedText.trim(),
+    website_urls: websiteUrls.filter(url => url.trim()),
+    primary_color: primaryColor || null,
+    secondary_color: secondaryColor || null,
+    background_color: backgroundColor || null,
+    text_color: textColor || null,
+    font_family: fontFamily || null,
+    welcome_message: welcomeMessage || null,
+    bot_avatar_url: botAvatarUrl || null,
+    user_avatar_url: userAvatarUrl || null,
+    chat_bubble_style: chatBubbleStyle || null,
+    header_text: headerText || null,
+    input_placeholder: inputPlaceholder || null,
+    show_branding: showBranding,
+  }), [
+    name, systemPrompt, pastedText, websiteUrls, primaryColor, secondaryColor,
+    backgroundColor, textColor, fontFamily, welcomeMessage, botAvatarUrl,
+    userAvatarUrl, chatBubbleStyle, headerText, inputPlaceholder, showBranding
+  ])
+
+  // Auto-save functionality (only in edit mode)
+  const { isSaving, lastSaved, error: saveError } = useAutoSave(
+    formData,
+    async (data) => {
+      if (!isEditMode || !chatbotId || !data.name) return
+      
+      const result = await updateChatbotAction(chatbotId, data)
+      if (!result?.success) {
+        throw new Error(result?.error || 'Failed to save changes')
+      }
+    },
+    { 
+      enabled: isEditMode && Boolean(name.trim()),
+      delay: 1500 // Save after 1.5 seconds of inactivity
+    }
+  )
+
+  // Handle appearance changes with immediate preview updates
+  const handleAppearanceChange = (field: string, value: string) => {
+    // Update local state
+    switch (field) {
+      case 'primaryColor':
+        setPrimaryColor(value)
+        break
+      case 'secondaryColor':
+        setSecondaryColor(value)
+        break
+      case 'backgroundColor':
+        setBackgroundColor(value)
+        break
+      case 'textColor':
+        setTextColor(value)
+        break
+      case 'fontFamily':
+        setFontFamily(value)
+        break
+      case 'welcomeMessage':
+        setWelcomeMessage(value)
+        break
+      case 'botAvatarUrl':
+        setBotAvatarUrl(value)
+        break
+      case 'userAvatarUrl':
+        setUserAvatarUrl(value)
+        break
+      case 'chatBubbleStyle':
+        setChatBubbleStyle(value)
+        break
+      case 'headerText':
+        setHeaderText(value)
+        break
+      case 'inputPlaceholder':
+        setInputPlaceholder(value)
+        break
+      case 'showBranding':
+        setShowBranding(value === 'true')
+        break
+    }
+
+    // Update preview immediately
+    setAppearance({ [field]: value })
+  }
+
   const handleSave = async () => {
     if (!name.trim()) {
       setError('Chatbot name cannot be empty.')
@@ -117,70 +207,25 @@ export default function ChatbotBuilderForm({
     setIsPending(true)
     setError(null)
 
-    const dataToSave = {
-      name: name.trim(),
-      system_prompt: systemPrompt.trim(),
-      pasted_text: pastedText.trim(),
-      website_urls: websiteUrls.filter(url => url.trim()),
-      primary_color: primaryColor || null,
-      secondary_color: secondaryColor || null,
-      background_color: backgroundColor || null,
-      text_color: textColor || null,
-      font_family: fontFamily || null,
-      welcome_message: welcomeMessage || null,
-      bot_avatar_url: botAvatarUrl || null,
-      user_avatar_url: userAvatarUrl || null,
-      chat_bubble_style: chatBubbleStyle || null,
-      header_text: headerText || null,
-      input_placeholder: inputPlaceholder || null,
-      show_branding: showBranding,
-    };
-
-    let result;
+    let result
     if (isEditMode) {
-      // Call update action - Pass all relevant fields from dataToSave
-      result = await updateChatbotAction(chatbotId, { 
-          name: dataToSave.name, 
-          system_prompt: dataToSave.system_prompt,
-          pasted_text: dataToSave.pasted_text, // Pass pasted text
-          website_urls: dataToSave.website_urls,  // Pass website URLs array
-          primary_color: dataToSave.primary_color,
-          secondary_color: dataToSave.secondary_color,
-          background_color: dataToSave.background_color,
-          text_color: dataToSave.text_color,
-          font_family: dataToSave.font_family,
-          welcome_message: dataToSave.welcome_message,
-          bot_avatar_url: dataToSave.bot_avatar_url,
-          user_avatar_url: dataToSave.user_avatar_url,
-          chat_bubble_style: dataToSave.chat_bubble_style,
-          header_text: dataToSave.header_text,
-          input_placeholder: dataToSave.input_placeholder,
-          show_branding: dataToSave.show_branding,
-      });
+      result = await updateChatbotAction(chatbotId, formData)
     } else {
-      // Call create action
-      result = await createChatbotAction(dataToSave);
+      result = await createChatbotAction(formData)
     }
 
     setIsPending(false)
 
-    // Defensive check: Ensure result is defined before accessing properties
-    if (result?.success) { // Use optional chaining (?.)
+    if (result?.success) {
       if (!isEditMode && result.chatbotId) {
-         // Redirect only on successful creation
-         router.push(`/dashboard/chatbot/${result.chatbotId}`)
+        router.push(`/dashboard/chatbot/${result.chatbotId}`)
       } else if (isEditMode) {
-          // Optionally show a success message for updates
-          console.log('Update successful');
-          // Revalidate data on the current page after update
-          router.refresh();
+        console.log('Update successful')
       } else {
-          // Handle case where creation succeeded but ID missing (shouldn't happen)
-          setError('Chatbot created but failed to get ID.');
+        setError('Chatbot created but failed to get ID.')
       }
     } else {
-      // If result exists and success is false, or if result is undefined
-      setError(result?.error || 'An unexpected error occurred. Please try again.'); // Use optional chaining here too
+      setError(result?.error || 'An unexpected error occurred. Please try again.')
     }
   }
 
@@ -192,6 +237,19 @@ export default function ChatbotBuilderForm({
         router.push('/dashboard');
     }
   }
+
+  const handleDocumentAdded = (document: any) => {
+    setLocalDocuments(prev => [...prev, document])
+  }
+
+  const handleDocumentDeleted = (documentId: string) => {
+    setLocalDocuments(prev => prev.filter(doc => doc.id !== documentId))
+  }
+
+  // Update local documents when props change
+  useEffect(() => {
+    setLocalDocuments(documents)
+  }, [documents])
 
   // Helper function for tab button classes
   const getTabClass = (tabName: ActiveTab) => {
@@ -297,7 +355,7 @@ export default function ChatbotBuilderForm({
                      <p className="text-xs text-gray-500 mb-3">Upload documents like PDF, TXT, or MD.</p>
                      {isEditMode && chatbotId ? (
                        <>
-                         <DocumentUploadForm chatbotId={chatbotId} />
+                         <DocumentUploadForm chatbotId={chatbotId} onDocumentAdded={handleDocumentAdded} />
                          {documentsError && (
                             <div className="mt-4 bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded relative" role="alert">
                                 <strong className="font-bold">Error loading documents:</strong>
@@ -305,7 +363,7 @@ export default function ChatbotBuilderForm({
                             </div>
                          )}
                          {/* We might want to show the list here ONLY in edit mode */}
-                         <DocumentList documents={documents ?? []} /> 
+                         <DocumentList documents={localDocuments ?? []} onDocumentDeleted={handleDocumentDeleted} /> 
                        </>
                      ) : (
                         // Placeholder for create mode
@@ -336,19 +394,19 @@ export default function ChatbotBuilderForm({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label htmlFor="primaryColor" className="block text-sm font-medium text-gray-300 mb-1">Primary Color</label>
-                    <input type="color" id="primaryColor" value={primaryColor || '#9333ea'} onChange={(e) => { const v = e.target.value; setPrimaryColor(v); setAppearance({ primaryColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                    <input type="color" id="primaryColor" value={primaryColor || '#9333ea'} onChange={(e) => { const v = e.target.value; setPrimaryColor(v); handleAppearanceChange('primaryColor', v); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
                   </div>
                   <div>
                     <label htmlFor="secondaryColor" className="block text-sm font-medium text-gray-300 mb-1">Secondary Color</label>
-                    <input type="color" id="secondaryColor" value={secondaryColor || '#f3f4f6'} onChange={(e) => { const v = e.target.value; setSecondaryColor(v); setAppearance({ secondaryColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                    <input type="color" id="secondaryColor" value={secondaryColor || '#f3f4f6'} onChange={(e) => { const v = e.target.value; setSecondaryColor(v); handleAppearanceChange('secondaryColor', v); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
                   </div>
                   <div>
                     <label htmlFor="backgroundColor" className="block text-sm font-medium text-gray-300 mb-1">Background Color</label>
-                    <input type="color" id="backgroundColor" value={backgroundColor || '#ffffff'} onChange={(e) => { const v = e.target.value; setBackgroundColor(v); setAppearance({ backgroundColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                    <input type="color" id="backgroundColor" value={backgroundColor || '#ffffff'} onChange={(e) => { const v = e.target.value; setBackgroundColor(v); handleAppearanceChange('backgroundColor', v); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
                   </div>
                   <div>
                     <label htmlFor="textColor" className="block text-sm font-medium text-gray-300 mb-1">Text Color</label>
-                    <input type="color" id="textColor" value={textColor || '#222222'} onChange={(e) => { const v = e.target.value; setTextColor(v); setAppearance({ textColor: v }); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
+                    <input type="color" id="textColor" value={textColor || '#222222'} onChange={(e) => { const v = e.target.value; setTextColor(v); handleAppearanceChange('textColor', v); }} className="w-full h-10 px-1 py-1 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500" />
                   </div>
                 </div>
 
@@ -358,7 +416,7 @@ export default function ChatbotBuilderForm({
                   <select
                     id="fontFamily"
                     value={fontFamily}
-                    onChange={(e) => { const v = e.target.value; setFontFamily(v); setAppearance({ fontFamily: v }); }}
+                    onChange={(e) => { const v = e.target.value; setFontFamily(v); handleAppearanceChange('fontFamily', v); }}
                     className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   >
                     <option value="">Select a font (default)</option>
@@ -374,7 +432,7 @@ export default function ChatbotBuilderForm({
                 {/* Welcome Message */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Welcome Message</label>
-                  <input type="text" value={welcomeMessage} onChange={(e) => { const v=e.target.value; setWelcomeMessage(v); setAppearance({welcomeMessage: v}); }} placeholder="e.g. Hi! How can I help you today?" className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
+                  <input type="text" value={welcomeMessage} onChange={(e) => { const v=e.target.value; setWelcomeMessage(v); handleAppearanceChange('welcomeMessage', v); }} placeholder="e.g. Hi! How can I help you today?" className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
                 </div>
                 {/* Bot Avatar URL & Upload */}
                 <div className="space-y-2">
@@ -382,7 +440,7 @@ export default function ChatbotBuilderForm({
                   <input
                       type="url"
                       value={botAvatarUrl}
-                      onChange={(e) => { const v=e.target.value; setBotAvatarUrl(v); setAppearance({botAvatarUrl: v}); }}
+                      onChange={(e) => { const v=e.target.value; setBotAvatarUrl(v); handleAppearanceChange('botAvatarUrl', v); }}
                       placeholder="https://..."
                       className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
                   />
@@ -414,8 +472,7 @@ export default function ChatbotBuilderForm({
                         }
                         const { data: publicData } = supabase.storage.from('chatbot-avatars').getPublicUrl(filePath);
                         if (publicData?.publicUrl) {
-                          setBotAvatarUrl(publicData.publicUrl);
-                          setAppearance({ botAvatarUrl: publicData.publicUrl });
+                          handleAppearanceChange('botAvatarUrl', publicData.publicUrl);
                         }
                       }}
                       className="block w-full text-sm text-gray-300 file:bg-gray-700 file:border-0 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-gray-200 hover:file:bg-gray-600"
@@ -428,12 +485,12 @@ export default function ChatbotBuilderForm({
                 {/* User Avatar URL */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">User Avatar URL</label>
-                  <input type="url" value={userAvatarUrl} onChange={(e) => { const v=e.target.value; setUserAvatarUrl(v); setAppearance({userAvatarUrl: v}); }} placeholder="https://..." className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
+                  <input type="url" value={userAvatarUrl} onChange={(e) => { const v=e.target.value; setUserAvatarUrl(v); handleAppearanceChange('userAvatarUrl', v); }} placeholder="https://..." className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
                 </div>
                 {/* Chat Bubble Style */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Chat Bubble Style</label>
-                  <select value={chatBubbleStyle} onChange={(e) => { const v=e.target.value; setChatBubbleStyle(v); setAppearance({chatBubbleStyle: v}); }} className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
+                  <select value={chatBubbleStyle} onChange={(e) => { const v=e.target.value; setChatBubbleStyle(v); handleAppearanceChange('chatBubbleStyle', v); }} className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm">
                     <option value="rounded">Rounded</option>
                     <option value="square">Square</option>
                   </select>
@@ -441,16 +498,16 @@ export default function ChatbotBuilderForm({
                 {/* Header Text */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Header Text</label>
-                  <input type="text" value={headerText} onChange={(e) => { const v=e.target.value; setHeaderText(v); setAppearance({headerText: v}); }} placeholder="e.g. Chat with us!" className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
+                  <input type="text" value={headerText} onChange={(e) => { const v=e.target.value; setHeaderText(v); handleAppearanceChange('headerText', v); }} placeholder="e.g. Chat with us!" className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
                 </div>
                 {/* Input Placeholder */}
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Input Placeholder</label>
-                  <input type="text" value={inputPlaceholder} onChange={(e) => { const v=e.target.value; setInputPlaceholder(v); setAppearance({inputPlaceholder: v}); }} placeholder="Type your message..." className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
+                  <input type="text" value={inputPlaceholder} onChange={(e) => { const v=e.target.value; setInputPlaceholder(v); handleAppearanceChange('inputPlaceholder', v); }} placeholder="Type your message..." className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm" />
                 </div>
                 {/* Show Branding Toggle */}
                 <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="show-branding" checked={showBranding} onChange={(e) => { const checked=e.target.checked; setShowBranding(checked); setAppearance({showBranding: checked}); }} className="form-checkbox h-5 w-5 text-purple-600" />
+                  <input type="checkbox" id="show-branding" checked={showBranding} onChange={(e) => { const checked=e.target.checked; setShowBranding(checked); handleAppearanceChange('showBranding', checked ? 'true' : 'false'); }} className="form-checkbox h-5 w-5 text-purple-600" />
                   <label htmlFor="show-branding" className="text-sm text-gray-300">Show Branding</label>
                 </div>
                 {/* Action Buttons for this tab */}
@@ -531,6 +588,16 @@ export default function ChatbotBuilderForm({
             </div>
          )}
        </div>
+
+      {/* Auto-save status for edit mode */}
+      {isEditMode && (
+        <SaveStatus 
+          isSaving={isSaving} 
+          lastSaved={lastSaved} 
+          error={saveError} 
+          className="mt-4"
+        />
+      )}
 
       {/* Action Buttons (Save/Cancel) - REMOVED FROM HERE */}
       {error && <p className="text-sm text-red-500 mt-4">{error}</p>}
