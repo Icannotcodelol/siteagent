@@ -3,7 +3,6 @@ import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import PromptEditor from './_components/prompt-editor'
-import ProactiveMessageSettings from './_components/proactive-message-settings'
 
 // Import Builder components
 import BuilderHeader from '../new/_components/builder-header' // Re-use header from 'new' page
@@ -144,9 +143,6 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
              initialInputPlaceholder={chatbot.input_placeholder ?? ''}
              initialShowBranding={chatbot.show_branding ?? true}
            />
-            {/* --- ADDED PROACTIVE MESSAGE SETTINGS --- */}
-            <ProactiveMessageSettings chatbotId={chatbot.id} />
-            {/* --- END --- */}
         </div>
 
         {/* Right Column: Chat Preview */}

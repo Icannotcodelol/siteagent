@@ -206,9 +206,12 @@ export default function ChatPreview(props: ChatPreviewProps) {
             {/* Message Bubble */}
             {(() => {
               if (msg.sender !== 'bot') {
+                const bubbleClass = chatBubbleStyle === 'square' ? 'rounded-md' : 
+                                   chatBubbleStyle === 'pill' ? 'rounded-full' :
+                                   chatBubbleStyle === 'minimal' ? 'rounded-sm' : 'rounded-lg'
                 return (
                   <div
-                    className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'} bg-gray-700 text-white`}
+                    className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${bubbleClass} bg-gray-700 text-white`}
                   >
                     {msg.text}
                   </div>
@@ -238,8 +241,11 @@ export default function ChatPreview(props: ChatPreviewProps) {
               }
 
               // Default display
+              const bubbleClass = chatBubbleStyle === 'square' ? 'rounded-md' : 
+                                 chatBubbleStyle === 'pill' ? 'rounded-full' :
+                                 chatBubbleStyle === 'minimal' ? 'rounded-sm' : 'rounded-lg'
               return (
-                <div className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'}`} style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}>
+                <div className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${bubbleClass}`} style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}>
                   <ReactMarkdown
                     components={{
                       a: ({node, href, ...props}) => {
