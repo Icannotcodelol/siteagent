@@ -17,10 +17,9 @@ function getCorsHeaders(requestingOrigin?: string | null) {
   } else if (requestingOrigin && allowedOrigins.includes(requestingOrigin)) {
     headers['Access-Control-Allow-Origin'] = requestingOrigin;
   } else {
-    // If the origin is not in the allowed list for production,
-    // do not set the ACAH header, or set it to a default safe value if necessary.
-    // Browsers will block the request if the header is missing or doesn't match.
-    // For now, we simply don't add it if not allowed, leading to default browser denial.
+    // For now, allow all origins for public meta API to support embedded widgets
+    // In production, you should configure specific domains in allowedOrigins
+    headers['Access-Control-Allow-Origin'] = '*';
   }
   return headers;
 }

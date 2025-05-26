@@ -209,39 +209,22 @@
         return res.ok ? res.json() : null;
       })
       .then((data) => {
-        console.log('[SiteAgent Widget] Proactive message data:', data);
         if (data && data.content && !proactiveDismissed) {
           const delayMs = (data.delay || 5) * 1000
-          console.log('[SiteAgent Widget] Scheduling proactive message to show in', delayMs, 'ms');
           setTimeout(() => {
-            console.log('[SiteAgent Widget] Attempting to show proactive bubble');
             tryShowProactiveBubble(data.content, data.color)
           }, delayMs)
-        } else {
-          console.log('[SiteAgent Widget] No proactive message to show:', { hasData: !!data, hasContent: !!(data?.content), dismissed: proactiveDismissed });
         }
       })
-      .catch((error) => {
-        console.error('[SiteAgent Widget] Error fetching proactive message:', error);
-      })
+      .catch(() => {/* ignore */})
   }
 
   function tryShowProactiveBubble(message, bubbleColor) {
-    console.log('[SiteAgent Widget] tryShowProactiveBubble called with:', { message, bubbleColor });
-    
     // If user already opened the chat, do not show
-    if (iframeContainer.style.display === 'flex') {
-      console.log('[SiteAgent Widget] Not showing proactive bubble - chat is already open');
-      return;
-    }
+    if (iframeContainer.style.display === 'flex') return
 
     // Check again if dismissed
-    if (proactiveDismissed) {
-      console.log('[SiteAgent Widget] Not showing proactive bubble - already dismissed');
-      return;
-    }
-
-    console.log('[SiteAgent Widget] Creating proactive bubble');
+    if (proactiveDismissed) return
 
     const bubble = document.createElement('div')
     bubble.className = 'siteagent-proactive-bubble'
@@ -342,12 +325,10 @@
     }
 
     if (event.data && event.data.type === 'siteagent-user-interaction') {
-      console.log('[SiteAgent Widget] Received siteagent-user-interaction from iframe');
       if (proactiveBubble) {
         proactiveBubble.remove();
         proactiveBubble = null;
         proactiveDismissed = true; // Ensure it doesn't try to show again in this session
-        console.log('[SiteAgent Widget] Proactive bubble removed due to iframe interaction.');
       }
     }
   });

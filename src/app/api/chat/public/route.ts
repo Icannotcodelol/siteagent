@@ -447,10 +447,10 @@ const openAiTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
 export async function POST(request: NextRequest) {
     // Re-check environment variables per request in case they failed init
     if (!openaiApiKey) {
-        return NextResponse.json({ error: "Server configuration error: OpenAI key missing." }, { status: 500 });
+        return NextResponse.json({ error: "Server configuration error: OpenAI key missing." }, { status: 500, headers: getCorsHeaders() });
     }
      if (!supabaseUrl || !supabaseServiceKey) {
-        return NextResponse.json({ error: "Server configuration error: Supabase keys missing." }, { status: 500 });
+        return NextResponse.json({ error: "Server configuration error: Supabase keys missing." }, { status: 500, headers: getCorsHeaders() });
     }
 
     // 1. Extract query, chatbotId, history, and sessionId from request body
@@ -476,7 +476,7 @@ export async function POST(request: NextRequest) {
             throw new Error('Missing or invalid "query" or "chatbotId" in request body.');
         }
     } catch (e: any) {
-        return NextResponse.json({ error: `Invalid request body: ${e.message}` }, { status: 400 });
+        return NextResponse.json({ error: `Invalid request body: ${e.message}` }, { status: 400, headers: getCorsHeaders() });
     }
 
     const sessionId = sessionIdFromRequest || uuidv4(); // Use provided or generate new
@@ -493,19 +493,19 @@ export async function POST(request: NextRequest) {
             .single();
         if (ownerError || !chatbotOwnerData?.user_id) {
             console.error(`Error fetching owner for chatbot ${chatbotId}:`, ownerError?.message);
-            return NextResponse.json({ error: 'Chatbot not found or configuration error.' }, { status: 404 });
+            return NextResponse.json({ error: 'Chatbot not found or configuration error.' }, { status: 404, headers: getCorsHeaders() });
         }
         ownerId = chatbotOwnerData.user_id;
     } catch (e: any) {
         console.error(`Unexpected error fetching chatbot owner for ${chatbotId}:`, e.message);
-        return NextResponse.json({ error: 'Server error fetching chatbot details.' }, { status: 500 });
+        return NextResponse.json({ error: 'Server error fetching chatbot details.' }, { status: 500, headers: getCorsHeaders() });
     }
 
     // --- Step 2: PERMISSION CHECK: canSendMessage --- 
     const userCanSend = await canSendMessage(ownerId, supabaseAdmin);
     if (!userCanSend) {
         console.warn(`User ${ownerId} (creator of chatbot ${chatbotId}) has reached their message limit.`);
-        return NextResponse.json({ error: 'This chatbot is temporarily unavailable due to high message volume. Please try again later.', sessionId }, { status: 503 });
+        return NextResponse.json({ error: 'This chatbot is temporarily unavailable due to high message volume. Please try again later.', sessionId }, { status: 503, headers: getCorsHeaders() });
     }
 
     // --- Step 3: Store User's Message ---
@@ -637,7 +637,7 @@ export async function POST(request: NextRequest) {
                         try { errorBody = await response.text(); } catch { /* ignore */ }
                         console.error(`Action API request failed: ${response.status} ${response.statusText}`, errorBody);
                         // Return a generic failure message to the user
-                        return NextResponse.json({ answer: `I tried to perform the action '${triggeredAction.name}', but encountered an error.` }, { status: 200 }); // Return 200 OK but with error message
+                        return NextResponse.json({ answer: `I tried to perform the action '${triggeredAction.name}', but encountered an error.` }, { status: 200, headers: getCorsHeaders() }); // Return 200 OK but with error message
                     }
 
                     // --- Parse response body ---
@@ -657,16 +657,16 @@ export async function POST(request: NextRequest) {
                     // Action succeeded
                     if (triggeredAction.success_message) {
                         await incrementMessageCount(ownerId, supabaseAdmin);
-                        return NextResponse.json({ answer: substitute(triggeredAction.success_message) }, { status: 200 });
+                        return NextResponse.json({ answer: substitute(triggeredAction.success_message) }, { status: 200, headers: getCorsHeaders() });
                     } else {
                         await incrementMessageCount(ownerId, supabaseAdmin);
-                        return NextResponse.json({ answer: `Okay, I have performed the action: ${triggeredAction.name}.` }, { status: 200 });
+                        return NextResponse.json({ answer: `Okay, I have performed the action: ${triggeredAction.name}.` }, { status: 200, headers: getCorsHeaders() });
                     }
 
                 } catch (execError: any) {
                     console.error(`Error preparing or executing action fetch for ${triggeredAction.name}:`, execError);
                     // Do NOT increment count here as the action failed to deliver a response to user
-                    return NextResponse.json({ answer: `I encountered an unexpected error when trying to perform the action '${triggeredAction.name}'. Details: ${execError.message}` }, { status: 200 });
+                    return NextResponse.json({ answer: `I encountered an unexpected error when trying to perform the action '${triggeredAction.name}'. Details: ${execError.message}` }, { status: 200, headers: getCorsHeaders() });
                 }
             } 
         }
@@ -683,7 +683,7 @@ export async function POST(request: NextRequest) {
 
         if (chatbotFetchError) {
             console.error('Error fetching chatbot details (public): ', chatbotFetchError);
-            return NextResponse.json({ error: 'Invalid chatbot specified or server error.' }, { status: 404 });
+            return NextResponse.json({ error: 'Invalid chatbot specified or server error.' }, { status: 404, headers: getCorsHeaders() });
         }
         // ... (rest of your logic for system_prompt, integration flags, Pinecone, LLM call remains)
         // Ensure `chatbotData` used below is now `chatbotDetails`
@@ -1000,7 +1000,7 @@ Conversation History is provided in the subsequent messages.`
               content: finalAnswer ?? '',
             });
             await incrementMessageCount(ownerId, supabaseAdmin);
-            return NextResponse.json({ answer: finalAnswer ?? 'I am unable to complete the requested action.', sessionId }, { status: 200 });
+            return NextResponse.json({ answer: finalAnswer ?? 'I am unable to complete the requested action.', sessionId }, { status: 200, headers: getCorsHeaders() });
         }
 
         const answer = firstChoice.message?.content?.trim();
@@ -1015,24 +1015,33 @@ Conversation History is provided in the subsequent messages.`
           content: answer,
         });
         await incrementMessageCount(ownerId, supabaseAdmin);
-        return NextResponse.json({ answer, sessionId }, { status: 200 });
+        return NextResponse.json({ answer, sessionId }, { status: 200, headers: getCorsHeaders() });
 
     } catch (error: any) {
         console.error(`Error processing public chat request for session ${sessionId}:`, error);
         // Do NOT increment count here as an error occurred before successful response generation
-        return NextResponse.json({ error: 'An internal error occurred. Please try again later.', sessionId }, { status: 500 });
+        return NextResponse.json({ error: 'An internal error occurred. Please try again later.', sessionId }, { status: 500, headers: getCorsHeaders() });
     }
 }
 
-// Optional: Add OPTIONS method handler for CORS preflight requests if needed
-// export async function OPTIONS(request: NextRequest) {
-//   // Handle CORS preflight request
-//   const headers = new Headers();
-//   headers.set('Access-Control-Allow-Origin', '*'); // Or restrict to specific origins
-//   headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-//   headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-//   return new Response(null, { status: 204, headers });
-// }
+// Helper function to get CORS headers for public API
+function getCorsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+  };
+}
+
+// Add OPTIONS method handler for CORS preflight requests
+export async function OPTIONS(request: NextRequest) {
+  // Handle CORS preflight request
+  const headers = new Headers();
+  headers.set('Access-Control-Allow-Origin', '*'); // Allow all origins for public API
+  headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return new Response(null, { status: 204, headers });
+}
 
 // ---------------------------------------------------------------------------
 // Jira helper – create ticket for chatbot owner (no user session required)
