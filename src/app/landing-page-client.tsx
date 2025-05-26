@@ -861,9 +861,9 @@ function PricingSection() {
 // Testimonials Section Component
 function TestimonialsSection() {
   const testimonials = [
-    { quote: "SiteAgent has transformed our customer support. Our chatbot handles 70% of inquiries automatically, saving us countless hours.", author: "Sarah Johnson", role: "Customer Success Manager", company: "TechCorp Inc." },
-    { quote: "The ability to connect our chatbot to our CRM and scheduling tools has been a game-changer. It's like having an extra team member.", author: "Michael Chen", role: "Marketing Director", company: "GrowthLabs" },
-    { quote: "We uploaded our product documentation and within minutes had a chatbot that could answer technical questions accurately. Impressive!", author: "Alex Rodriguez", role: "Product Manager", company: "InnovateSoft" },
+    { quote: "SiteAgent has transformed our customer support. Our chatbot handles 70% of inquiries automatically, saving us countless hours." },
+    { quote: "The ability to connect our chatbot to our CRM and scheduling tools has been a game-changer. It's like having an extra team member." },
+    { quote: "We uploaded our product documentation and within minutes had a chatbot that could answer technical questions accurately. Impressive!" },
   ];
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -959,17 +959,6 @@ function TestimonialsSection() {
                 <blockquote className="mb-8 text-gray-300 text-lg leading-relaxed text-center transition-colors duration-300 group-hover:text-white font-medium">
                   "{testimonial.quote}"
                 </blockquote>
-                
-                {/* Author info - uncommented for better visual hierarchy */}
-                <div className="text-center pt-6 border-t border-gray-700/50">
-                  <p className="font-semibold text-white text-lg mb-1">{testimonial.author}</p>
-                  <p className="text-gray-400 transition-colors duration-300 group-hover:text-gray-300">
-                    {testimonial.role}
-                  </p>
-                  <p className="text-sm text-gray-500 transition-colors duration-300 group-hover:text-gray-400">
-                    {testimonial.company}
-                  </p>
-                </div>
               </div>
               
               {/* Bottom accent */}
