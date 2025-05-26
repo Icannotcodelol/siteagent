@@ -2,12 +2,16 @@ import { AuthButton } from "@/app/_components/auth-button";
 import LandingPageClient from "@/app/landing-page-client";
 import { Suspense } from 'react';
 import Script from "next/script";
+import Head from 'next/head';
 
 export default function Page() {
   // AuthButton is a Server Component, fetching data server-side.
   // LandingPageClient is a Client Component, receiving AuthButton as a prop.
   return (
     <>
+      <Head>
+        <link rel="canonical" href="https://www.siteagent.ai/" />
+      </Head>
       <Suspense fallback={<div>Loading...</div>}> {/* Suspense for AuthButton if needed */}
         <LandingPageClient authButtonSlot={<AuthButton />} />
       </Suspense>

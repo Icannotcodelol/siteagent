@@ -333,24 +333,21 @@ export default function LivePreview() {
     if (showDemo) return null;
 
     return (
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto transition-all duration-500 ease-in-out">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 bg-blue-600/10 border border-blue-500/20 rounded-full px-4 py-2 mb-4">
-            <Sparkles className="h-4 w-4 text-blue-400" />
-            <span className="text-blue-400 text-sm font-medium">Live Interactive Demo</span>
-          </div>
-          <h2 className="text-3xl font-bold text-white mb-3">
-            See Your Chatbot in Action
-          </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Upload a document, scrape a website, or paste text to instantly create a chatbot that looks and feels exactly like what your customers will experience.
+        <div className="text-center mb-10">
+          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            Choose Your Content Source
+          </h3>
+          <p className="text-gray-400 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
+            Start by uploading a document, entering a website URL, or pasting text content. 
+            Watch as we create an intelligent chatbot in seconds.
           </p>
         </div>
 
         {/* Content Type Tabs */}
         <div className="flex justify-center mb-8">
-          <div className="bg-gray-800/50 p-1 rounded-lg border border-gray-700">
+          <div className="bg-gray-800/60 backdrop-blur-sm p-1.5 rounded-xl border border-gray-700/50 shadow-xl">
             {[
               { type: 'document' as ContentType, icon: FileText, label: 'Upload Document' },
               { type: 'website' as ContentType, icon: Globe, label: 'Scrape Website' },
@@ -359,76 +356,100 @@ export default function LivePreview() {
               <button
                 key={type}
                 onClick={() => setActiveTab(type)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeTab === type
-                    ? 'bg-blue-600 text-white shadow-lg'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 scale-105'
                     : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                 }`}
               >
                 <Icon className="h-4 w-4" />
-                {label}
+                <span className="hidden sm:inline">{label}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Content Input Area */}
-        <div className="bg-gray-800/30 border border-gray-700 rounded-xl p-6 backdrop-blur-sm">
+        <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 shadow-2xl">
           {activeTab === 'document' && (
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-all ${
+              className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 ${
                 isDragOver
-                  ? 'border-blue-500 bg-blue-500/10'
-                  : 'border-gray-600 hover:border-gray-500'
+                  ? 'border-blue-400 bg-blue-500/10 scale-[1.02]'
+                  : 'border-gray-600/60 hover:border-gray-500/80 hover:bg-gray-700/20'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">
-                Upload Your Document
-              </h3>
-              <p className="text-gray-400 mb-4">
-                Drag and drop a PDF or TXT file, or click to browse
-              </p>
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isLoading}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="h-4 w-4 mr-2" />
-                    Choose File
-                  </>
-                )}
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.txt"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleFileUpload(file);
-                }}
-                className="hidden"
-              />
-              <p className="text-xs text-gray-500 mt-3">
-                Supports PDF and TXT files up to 5MB
-              </p>
+              <div className={`transition-all duration-300 ${isDragOver ? 'scale-110' : ''}`}>
+                <Upload className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+                <h3 className="text-xl font-semibold text-white mb-3">
+                  Upload Your Document
+                </h3>
+                <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                  Drag and drop a PDF or TXT file, or click to browse. 
+                  We'll extract the content and create your chatbot instantly.
+                </p>
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isLoading}
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-blue-600/20 transition-all duration-300"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-5 w-5 mr-2" />
+                      Choose File
+                    </>
+                  )}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.txt"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(file);
+                  }}
+                  className="hidden"
+                />
+                <div className="mt-6 flex items-center justify-center gap-6 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <FileText className="h-3 w-3" />
+                    PDF & TXT
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Shield className="h-3 w-3" />
+                    Max 5MB
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Zap className="h-3 w-3" />
+                    Instant setup
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {activeTab === 'website' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <Globe className="h-16 w-16 text-blue-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  Scrape Website Content
+                </h3>
+                <p className="text-gray-400 max-w-md mx-auto">
+                  Enter any website URL and we'll extract the content to train your chatbot
+                </p>
+              </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-white mb-3">
                   Website URL
                 </label>
                 <div className="flex gap-3">
@@ -437,71 +458,101 @@ export default function LivePreview() {
                     value={websiteUrl}
                     onChange={(e) => setWebsiteUrl(e.target.value)}
                     placeholder="https://example.com"
-                    className="flex-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-4 py-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   />
                   <Button
                     onClick={handleWebsiteSubmit}
                     disabled={!websiteUrl.trim() || isLoading}
-                    className="bg-blue-600 hover:bg-blue-700 px-6"
+                    size="lg"
+                    className="bg-blue-600 hover:bg-blue-700 px-8 shadow-lg hover:shadow-blue-600/20"
                   >
                     {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
                       <>
-                        <Globe className="h-4 w-4 mr-2" />
+                        <Globe className="h-5 w-5 mr-2" />
                         Scrape
                       </>
                     )}
                   </Button>
                 </div>
               </div>
-              <p className="text-xs text-gray-500">
-                We'll extract the content from the website to train your chatbot
-              </p>
+              <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
+                <div className="flex items-center gap-1">
+                  <Shield className="h-3 w-3" />
+                  Secure extraction
+                </div>
+                <div className="flex items-center gap-1">
+                  <Zap className="h-3 w-3" />
+                  Real-time processing
+                </div>
+              </div>
             </div>
           )}
 
           {activeTab === 'text' && (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              <div className="text-center mb-6">
+                <MessageCircle className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  Paste Text Content
+                </h3>
+                <p className="text-gray-400 max-w-md mx-auto">
+                  Paste any text content and we'll create a chatbot that can answer questions about it
+                </p>
+              </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-2">
+                <label className="block text-sm font-medium text-white mb-3">
                   Text Content
                 </label>
                 <textarea
                   value={textContent}
                   onChange={(e) => setTextContent(e.target.value)}
-                  placeholder="Paste your text content here..."
-                  rows={6}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  placeholder="Paste your text content here... This could be product descriptions, FAQs, documentation, or any other text you want your chatbot to understand."
+                  rows={8}
+                  className="w-full px-4 py-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
                 />
               </div>
-              <Button
-                onClick={handleTextSubmit}
-                disabled={!textContent.trim() || isLoading}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <FileText className="h-4 w-4 mr-2" />
-                    Create Chatbot
-                  </>
-                )}
-              </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-6 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <FileText className="h-3 w-3" />
+                    Any text format
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Zap className="h-3 w-3" />
+                    Instant training
+                  </div>
+                </div>
+                <Button
+                  onClick={handleTextSubmit}
+                  disabled={!textContent.trim() || isLoading}
+                  size="lg"
+                  className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-blue-600/20"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="h-5 w-5 mr-2" />
+                      Create Chatbot
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
           )}
 
           {error && (
-            <div className="mt-4 bg-red-900/50 border border-red-700 rounded-lg p-4">
+            <div className="mt-6 bg-red-900/30 border border-red-700/50 rounded-xl p-6 backdrop-blur-sm animate-in slide-in-from-top duration-300">
               <div className="flex items-start gap-3">
-                <XCircle className="h-5 w-5 text-red-400 mt-0.5 flex-shrink-0" />
+                <XCircle className="h-6 w-6 text-red-400 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h4 className="text-red-200 font-medium mb-1">Error</h4>
-                  <p className="text-red-300 text-sm">{error}</p>
+                  <h4 className="text-red-200 font-medium mb-2">Something went wrong</h4>
+                  <p className="text-red-300 text-sm leading-relaxed">{error}</p>
                 </div>
               </div>
             </div>
@@ -516,48 +567,66 @@ export default function LivePreview() {
     if (!showDemo) return null;
 
     return (
-      <div className="w-full max-w-6xl mx-auto">
-        {/* Mock Website Context */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl border border-gray-700 p-8 mb-6">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-4 py-2 mb-4">
-              <CheckCircle className="h-4 w-4 text-green-400" />
-              <span className="text-green-400 text-sm font-medium">Demo Chatbot Created!</span>
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              This is how your chatbot appears to visitors
-            </h3>
-            <p className="text-gray-400">
-              The widget below shows exactly what your customers will see and interact with on your website
-            </p>
+      <div className="w-full max-w-6xl mx-auto animate-in fade-in duration-700 slide-in-from-bottom-4">
+        {/* Demo Status Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-6 py-3 mb-6 shadow-lg backdrop-blur-sm">
+            <CheckCircle className="h-5 w-5 text-green-400" />
+            <span className="text-green-400 font-medium">Demo Chatbot Ready!</span>
           </div>
+          <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
+            This is how your chatbot appears to visitors
+          </h3>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            The widget below shows exactly what your customers will see and interact with on your website.
+            Try asking questions about the content you just provided.
+          </p>
+        </div>
 
+        {/* Mock Website Context */}
+        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700/50 p-8 mb-8 shadow-2xl backdrop-blur-sm">
           {/* Mock website content */}
-          <div className="bg-white rounded-lg p-6 mb-6 relative overflow-hidden">
+          <div className="bg-white rounded-xl p-8 relative overflow-hidden shadow-xl">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50"></div>
             <div className="relative">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <Bot className="h-5 w-5 text-white" />
+              <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200">
+                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Bot className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900">Your Business Website</h4>
-                  <p className="text-sm text-gray-600">Powered by SiteAgent</p>
+                  <h4 className="font-bold text-gray-900 text-lg">Your Business Website</h4>
+                  <p className="text-sm text-gray-600">Powered by SiteAgent AI</p>
+                </div>
+                <div className="ml-auto">
+                  <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    AI Assistant Online
+                  </div>
                 </div>
               </div>
-              <div className="grid md:grid-cols-2 gap-6 text-gray-800">
+              <div className="grid md:grid-cols-2 gap-8 text-gray-800">
                 <div>
-                  <h5 className="font-semibold mb-2">About Our Service</h5>
-                  <p className="text-sm leading-relaxed">
+                  <h5 className="font-semibold mb-3 text-gray-900">About Our Service</h5>
+                  <p className="text-sm leading-relaxed text-gray-700">
                     Welcome to our support center. Our AI assistant can help you find answers instantly using the content you just uploaded.
+                    It's trained on your specific information and ready to assist your visitors 24/7.
                   </p>
                 </div>
                 <div>
-                  <h5 className="font-semibold mb-2">Quick Links</h5>
-                  <div className="space-y-1 text-sm">
-                    <a href="/signup" className="block text-blue-600 hover:text-blue-800 transition-colors">• Start Free Trial</a>
-                    <a href="/#features" className="block text-blue-600 hover:text-blue-800 transition-colors">• See Features</a>
-                    <a href="/#pricing" className="block text-blue-600 hover:text-blue-800 transition-colors">• View Pricing</a>
+                  <h5 className="font-semibold mb-3 text-gray-900">Quick Links</h5>
+                  <div className="space-y-2 text-sm">
+                    <a href="/signup" className="flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+                      <ArrowRight className="h-3 w-3 mr-2" />
+                      Start Free Trial
+                    </a>
+                    <a href="/#features" className="flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+                      <ArrowRight className="h-3 w-3 mr-2" />
+                      See Features
+                    </a>
+                    <a href="/#pricing" className="flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+                      <ArrowRight className="h-3 w-3 mr-2" />
+                      View Pricing
+                    </a>
                   </div>
                 </div>
               </div>
@@ -566,30 +635,31 @@ export default function LivePreview() {
         </div>
 
         {/* Chatbot Widget */}
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-8 duration-500 delay-300">
           {isMinimized ? (
             // Minimized widget launcher
             <button
               onClick={() => setIsMinimized(false)}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition-all duration-200 hover:scale-110 group border-2 border-blue-500"
+              className="group bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-blue-500/50"
             >
-              <MessageCircle className="h-6 w-6" />
-              <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
+              <MessageCircle className="h-7 w-7" />
+              <div className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-white animate-pulse shadow-lg"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-ping"></div>
             </button>
           ) : (
             // Expanded widget
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-80 h-96 flex flex-col overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-80 h-96 flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
               {/* Widget Header */}
               <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                    <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
                       <Bot className="h-5 w-5" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-sm">AI Assistant</h4>
                       <div className="flex items-center gap-1 text-xs text-blue-100">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                         Online
                       </div>
                     </div>
@@ -597,13 +667,13 @@ export default function LivePreview() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setIsMinimized(true)}
-                      className="p-1 hover:bg-white/20 rounded-md transition-colors"
+                      className="p-2 hover:bg-white/20 rounded-lg transition-colors"
                     >
                       <Minimize2 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={resetPreview}
-                      className="p-1 hover:bg-white/20 rounded-md transition-colors"
+                      className="p-2 hover:bg-white/20 rounded-lg transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -614,27 +684,34 @@ export default function LivePreview() {
               {/* Messages Area */}
               <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
                 {session?.status === 'processing' && (
-                  <div className="text-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-3" />
-                    <p className="text-gray-600 text-sm">Training your AI assistant...</p>
+                  <div className="text-center py-12 animate-in fade-in duration-500">
+                    <div className="relative">
+                      <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto mb-4" />
+                      <div className="absolute inset-0 animate-ping">
+                        <Loader2 className="h-10 w-10 text-blue-400 mx-auto opacity-20" />
+                      </div>
+                    </div>
+                    <p className="text-gray-600 text-sm font-medium">Training your AI assistant...</p>
+                    <p className="text-gray-500 text-xs mt-1">This usually takes just a few seconds</p>
                   </div>
                 )}
 
-                <div className="space-y-3">
-                  {messages.map((message) => (
+                <div className="space-y-4">
+                  {messages.map((message, index) => (
                     <div
                       key={message.id}
-                      className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
                       <div
-                        className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
+                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
                           message.isUser
                             ? 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-800 shadow-sm border border-gray-200'
+                            : 'bg-white text-gray-800 border border-gray-200'
                         }`}
                       >
-                        <p className="whitespace-pre-wrap text-left">{message.content}</p>
-                        <div className={`text-xs mt-1 ${
+                        <p className="whitespace-pre-wrap text-left leading-relaxed">{message.content}</p>
+                        <div className={`text-xs mt-2 ${
                           message.isUser ? 'text-blue-100' : 'text-gray-500'
                         }`}>
                           {message.timestamp.toLocaleTimeString([], { 
@@ -647,14 +724,15 @@ export default function LivePreview() {
                   ))}
 
                   {isSending && (
-                    <div className="flex justify-start">
-                      <div className="bg-white rounded-2xl px-3 py-2 shadow-sm border border-gray-200">
+                    <div className="flex justify-start animate-in fade-in duration-300">
+                      <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-200">
                         <div className="flex items-center gap-2">
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                           </div>
+                          <span className="text-xs text-gray-500 ml-1">AI is typing...</span>
                         </div>
                       </div>
                     </div>
@@ -666,15 +744,16 @@ export default function LivePreview() {
 
               {/* Suggested Questions */}
               {session?.status === 'completed' && session.suggestedQuestions.length > 0 && messages.length <= 1 && (
-                <div className="px-4 py-2 bg-gray-50 border-t border-gray-200">
-                  <p className="text-xs text-gray-500 mb-2">Suggested questions:</p>
-                  <div className="space-y-1">
+                <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 animate-in slide-in-from-bottom duration-300 delay-200">
+                  <p className="text-xs text-gray-500 mb-3 font-medium">Try these questions:</p>
+                  <div className="space-y-2">
                     {session.suggestedQuestions.slice(0, 2).map((question, index) => (
                       <button
                         key={index}
                         onClick={() => handleSuggestedQuestion(question)}
-                        className="w-full text-left p-2 bg-white hover:bg-gray-100 rounded-lg text-xs text-gray-700 border border-gray-200 transition-colors"
+                        className="w-full text-left p-3 bg-white hover:bg-blue-50 rounded-xl text-xs text-gray-700 border border-gray-200 transition-all duration-200 hover:border-blue-200 hover:shadow-sm"
                       >
+                        <span className="text-blue-600 mr-1">💬</span>
                         {question}
                       </button>
                     ))}
@@ -685,29 +764,32 @@ export default function LivePreview() {
               {/* Message Input */}
               {session?.status === 'completed' && session.remainingMessages > 0 && (
                 <div className="p-4 bg-white border-t border-gray-200">
-                  <div className="flex gap-2">
+                  <div className="flex gap-3">
                     <input
                       type="text"
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputMessage)}
-                      placeholder="Type your message..."
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      placeholder="Ask me anything..."
+                      className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       disabled={isSending}
                     />
                     <button
                       onClick={() => sendMessage(inputMessage)}
                       disabled={!inputMessage.trim() || isSending}
-                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white p-2 rounded-lg transition-colors"
+                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white p-3 rounded-xl transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed"
                     >
                       <Send className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="flex items-center justify-between mt-2 text-xs text-gray-500">
-                    <span>{session.remainingMessages} messages remaining in demo</span>
+                  <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {session.remainingMessages} messages remaining
+                    </span>
                     <span className="flex items-center gap-1">
                       <Shield className="h-3 w-3" />
-                      Secure
+                      Secure & Private
                     </span>
                   </div>
                 </div>
@@ -715,19 +797,19 @@ export default function LivePreview() {
 
               {/* Upgrade Prompt */}
               {session?.remainingMessages === 0 && (
-                <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center">
-                  <Sparkles className="h-5 w-5 mx-auto mb-2" />
-                  <p className="font-medium text-sm mb-1">Demo completed!</p>
-                  <p className="text-xs text-blue-100 mb-3">
-                    Create unlimited chatbots and embed them on your website
+                <div className="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center animate-in slide-in-from-bottom duration-300">
+                  <Sparkles className="h-6 w-6 mx-auto mb-3 animate-pulse" />
+                  <p className="font-semibold text-base mb-2">Demo completed!</p>
+                  <p className="text-xs text-blue-100 mb-4 leading-relaxed">
+                    Ready to create unlimited chatbots and embed them on your website?
                   </p>
                   <Button
                     onClick={() => window.location.href = '/signup'}
                     size="sm"
-                    className="bg-white text-blue-600 hover:bg-gray-100 text-xs"
+                    className="bg-white text-blue-600 hover:bg-gray-100 text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200"
                   >
                     Start Free Trial
-                    <ArrowRight className="h-3 w-3 ml-1" />
+                    <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
               )}
@@ -736,14 +818,18 @@ export default function LivePreview() {
         </div>
 
         {/* Demo Controls */}
-        <div className="text-center mt-8">
-          <Button
-            onClick={resetPreview}
-            variant="outline"
-            className="border-gray-600 text-gray-300 hover:bg-gray-800"
-          >
-            Try Another Demo
-          </Button>
+        <div className="text-center mt-12 animate-in fade-in duration-500 delay-500">
+          <div className="inline-flex items-center gap-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
+            <p className="text-gray-400 text-sm">Want to try with different content?</p>
+            <Button
+              onClick={resetPreview}
+              variant="outline"
+              size="sm"
+              className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200"
+            >
+              Try Another Demo
+            </Button>
+          </div>
         </div>
       </div>
     );

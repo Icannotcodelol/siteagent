@@ -23,10 +23,12 @@ import {
   Webhook,
   X,
   Zap,
+  Sparkles,
 } from "lucide-react";
 import { Button, cn } from "@/app/_components/ui/button";
 import IntegrationsBar from "@/app/_components/ui/integrations-bar";
 import LivePreview from "@/app/_components/live-preview";
+import CookieBanner from "@/app/_components/ui/cookie-banner";
 import { createClient } from '@/lib/supabase/client';
 // AuthButton import is removed as it will be passed as a prop
 
@@ -260,14 +262,22 @@ function HeroSection() {
     setError(null);
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        window.location.href = '/dashboard';
-      } else {
+      
+      // Clear any existing session errors first
+      await supabase.auth.signOut({ scope: 'local' });
+      
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      // If there's an auth error, treat as non-authenticated
+      if (authError || !user) {
         window.location.href = '/signup';
+      } else {
+        window.location.href = '/dashboard';
       }
     } catch (err) {
-      setError('Unexpected error.');
+      console.warn('Auth check failed, redirecting to signup:', err);
+      // On any error, just redirect to signup
+      window.location.href = '/signup';
     } finally {
       setLoading(false);
     }
@@ -275,79 +285,175 @@ function HeroSection() {
 
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800"></div>
+      {/* Enhanced background with more depth */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
+      </div>
+      
+      {/* Enhanced orbs with better gradients */}
       <div
         ref={orb1Ref}
-        className="absolute -top-40 left-0 right-0 mx-auto h-[500px] w-[500px] rounded-full bg-blue-600/20 blur-[100px] transition-transform duration-200 ease-out"
+        className="absolute -top-40 left-0 right-0 mx-auto h-[500px] w-[500px] rounded-full bg-gradient-to-r from-blue-600/30 via-blue-400/20 to-purple-600/20 blur-[120px] transition-transform duration-200 ease-out"
       ></div>
       <div
         ref={orb2Ref}
-        className="absolute bottom-0 right-0 h-[300px] w-[300px] translate-x-1/2 translate-y-1/2 rounded-full bg-purple-600/10 blur-[80px] transition-transform duration-200 ease-out"
+        className="absolute bottom-0 right-0 h-[300px] w-[300px] translate-x-1/2 translate-y-1/2 rounded-full bg-gradient-to-l from-purple-600/20 via-pink-500/10 to-blue-600/15 blur-[80px] transition-transform duration-200 ease-out"
       ></div>
+      
       <div className="container relative mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="mb-6 inline-flex items-center rounded-full border border-gray-700 bg-gray-800/80 px-3 py-1 backdrop-blur transition-all duration-300 hover:border-gray-600 hover:bg-gray-800">
-            <span className="mr-2 rounded-full bg-blue-600 px-1.5 py-0.5 text-xs font-medium text-white">NEW</span>
-            <span className="text-sm text-gray-300">Try our AI chatbot instantly - no signup required!</span>
+          {/* Enhanced badge with better animation */}
+          <div className="group mb-8 inline-flex items-center rounded-full border border-gray-700/50 bg-gray-800/60 backdrop-blur-xl px-4 py-2 transition-all duration-500 hover:border-blue-500/30 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-blue-500/10">
+            <span className="mr-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-0.5 text-xs font-semibold text-white shadow-lg">NEW</span>
+            <span className="text-sm text-gray-300 transition-colors duration-300 group-hover:text-gray-200">Try our AI chatbot instantly - no signup required!</span>
+            <ArrowRight className="ml-2 h-3 w-3 text-gray-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-blue-400" />
           </div>
-          <h1 className="mb-6 max-w-4xl bg-gradient-to-r from-white to-gray-300 bg-clip-text text-4xl font-bold tracking-tight text-transparent sm:text-5xl md:text-6xl">
-            Build AI Chatbots That{" "}
-            <span className="bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">
+          
+          {/* Enhanced heading with better typography */}
+          <h1 className="mb-8 max-w-5xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              Build AI Chatbots That{" "}
+            </span>
+            <span className="block bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent animate-pulse">
               Actually Solve Problems
             </span>
           </h1>
-          <p className="mb-10 max-w-2xl text-xl text-gray-400">
+          
+          {/* Enhanced description with better spacing */}
+          <p className="mb-12 max-w-3xl text-xl leading-relaxed text-gray-400 md:text-2xl">
             Create, deploy, and manage intelligent chatbots that integrate with your tools, understand your documents,
             and deliver real value to your visitors.
           </p>
-          <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+          
+          {/* Enhanced button group with better visual hierarchy */}
+          <div className="flex flex-col items-center space-y-6 sm:flex-row sm:space-x-6 sm:space-y-0">
             <Button
               size="lg"
-              className="group relative overflow-hidden bg-blue-600 text-white transition-all duration-300 hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-600/20"
+              className="group relative h-14 overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 px-8 text-lg font-medium text-white shadow-2xl shadow-blue-600/25 transition-all duration-300 hover:scale-105 hover:from-blue-500 hover:to-blue-600 hover:shadow-3xl hover:shadow-blue-600/40 active:scale-95"
               onClick={handleGetStarted}
               disabled={loading}
             >
               <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-1">
-                {loading ? 'Checking...' : 'Get Started Free'}
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                {loading ? (
+                  <>
+                    <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" />
+                  </>
+                )}
               </span>
-              <span className="absolute inset-0 z-0 translate-y-[105%] bg-blue-500 transition-transform duration-300 group-hover:translate-y-0"></span>
+              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
             </Button>
-            <Link href="#live-preview">
+            
+            <Link href="#live-demo">
               <Button
                 size="lg"
                 variant="outline"
-                className="border-gray-700 text-gray-300 transition-all duration-300 hover:border-gray-600 hover:bg-gray-800/50 hover:text-white hover:shadow-lg"
+                className="group h-14 border-2 border-gray-600/50 bg-gray-800/30 px-8 text-lg font-medium text-gray-300 backdrop-blur-sm transition-all duration-300 hover:border-gray-500 hover:bg-gray-700/50 hover:text-white hover:shadow-xl hover:shadow-gray-900/50"
               >
-                Try Live Preview
+                <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
+                  Try Live Demo
+                  <Sparkles className="ml-2 h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                </span>
               </Button>
             </Link>
           </div>
-          {error && (
-            <div className="mt-2 text-red-500 text-sm">{error}</div>
-          )}
-          <div className="mt-10 flex items-center justify-center space-x-6 text-sm text-gray-400">
-            <div className="flex items-center">
-              <Zap className="mr-2 h-4 w-4 text-blue-500" />
-              <span>Quick setup</span>
-            </div>
-            <div className="flex items-center">
-              <Bot className="mr-2 h-4 w-4 text-blue-500" />
-              <span>No coding required</span>
-            </div>
-          </div>
           
-          {/* Live Preview Section */}
-          <div id="live-preview" className="mt-16 w-full">
-            <div
-              ref={previewRef}
-              className="transition-all duration-200 ease-out"
-            >
-              <LivePreview />
+          {error && (
+            <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+              <div className="rounded-lg bg-red-900/20 border border-red-700/50 px-4 py-2 text-red-400 text-sm backdrop-blur-sm">
+                {error}
+              </div>
+            </div>
+          )}
+          
+          {/* Enhanced feature highlights with better visual design */}
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-400">
+            <div className="group flex items-center transition-all duration-300 hover:text-gray-300">
+              <div className="mr-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 p-2 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <Zap className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-medium">Quick setup</span>
+            </div>
+            <div className="group flex items-center transition-all duration-300 hover:text-gray-300">
+              <div className="mr-3 rounded-full bg-gradient-to-r from-purple-500 to-purple-600 p-2 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <Bot className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-medium">No coding required</span>
+            </div>
+            <div className="group flex items-center transition-all duration-300 hover:text-gray-300">
+              <div className="mr-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 p-2 shadow-lg transition-transform duration-300 group-hover:scale-110">
+                <Lock className="h-4 w-4 text-white" />
+              </div>
+              <span className="font-medium">Enterprise secure</span>
             </div>
           </div>
         </div>
       </div>
+    </section>
+  );
+}
+
+// Live Demo Section Component
+function LiveDemoSection() {
+  return (
+    <section id="live-demo" className="relative py-20 md:py-24 bg-gradient-to-b from-gray-800 to-gray-900">
+      {/* Visual separator */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"></div>
+      
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+          backgroundSize: '24px 24px'
+        }}></div>
+      </div>
+
+      <div className="container relative mx-auto px-4 md:px-6">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-600/10 px-4 py-2 mb-6">
+            <Sparkles className="h-4 w-4 text-blue-400 mr-2" />
+            <span className="text-blue-400 text-sm font-medium">Interactive Experience</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Experience the Magic
+            <span className="block text-blue-400">Before You Build</span>
+          </h2>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            See exactly how your chatbot will look and behave on your website. 
+            Upload content, watch it train, and interact with your AI assistant in real-time.
+          </p>
+        </div>
+
+        {/* Demo container with enhanced styling */}
+        <div className="relative">
+          {/* Glow effect */}
+          <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-blue-600/20 rounded-3xl blur-xl opacity-50"></div>
+          
+          {/* Demo content */}
+          <div className="relative bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 md:p-8">
+            <LivePreview />
+          </div>
+        </div>
+
+        {/* Bottom separator with integration preview */}
+        <div className="mt-16 pt-12 border-t border-gray-700/50">
+          <div className="text-center mb-8">
+            <p className="text-gray-400 text-sm">
+              Seamlessly integrates with your existing workflow
+            </p>
+          </div>
+          <IntegrationsBar />
+        </div>
+      </div>
+
+      {/* Bottom visual separator */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
     </section>
   );
 }
@@ -391,43 +497,80 @@ function FeaturesSection() {
   }, []);
 
   return (
-    <section id="features" ref={sectionRef} className="bg-gray-900 py-20">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mx-auto mb-16 max-w-2xl text-center">
-          <h2 className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-            Everything You Need to Build Powerful AI Chatbots
+    <section id="features" ref={sectionRef} className="relative py-24 md:py-32 bg-gray-900">
+      {/* Enhanced visual separator */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+      
+      {/* Enhanced background elements with better composition */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-40 h-40 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-gradient-to-l from-purple-500/20 to-pink-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-3/4 left-1/2 w-32 h-32 bg-gradient-to-r from-green-500/15 to-blue-500/15 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      <div className="container relative mx-auto px-4 md:px-6">
+        {/* Enhanced header section */}
+        <div className="mx-auto mb-20 max-w-4xl text-center">
+          <div className="group inline-flex items-center rounded-full border border-blue-500/30 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-xl px-6 py-3 mb-8 transition-all duration-500 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20">
+            <Database className="h-5 w-5 text-blue-400 mr-3 transition-transform duration-300 group-hover:scale-110" />
+            <span className="text-blue-400 text-sm font-semibold tracking-wide">Powerful Features</span>
+          </div>
+          <h2 className="mb-8 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              Everything You Need to Build
+            </span>
+            <span className="block bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mt-2">
+              Powerful AI Chatbots
+            </span>
           </h2>
-          <p className="mt-4 text-lg text-gray-400">
-            SiteAgent provides all the tools to create, deploy, and manage chatbots that deliver real value.
+          <p className="text-xl md:text-2xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
+            SiteAgent provides all the tools to create, deploy, and manage chatbots that deliver real value to your customers.
           </p>
         </div>
+        
+        {/* Enhanced feature grid */}
         <div className="grid grid-cols-1 gap-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
           {features.map((feature, index) => (
             <div
               key={index}
               ref={(el) => { cardsRef.current[index] = el; }}
-              className="group rounded-2xl border border-gray-800 bg-gray-800/70 p-8 transition-all duration-500 hover:border-blue-500 hover:bg-gray-800/90 hover:shadow-xl hover:scale-[1.03]"
+              className="group relative overflow-hidden rounded-3xl border border-gray-800/50 bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 shadow-2xl backdrop-blur-sm opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600/50 hover:shadow-3xl hover:shadow-blue-900/20 hover:-translate-y-2"
             >
-              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-xl bg-white/90 shadow-md group-hover:scale-110 transition-transform">
-                <Image
-                  src={feature.img}
-                  alt={feature.title}
-                  width={68}
-                  height={68}
-                  className="object-contain"
-                  style={{ background: 'white' }}
-                />
+              {/* Background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+              
+              {/* Icon container with enhanced design */}
+              <div className="relative mb-8 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-1 shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                <div className="flex h-full w-full items-center justify-center rounded-[22px] bg-white">
+                  <Image
+                    src={feature.img}
+                    alt={feature.title}
+                    width={40}
+                    height={40}
+                    className="object-contain transition-transform duration-300 group-hover:scale-110"
+                  />
+                </div>
               </div>
-              <h3 className="mb-2 text-lg font-extrabold text-white group-hover:text-blue-400 transition-colors">
-                {feature.title}
-              </h3>
-              <p className="text-gray-300 text-base">
-                {feature.description}
-              </p>
+              
+              {/* Content with better typography */}
+              <div className="relative">
+                <h3 className="mb-6 text-2xl font-bold text-white transition-all duration-300 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-400 leading-relaxed text-lg transition-colors duration-300 group-hover:text-gray-300">
+                  {feature.description}
+                </p>
+              </div>
+              
+              {/* Subtle hover effect accent */}
+              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500 group-hover:w-full"></div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Enhanced bottom visual separator */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
     </section>
   );
 }
@@ -588,54 +731,125 @@ function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="bg-gray-900 py-20">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mx-auto mb-16 max-w-2xl text-center">
-          <h2 className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-            Simple, transparent pricing
+    <section id="pricing" className="relative bg-gray-900 py-24 md:py-32 overflow-hidden">
+      {/* Enhanced background with subtle pattern */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800"></div>
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)`,
+          backgroundSize: '40px 40px'
+        }}></div>
+      </div>
+      
+      {/* Background orbs */}
+      <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full filter blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-500/10 to-pink-500/10 rounded-full filter blur-3xl"></div>
+      
+      <div className="container relative mx-auto px-4 md:px-6">
+        {/* Enhanced header */}
+        <div className="mx-auto mb-20 max-w-3xl text-center">
+          <div className="inline-flex items-center rounded-full border border-green-500/30 bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-xl px-6 py-3 mb-8">
+            <span className="text-green-400 text-sm font-semibold tracking-wide">Transparent Pricing</span>
+          </div>
+          <h2 className="mb-6 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              Simple, transparent
+            </span>
+            <span className="block bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mt-2">
+              pricing
+            </span>
           </h2>
-          <p className="mt-4 text-lg text-gray-400">
+          <p className="text-xl text-gray-400 leading-relaxed">
             Start for free – upgrade when you need more power. No hidden fees.
           </p>
         </div>
+        
+        {/* Enhanced pricing grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative flex flex-col overflow-hidden rounded-2xl border border-gray-800 bg-gray-800/70 p-8 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${
-                plan.highlight ? "ring-2 ring-blue-600" : ""
+              className={`group relative flex flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 p-8 shadow-2xl backdrop-blur-sm border transition-all duration-500 hover:scale-105 hover:shadow-3xl ${
+                plan.highlight 
+                  ? "border-blue-500/50 ring-2 ring-blue-500/20 hover:ring-blue-400/30" 
+                  : "border-gray-700/50 hover:border-gray-600/50"
               }`}
             >
+              {/* Popular badge */}
               {plan.highlight && (
-                <span className="absolute right-4 top-4 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white shadow-lg">
+                <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-lg uppercase tracking-wider">
                   Most Popular
                 </span>
               )}
-              <h3 className="mb-2 text-xl font-bold text-white">{plan.name}</h3>
-              <p className="mb-6 text-gray-400">{plan.description}</p>
-              <div className="mb-6 flex items-end gap-1">
-                <span className="text-4xl font-extrabold text-white">{plan.price}</span>
-                <span className="text-sm text-gray-400">/{plan.period}</span>
+              
+              {/* Background gradient overlay */}
+              <div className={`absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${
+                plan.highlight 
+                  ? "bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/10"
+                  : "bg-gradient-to-br from-gray-600/5 via-transparent to-gray-700/5"
+              }`}></div>
+              
+              <div className="relative flex flex-col h-full">
+                {/* Plan header */}
+                <div className="mb-6">
+                  <h3 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${
+                    plan.highlight 
+                      ? "text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text"
+                      : "text-white group-hover:text-gray-200"
+                  }`}>{plan.name}</h3>
+                  <p className="text-gray-400 leading-relaxed">{plan.description}</p>
+                </div>
+                
+                {/* Pricing */}
+                <div className="mb-8">
+                  <div className="flex items-end gap-1">
+                    <span className="text-5xl font-extrabold text-white">{plan.price}</span>
+                    {plan.period && (
+                      <span className="text-gray-400 text-lg mb-1">/{plan.period}</span>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Features */}
+                <ul className="mb-10 space-y-4 flex-grow">
+                  {plan.features.map((feature, fIdx) => (
+                    <li key={fIdx} className="flex items-start">
+                      <div className={`mr-3 mt-0.5 rounded-full p-1 ${
+                        plan.highlight 
+                          ? "bg-gradient-to-r from-blue-500 to-purple-600"
+                          : "bg-gradient-to-r from-green-500 to-green-600"
+                      }`}>
+                        <Check className="h-3 w-3 text-white" />
+                      </div>
+                      <span className="text-gray-300 leading-relaxed">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                {/* CTA Button */}
+                <Link href={plan.href} className="mt-auto inline-flex">
+                  <Button
+                    size="lg"
+                    className={`group w-full h-12 text-lg font-semibold transition-all duration-300 hover:scale-105 ${
+                      plan.highlight
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40"
+                        : "border-2 border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700 hover:text-white"
+                    }`}
+                  >
+                    <span className="flex items-center justify-center">
+                      {plan.cta}
+                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </Button>
+                </Link>
               </div>
-              <ul className="mb-8 space-y-3 text-sm">
-                {plan.features.map((feature, fIdx) => (
-                  <li key={fIdx} className="flex items-center text-gray-300">
-                    <Check className="mr-2 h-4 w-4 text-blue-500" /> {feature}
-                  </li>
-                ))}
-              </ul>
-              <Link href={plan.href} className="mt-auto inline-flex">
-                <Button
-                  size="lg"
-                  className={
-                    plan.highlight
-                      ? "w-full bg-blue-600 text-white hover:bg-blue-700"
-                      : "w-full border-gray-700 bg-transparent text-white hover:bg-gray-700"
-                  }
-                >
-                  {plan.cta}
-                </Button>
-              </Link>
+              
+              {/* Bottom accent */}
+              <div className={`absolute bottom-0 left-0 h-1 w-0 transition-all duration-500 group-hover:w-full ${
+                plan.highlight 
+                  ? "bg-gradient-to-r from-blue-500 to-purple-600"
+                  : "bg-gradient-to-r from-gray-600 to-gray-500"
+              }`}></div>
             </div>
           ))}
         </div>
@@ -680,35 +894,86 @@ function TestimonialsSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-gray-800 py-20">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mx-auto mb-16 max-w-2xl text-center">
-          <h2 className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
-            Trusted by Innovative Companies
+    <section ref={sectionRef} className="relative bg-gray-800 py-24 md:py-32 overflow-hidden">
+      {/* Enhanced background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"></div>
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+      
+      <div className="container relative mx-auto px-4 md:px-6">
+        {/* Enhanced header */}
+        <div className="mx-auto mb-20 max-w-3xl text-center">
+          <div className="inline-flex items-center rounded-full border border-yellow-500/30 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 backdrop-blur-xl px-6 py-3 mb-8">
+            <span className="text-yellow-400 text-sm font-semibold tracking-wide">Customer Stories</span>
+          </div>
+          <h2 className="mb-6 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              Trusted by Innovative
+            </span>
+            <span className="block bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent mt-2">
+              Companies
+            </span>
           </h2>
-          <p className="mt-4 text-lg text-gray-400">See what our customers are saying about SiteAgent.</p>
+          <p className="text-xl text-gray-400 leading-relaxed">See what our customers are saying about SiteAgent.</p>
         </div>
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 md:grid-cols-3">
+        
+        {/* Enhanced testimonials grid */}
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
           {testimonials.map((testimonial, index) => (
             <div
               key={index}
               ref={(el) => { cardsRef.current[index] = el; }}
-              className="group rounded-lg border border-gray-700 bg-gray-900 p-6 shadow-lg opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600 hover:shadow-xl hover:shadow-blue-900/5"
+              className="group relative rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 shadow-2xl backdrop-blur-sm border border-gray-700/50 opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600/50 hover:shadow-3xl hover:shadow-yellow-900/10 hover:-translate-y-2"
             >
-              <div className="mb-4 flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-current text-yellow-500 transition-all duration-300 group-hover:scale-110 group-hover:text-yellow-400" />
-                ))}
+              {/* Background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-600/5 via-transparent to-orange-600/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl"></div>
+              
+              <div className="relative">
+                {/* Star rating with enhanced animation */}
+                <div className="mb-8 flex justify-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className="h-6 w-6 fill-current text-yellow-500 transition-all duration-300 group-hover:scale-125 group-hover:text-yellow-400 mx-0.5" 
+                      style={{ 
+                        animationDelay: `${i * 0.1}s`,
+                        transform: 'rotate(0deg)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Quote icon */}
+                <div className="mb-6 flex justify-center">
+                  <div className="rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 p-3">
+                    <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 32 32">
+                      <path d="M10 8v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4zm12 0v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4z"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Enhanced quote with better typography */}
+                <blockquote className="mb-8 text-gray-300 text-lg leading-relaxed text-center transition-colors duration-300 group-hover:text-white font-medium">
+                  "{testimonial.quote}"
+                </blockquote>
+                
+                {/* Author info - uncommented for better visual hierarchy */}
+                <div className="text-center pt-6 border-t border-gray-700/50">
+                  <p className="font-semibold text-white text-lg mb-1">{testimonial.author}</p>
+                  <p className="text-gray-400 transition-colors duration-300 group-hover:text-gray-300">
+                    {testimonial.role}
+                  </p>
+                  <p className="text-sm text-gray-500 transition-colors duration-300 group-hover:text-gray-400">
+                    {testimonial.company}
+                  </p>
+                </div>
               </div>
-              <blockquote className="mb-4 text-gray-300 transition-colors duration-300 group-hover:text-white">
-                "{testimonial.quote}"
-              </blockquote>
-              {/* <div className="mt-4">
-                <p className="font-medium text-white">{testimonial.author}</p>
-                <p className="text-sm text-gray-400 transition-colors duration-300 group-hover:text-gray-300">
-                  {testimonial.role}, {testimonial.company}
-                </p>
-              </div> */}
+              
+              {/* Bottom accent */}
+              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-500 group-hover:w-full rounded-b-3xl"></div>
             </div>
           ))}
         </div>
@@ -805,38 +1070,91 @@ function CtaSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-gray-800 py-20">
-      <div className="container mx-auto px-4 md:px-6">
+    <section ref={sectionRef} className="relative bg-gray-800 py-24 md:py-32 overflow-hidden">
+      {/* Enhanced background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"></div>
+        <div className="absolute top-0 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-gradient-to-l from-purple-600/20 to-pink-600/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+      
+      <div className="container relative mx-auto px-4 md:px-6">
         <div
           ref={ctaRef}
-          className="mx-auto max-w-4xl rounded-2xl bg-gradient-to-r from-blue-600 to-blue-800 p-8 text-center shadow-xl opacity-0 translate-y-8 transition-all duration-700 ease-out md:p-12 hover:shadow-2xl hover:shadow-blue-900/20"
+          className="group mx-auto max-w-5xl rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 p-12 text-center shadow-3xl backdrop-blur-sm opacity-0 translate-y-8 transition-all duration-700 ease-out md:p-16 hover:shadow-4xl hover:shadow-blue-900/30 relative overflow-hidden"
         >
-          <h2 className="mb-4 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Ready to Transform Your Website with AI?
-          </h2>
-          <p className="mb-8 text-lg text-blue-100">Start your 14-day free trial today. No credit card required.</p>
-          <div className="flex flex-col items-center justify-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-            <Link href="/signup">
-              <Button
-                size="lg"
-                className="group relative overflow-hidden bg-white text-blue-700 transition-all duration-300 hover:bg-white hover:shadow-lg hover:shadow-white/20"
-              >
-                <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-1">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
-                <span className="absolute inset-0 z-0 translate-y-[105%] bg-blue-50 transition-transform duration-300 group-hover:translate-y-0"></span>
-              </Button>
-            </Link>
-            <Link href="/contact">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white transition-all duration-300 hover:bg-blue-700/50 hover:border-blue-300"
-              >
-                Contact Sales
-              </Button>
-            </Link>
+          {/* Background pattern overlay */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0)`,
+              backgroundSize: '24px 24px'
+            }}></div>
+          </div>
+          
+          {/* Floating elements */}
+          <div className="absolute top-8 left-8 w-3 h-3 bg-white/30 rounded-full animate-pulse"></div>
+          <div className="absolute top-16 right-12 w-2 h-2 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+          <div className="absolute bottom-12 left-16 w-4 h-4 bg-white/20 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-8 right-8 w-2 h-2 bg-white/50 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+          
+          <div className="relative z-10">
+            {/* Enhanced heading with better typography */}
+            <h2 className="mb-6 text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl leading-tight">
+              Ready to Transform Your Website
+              <span className="block bg-gradient-to-r from-yellow-300 via-orange-300 to-pink-300 bg-clip-text text-transparent mt-2">
+                with AI?
+              </span>
+            </h2>
+            
+            {/* Enhanced description */}
+            <p className="mb-10 text-xl text-blue-100 leading-relaxed max-w-3xl mx-auto">
+              Start your 14-day free trial today. No credit card required.
+            </p>
+            
+            {/* Enhanced button group */}
+            <div className="flex flex-col items-center justify-center space-y-6 sm:flex-row sm:space-x-8 sm:space-y-0">
+              <Link href="/signup">
+                <Button
+                  size="lg"
+                  className="group relative h-16 overflow-hidden bg-white text-blue-700 px-10 text-xl font-bold shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-3xl hover:shadow-white/30 active:scale-95"
+                >
+                  <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-1">
+                    Get Started Free
+                    <ArrowRight className="ml-3 h-6 w-6 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-50 to-blue-50 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                </Button>
+              </Link>
+              
+              <Link href="/contact">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="group h-16 border-2 border-white/80 bg-white/10 text-white px-10 text-xl font-semibold backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/20 hover:shadow-lg hover:shadow-white/20"
+                >
+                  <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
+                    Contact Sales
+                    <ArrowRight className="ml-3 h-5 w-5 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" />
+                  </span>
+                </Button>
+              </Link>
+            </div>
+            
+            {/* Trust indicators */}
+            <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-blue-100/80">
+              <div className="flex items-center">
+                <Lock className="mr-2 h-5 w-5" />
+                <span className="text-sm font-medium">Enterprise Security</span>
+              </div>
+              <div className="flex items-center">
+                <Zap className="mr-2 h-5 w-5" />
+                <span className="text-sm font-medium">Setup in Minutes</span>
+              </div>
+              <div className="flex items-center">
+                <Check className="mr-2 h-5 w-5" />
+                <span className="text-sm font-medium">14-Day Free Trial</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -912,6 +1230,7 @@ export default function LandingPageClient({ authButtonSlot }: LandingPageClientP
       <Navbar authButtonSlot={authButtonSlot} />
       <main className="overflow-x-hidden">
         <HeroSection />
+        <LiveDemoSection />
         <FeaturesSection />
         <HowItWorksSection />
         <IntegrationsBar />
@@ -921,6 +1240,7 @@ export default function LandingPageClient({ authButtonSlot }: LandingPageClientP
         <CtaSection />
       </main>
       <Footer />
+      <CookieBanner />
     </div>
   );
 } 
