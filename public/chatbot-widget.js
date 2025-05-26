@@ -155,6 +155,10 @@
         proactiveBubble = null;
         proactiveDismissed = true;
       }
+      // Send a message to the iframe to focus the input
+      setTimeout(() => {
+        iframe.contentWindow?.postMessage({ type: 'siteagent-focus-input' }, baseOrigin);
+      }, 100);
     } else {
       iframeContainer.style.display = 'none';
     }
@@ -198,25 +202,46 @@
 
   // fetch proactive message always; decide based on dismissal with current content
   {
+    console.log('[SiteAgent Widget] Fetching proactive message for chatbot:', chatbotId);
     fetch(`${baseOrigin}/api/chatbots/${chatbotId}/public/proactive-message`)
-      .then((res) => (res.ok ? res.json() : null))
+      .then((res) => {
+        console.log('[SiteAgent Widget] Proactive message response status:', res.status);
+        return res.ok ? res.json() : null;
+      })
       .then((data) => {
+        console.log('[SiteAgent Widget] Proactive message data:', data);
         if (data && data.content && !proactiveDismissed) {
           const delayMs = (data.delay || 5) * 1000
+          console.log('[SiteAgent Widget] Scheduling proactive message to show in', delayMs, 'ms');
           setTimeout(() => {
+            console.log('[SiteAgent Widget] Attempting to show proactive bubble');
             tryShowProactiveBubble(data.content, data.color)
           }, delayMs)
+        } else {
+          console.log('[SiteAgent Widget] No proactive message to show:', { hasData: !!data, hasContent: !!(data?.content), dismissed: proactiveDismissed });
         }
       })
-      .catch(() => {/* ignore */})
+      .catch((error) => {
+        console.error('[SiteAgent Widget] Error fetching proactive message:', error);
+      })
   }
 
   function tryShowProactiveBubble(message, bubbleColor) {
+    console.log('[SiteAgent Widget] tryShowProactiveBubble called with:', { message, bubbleColor });
+    
     // If user already opened the chat, do not show
-    if (iframeContainer.style.display === 'flex') return
+    if (iframeContainer.style.display === 'flex') {
+      console.log('[SiteAgent Widget] Not showing proactive bubble - chat is already open');
+      return;
+    }
 
     // Check again if dismissed
-    if (proactiveDismissed) return
+    if (proactiveDismissed) {
+      console.log('[SiteAgent Widget] Not showing proactive bubble - already dismissed');
+      return;
+    }
+
+    console.log('[SiteAgent Widget] Creating proactive bubble');
 
     const bubble = document.createElement('div')
     bubble.className = 'siteagent-proactive-bubble'
@@ -260,22 +285,28 @@
         const luminance = (0.299 * rgbColor.r + 0.587 * rgbColor.g + 0.114 * rgbColor.b) / 255;
         if (luminance > 0.5) {
           bubble.style.color = '#000000'; // Dark text for light backgrounds
-           // Adjust close button color for light backgrounds
-          const closeButton = bubble.querySelector('.siteagent-proactive-close');
-          if (closeButton) {
-            closeButton.style.color = '#374151'; // gray-700
-          }
         } else {
           bubble.style.color = '#FFFFFF'; // Light text for dark backgrounds
-           // Keep default close button color for dark backgrounds (or explicitly set)
-           const closeButton = bubble.querySelector('.siteagent-proactive-close');
-          if (closeButton) {
-            closeButton.style.color = '#d1d5db'; // Default gray-300
-          }
         }
       }
     }
     bubble.innerHTML = `<span class="siteagent-proactive-text">${message}</span><button class="siteagent-proactive-close" aria-label="Close proactive message">&times;</button>`
+
+    // Apply close button color after innerHTML is set
+    if (bubbleColor) {
+      const rgbColor = hexToRgb(bubbleColor);
+      if (rgbColor) {
+        const luminance = (0.299 * rgbColor.r + 0.587 * rgbColor.g + 0.114 * rgbColor.b) / 255;
+        const closeButton = bubble.querySelector('.siteagent-proactive-close');
+        if (closeButton) {
+          if (luminance > 0.5) {
+            closeButton.style.color = '#374151'; // gray-700 for light backgrounds
+          } else {
+            closeButton.style.color = '#d1d5db'; // gray-300 for dark backgrounds
+          }
+        }
+      }
+    }
 
     document.body.appendChild(bubble)
     proactiveBubble = bubble; // store reference
@@ -292,6 +323,10 @@
       proactiveDismissed = true;
       // Open chat
       launcherBtn.click()
+      // Focus input after opening
+      setTimeout(() => {
+        iframe.contentWindow?.postMessage({ type: 'siteagent-focus-input' }, baseOrigin);
+      }, 200);
     })
   }
 

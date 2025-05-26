@@ -168,6 +168,19 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
   useEffect(() => {
     // Ensure this runs client-side only
     setBaseOrigin(window.location.origin);
+    
+    // Listen for focus messages from parent window (widget)
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'siteagent-focus-input') {
+        // Focus the input when requested by parent window
+        setTimeout(() => {
+          inputRef.current?.focus();
+        }, 100);
+      }
+    };
+    
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, []); // Runs once on mount to set baseOrigin
 
   // useEffect to post message when botAvatarUrl changes or is initially available
@@ -380,6 +393,10 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
       setMessages((prevMessages) => [...prevMessages, errorAiMessage]);
     } finally {
       setIsLoading(false);
+      // Auto-focus the input field after sending a message
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
     }
   };
 
@@ -517,6 +534,14 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
               fontFamily: fontFamily || 'inherit' 
             }}
             onFocus={handleUserInteraction} // Focusing input is also an interaction
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (!isLoading && inputValue.trim()) {
+                  handleSubmit(e as any);
+                }
+              }
+            }}
           />
           <button
             type="submit"

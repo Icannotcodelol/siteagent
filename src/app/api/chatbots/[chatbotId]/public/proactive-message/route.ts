@@ -35,8 +35,9 @@ function getCorsHeaders(requestingOrigin?: string | null) { // Accept requesting
   } else if (requestingOrigin && allowedOrigins.includes(requestingOrigin)) {
     headers['Access-Control-Allow-Origin'] = requestingOrigin; // Allow specific origin
   } else {
-    // If the origin is not in the allowed list for production, do not set the ACAH header.
-    // Browsers will block the request if the header is missing or doesn't match.
+    // For now, allow all origins for public proactive message API
+    // In production, you should configure specific domains in allowedOrigins
+    headers['Access-Control-Allow-Origin'] = '*';
   }
   return headers;
 }
