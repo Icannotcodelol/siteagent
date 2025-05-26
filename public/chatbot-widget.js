@@ -202,12 +202,8 @@
 
   // fetch proactive message always; decide based on dismissal with current content
   {
-    console.log('[SiteAgent Widget] Fetching proactive message for chatbot:', chatbotId);
     fetch(`${baseOrigin}/api/chatbots/${chatbotId}/public/proactive-message`)
-      .then((res) => {
-        console.log('[SiteAgent Widget] Proactive message response status:', res.status);
-        return res.ok ? res.json() : null;
-      })
+      .then((res) => res.ok ? res.json() : null)
       .then((data) => {
         if (data && data.content && !proactiveDismissed) {
           const delayMs = (data.delay || 5) * 1000
