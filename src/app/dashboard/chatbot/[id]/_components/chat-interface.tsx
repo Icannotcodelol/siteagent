@@ -206,65 +206,16 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
     }
   }, []); // empty deps = run once on mount
 
-  // Fetch proactive message for embed
+  // Fetch proactive message for embed - DISABLED since widget handles proactive messages
   useEffect(() => {
-    if (isEmbed && chatbotId && !proactiveBubbleInteracted) {
-      console.log('[ProactiveMsg] Attempting to fetch proactive message for chatbotId:', chatbotId);
-      fetch(`/api/chatbots/${chatbotId}/public/proactive-message`)
-        .then(res => {
-          if (res.ok) return res.json();
-          console.error('[ProactiveMsg] Fetch failed with status:', res.status, res.statusText);
-          throw new Error('Failed to fetch proactive message');
-        })
-        .then(data => {
-          console.log('[ProactiveMsg] Fetched proactive message data:', data);
-          if (data) {
-            setProactiveMessageData(data);
-          } else {
-            console.log('[ProactiveMsg] No proactive message data returned from API (this is normal if none is configured/enabled).');
-          }
-        })
-        .catch(err => console.error("[ProactiveMsg] Error during fetch process:", err));
-    }
+    // Proactive messages are now handled by the widget on the parent page, not inside the iframe
+    console.log('[ProactiveMsg] Iframe-based proactive messages disabled - widget handles this');
   }, [isEmbed, chatbotId, proactiveBubbleInteracted]);
 
-  // Schedule proactive message display
+  // Schedule proactive message display - DISABLED since widget handles this
   useEffect(() => {
-    console.log('[ProactiveMsg Scheduler] Effect run. States:', {
-      isEmbed,
-      hasProactiveData: !!proactiveMessageData,
-      proactiveDataContent: proactiveMessageData?.content,
-      proactiveBubbleInteracted,
-      isLoading,
-    });
-
-    if (proactiveMessageTimerRef.current) {
-      console.log('[ProactiveMsg Scheduler] Clearing existing timer');
-      clearTimeout(proactiveMessageTimerRef.current);
-      proactiveMessageTimerRef.current = null;
-    }
-
-    if (isEmbed && proactiveMessageData && !proactiveBubbleInteracted && !isLoading) {
-      console.log(`[ProactiveMsg Scheduler] Conditions met. Setting timer for ${proactiveMessageData.delay} seconds.`);
-      proactiveMessageTimerRef.current = setTimeout(() => {
-        if (!proactiveBubbleInteracted) {
-          console.log('[ProactiveMsg Scheduler] Timer fired! Showing bubble.');
-          setShowProactiveBubble(true);
-        } else {
-          console.log('[ProactiveMsg Scheduler] Timer fired, but user already interacted. Not showing bubble.');
-        }
-      }, proactiveMessageData.delay * 1000);
-    } else {
-      console.log('[ProactiveMsg Scheduler] Conditions NOT met. Ensuring bubble is hidden.');
-      setShowProactiveBubble(false);
-    }
-
-    return () => {
-      if (proactiveMessageTimerRef.current) {
-        console.log('[ProactiveMsg Scheduler] Cleanup: Clearing timer');
-        clearTimeout(proactiveMessageTimerRef.current);
-      }
-    };
+    console.log('[ProactiveMsg Scheduler] Disabled - widget handles proactive message scheduling');
+    // No scheduling needed since widget handles this on parent page
   }, [isEmbed, proactiveMessageData, proactiveBubbleInteracted, isLoading]);
 
   // Function to scroll to the bottom of the message list WITHOUT affecting the parent page.
@@ -563,7 +514,8 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
         </div>
       )}
 
-      {/* Proactive Message Bubble (only for embedded iframe, not for dashboard preview) */}
+      {/* Proactive Message Bubble - DISABLED since widget handles this on parent page */}
+      {/* 
       {isEmbed && proactiveMessageData && (
         <ProactiveMessageBubble
           messageContent={proactiveMessageData.content}
@@ -573,6 +525,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
           bubbleColor={proactiveMessageData.color}
         />
       )}
+      */}
     </div>
   );
 } 

@@ -207,7 +207,8 @@
   });
 
   // fetch proactive message always; decide based on dismissal with current content
-  {
+  // Wait for DOM to be ready before fetching
+  function initProactiveMessage() {
     console.log('[SiteAgent Widget] Fetching proactive message for chatbotId:', chatbotId, 'from:', `${baseOrigin}/api/chatbots/${chatbotId}/public/proactive-message`);
     fetch(`${baseOrigin}/api/chatbots/${chatbotId}/public/proactive-message`)
       .then((res) => {
@@ -231,6 +232,9 @@
         console.error('[SiteAgent Widget] Error fetching proactive message:', err);
       })
   }
+  
+  // Start proactive message logic after a small delay to ensure everything is loaded
+  setTimeout(initProactiveMessage, 1000);
 
   function tryShowProactiveBubble(message, bubbleColor) {
     console.log('[SiteAgent Widget] tryShowProactiveBubble called with message:', message, 'color:', bubbleColor);
@@ -299,6 +303,16 @@
 
     // Apply close button color after innerHTML is set
     if (bubbleColor) {
+      // Define hexToRgb function here too
+      const hexToRgb = (hex) => {
+        const result = /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+        } : null;
+      };
+      
       const rgbColor = hexToRgb(bubbleColor);
       if (rgbColor) {
         const luminance = (0.299 * rgbColor.r + 0.587 * rgbColor.g + 0.114 * rgbColor.b) / 255;
