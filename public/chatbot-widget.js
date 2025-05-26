@@ -199,28 +199,54 @@
   // ----- Proactive Message Logic -----
   let proactiveBubble = null;
   let proactiveDismissed = false;
+  
+  console.log('[SiteAgent Widget] Initializing proactive message logic with:', {
+    chatbotId,
+    baseOrigin,
+    embedUrl
+  });
 
   // fetch proactive message always; decide based on dismissal with current content
   {
+    console.log('[SiteAgent Widget] Fetching proactive message for chatbotId:', chatbotId, 'from:', `${baseOrigin}/api/chatbots/${chatbotId}/public/proactive-message`);
     fetch(`${baseOrigin}/api/chatbots/${chatbotId}/public/proactive-message`)
-      .then((res) => res.ok ? res.json() : null)
+      .then((res) => {
+        console.log('[SiteAgent Widget] Proactive message fetch response status:', res.status, res.ok);
+        return res.ok ? res.json() : null;
+      })
       .then((data) => {
+        console.log('[SiteAgent Widget] Proactive message data received:', data);
         if (data && data.content && !proactiveDismissed) {
-          const delayMs = (data.delay || 5) * 1000
+          const delayMs = (data.delay || 5) * 1000;
+          console.log('[SiteAgent Widget] Scheduling proactive message to show in', delayMs, 'ms');
           setTimeout(() => {
-            tryShowProactiveBubble(data.content, data.color)
-          }, delayMs)
+            console.log('[SiteAgent Widget] Attempting to show proactive bubble');
+            tryShowProactiveBubble(data.content, data.color);
+          }, delayMs);
+        } else {
+          console.log('[SiteAgent Widget] Not showing proactive message. Data:', !!data, 'Content:', data?.content, 'Dismissed:', proactiveDismissed);
         }
       })
-      .catch(() => {/* ignore */})
+      .catch((err) => {
+        console.error('[SiteAgent Widget] Error fetching proactive message:', err);
+      })
   }
 
   function tryShowProactiveBubble(message, bubbleColor) {
+    console.log('[SiteAgent Widget] tryShowProactiveBubble called with message:', message, 'color:', bubbleColor);
+    console.log('[SiteAgent Widget] Current state - iframeContainer display:', iframeContainer.style.display, 'proactiveDismissed:', proactiveDismissed);
+    
     // If user already opened the chat, do not show
-    if (iframeContainer.style.display === 'flex') return
+    if (iframeContainer.style.display === 'flex') {
+      console.log('[SiteAgent Widget] Not showing proactive bubble - chat is already open');
+      return;
+    }
 
     // Check again if dismissed
-    if (proactiveDismissed) return
+    if (proactiveDismissed) {
+      console.log('[SiteAgent Widget] Not showing proactive bubble - already dismissed');
+      return;
+    }
 
     const bubble = document.createElement('div')
     bubble.className = 'siteagent-proactive-bubble'
@@ -289,6 +315,7 @@
 
     document.body.appendChild(bubble)
     proactiveBubble = bubble; // store reference
+    console.log('[SiteAgent Widget] Proactive bubble created and added to DOM');
 
     const closeBtn = bubble.querySelector('.siteagent-proactive-close')
     closeBtn.addEventListener('click', (e) => {
