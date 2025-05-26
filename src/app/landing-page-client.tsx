@@ -520,6 +520,130 @@ function HowItWorksSection() {
   );
 }
 
+// PRICING SECTION COMPONENT (visual-only)
+function PricingSection() {
+  const plans = [
+    {
+      name: "Free",
+      price: "€0",
+      period: "forever",
+      description: "Perfect to explore SiteAgent",
+      features: [
+        "1 Chatbot",
+        "100 messages / month",
+        "1 MB data storage",
+        "Community support",
+      ],
+      highlight: false,
+      cta: "Get Started Free",
+      href: "/signup",
+    },
+    {
+      name: "Hobby",
+      price: "€150",
+      period: "month",
+      description: "Ideal for side-projects and small teams",
+      features: [
+        "3 Chatbots",
+        "2 000 messages / month",
+        "20 MB data storage",
+        "Priority support",
+      ],
+      highlight: true,
+      cta: "Start Free Trial",
+      href: "/signup",
+    },
+    {
+      name: "Pro",
+      price: "€450",
+      period: "month",
+      description: "For growing businesses that need scale",
+      features: [
+        "5 Chatbots",
+        "8 000 messages / month",
+        "50 MB data storage",
+        "Premium support",
+      ],
+      highlight: false,
+      cta: "Start Free Trial",
+      href: "/signup",
+    },
+    {
+      name: "Custom",
+      price: "Let's talk",
+      period: "",
+      description: "Enterprise solutions tailored to your needs",
+      features: [
+        "Unlimited Chatbots",
+        "Custom message limits",
+        "Dedicated storage",
+        "White-label solutions",
+        "Priority support & SLA",
+        "Custom integrations",
+      ],
+      highlight: false,
+      cta: "Contact Sales",
+      href: "/contact",
+    },
+  ];
+
+  return (
+    <section id="pricing" className="bg-gray-900 py-20">
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="mx-auto mb-16 max-w-2xl text-center">
+          <h2 className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
+            Simple, transparent pricing
+          </h2>
+          <p className="mt-4 text-lg text-gray-400">
+            Start for free – upgrade when you need more power. No hidden fees.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {plans.map((plan, index) => (
+            <div
+              key={index}
+              className={`relative flex flex-col overflow-hidden rounded-2xl border border-gray-800 bg-gray-800/70 p-8 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl ${
+                plan.highlight ? "ring-2 ring-blue-600" : ""
+              }`}
+            >
+              {plan.highlight && (
+                <span className="absolute right-4 top-4 rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white shadow-lg">
+                  Most Popular
+                </span>
+              )}
+              <h3 className="mb-2 text-xl font-bold text-white">{plan.name}</h3>
+              <p className="mb-6 text-gray-400">{plan.description}</p>
+              <div className="mb-6 flex items-end gap-1">
+                <span className="text-4xl font-extrabold text-white">{plan.price}</span>
+                <span className="text-sm text-gray-400">/{plan.period}</span>
+              </div>
+              <ul className="mb-8 space-y-3 text-sm">
+                {plan.features.map((feature, fIdx) => (
+                  <li key={fIdx} className="flex items-center text-gray-300">
+                    <Check className="mr-2 h-4 w-4 text-blue-500" /> {feature}
+                  </li>
+                ))}
+              </ul>
+              <Link href={plan.href} className="mt-auto inline-flex">
+                <Button
+                  size="lg"
+                  className={
+                    plan.highlight
+                      ? "w-full bg-blue-600 text-white hover:bg-blue-700"
+                      : "w-full border-gray-700 bg-transparent text-white hover:bg-gray-700"
+                  }
+                >
+                  {plan.cta}
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // Testimonials Section Component
 function TestimonialsSection() {
   const testimonials = [
@@ -791,6 +915,7 @@ export default function LandingPageClient({ authButtonSlot }: LandingPageClientP
         <FeaturesSection />
         <HowItWorksSection />
         <IntegrationsBar />
+        <PricingSection />
         <TestimonialsSection />
         <FaqSection />
         <CtaSection />

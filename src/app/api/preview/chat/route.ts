@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   try {
     // Parse request body
     const body = await request.json();
-    const { sessionToken, message, conversationHistory = [] } = body;
+    const { sessionToken, message } = body;
 
     if (!sessionToken || !message) {
       return NextResponse.json(
@@ -124,17 +124,44 @@ export async function POST(request: NextRequest) {
       context = `Based on the following content:\n\n${relevantContent.join('\n\n')}\n\n`;
     }
 
-    // Build conversation history
-    const messages: ChatMessage[] = [
-      { role: 'user', content: `${PREVIEW_BASE_PROMPT}\n\n${context}Please answer the following question: ${message}` }
-    ];
+    // --- SERVER-SIDE CONVERSATION HISTORY FETCH (like main chatbot system) ---
+    let historyFromDB: ChatMessage[] = [];
+    console.log(`Fetching conversation history from DB for session: ${sessionToken}`);
+    
+    const { data: dbMessages, error: dbHistoryError } = await supabase
+      .from('preview_chat_messages')
+      .select('is_user_message, content')
+      .eq('session_token', sessionToken)
+      .order('created_at', { ascending: true })
+      .limit(20); // Fetch last 20 messages
 
-    // Add conversation history if provided
-    if (conversationHistory.length > 0) {
-      // Take last 6 messages to keep context manageable
-      const recentHistory = conversationHistory.slice(-6);
-      messages.unshift(...recentHistory);
+    if (dbHistoryError) {
+      console.error("Error fetching chat history from DB (preview):", dbHistoryError);
+      // Proceed without DB history if an error occurs
+    } else if (dbMessages) {
+      historyFromDB = dbMessages.map(r => ({
+        role: r.is_user_message ? 'user' : 'assistant',
+        content: r.content as string,
+      }));
+      console.log(`Fetched ${historyFromDB.length} messages from DB for preview.`);
     }
+
+    // Build conversation history with system prompt and context
+    const messages: ChatMessage[] = [];
+    
+    // Add system prompt with context
+    messages.push({
+      role: 'user', 
+      content: `${PREVIEW_BASE_PROMPT}\n\n${context}You are now ready to answer questions. Use the conversation history below to understand context and provide relevant responses.`
+    });
+
+    // Add conversation history from database (last 10 messages to keep context manageable)
+    if (historyFromDB.length > 0) {
+      messages.push(...historyFromDB.slice(-10));
+    }
+
+    // Add current user message
+    messages.push({ role: 'user', content: message });
 
     // Generate AI response
     const completion = await openai.chat.completions.create({
