@@ -208,7 +208,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
 
   // Fetch proactive message for embed
   useEffect(() => {
-    if (!isEmbed && chatbotId && !proactiveBubbleInteracted) {
+    if (isEmbed && chatbotId && !proactiveBubbleInteracted) {
       console.log('[ProactiveMsg] Attempting to fetch proactive message for chatbotId:', chatbotId);
       fetch(`/api/chatbots/${chatbotId}/public/proactive-message`)
         .then(res => {
@@ -244,7 +244,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
       proactiveMessageTimerRef.current = null;
     }
 
-    if (!isEmbed && proactiveMessageData && !proactiveBubbleInteracted && !isLoading) {
+    if (isEmbed && proactiveMessageData && !proactiveBubbleInteracted && !isLoading) {
       console.log(`[ProactiveMsg Scheduler] Conditions met. Setting timer for ${proactiveMessageData.delay} seconds.`);
       proactiveMessageTimerRef.current = setTimeout(() => {
         if (!proactiveBubbleInteracted) {
@@ -563,8 +563,8 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
         </div>
       )}
 
-      {/* Proactive Message Bubble (only for full-page dashboard preview, not for embedded iframe) */}
-      {!isEmbed && proactiveMessageData && (
+      {/* Proactive Message Bubble (only for embedded iframe, not for dashboard preview) */}
+      {isEmbed && proactiveMessageData && (
         <ProactiveMessageBubble
           messageContent={proactiveMessageData.content}
           onClose={handleCloseProactiveBubble}
