@@ -15,7 +15,7 @@ export default function PauseAndPlayDemoPage() {
       {/* Demo chatbot script - only for this page */}
       <Script
         src="https://www.siteagent.eu/chatbot-widget.js"
-        data-chatbot-id="206ba9fb-7f2e-48aa-8290-b2ef318380d5"
+        data-chatbot-id="6e9919f6-15e4-472e-be53-b6c3de0a652d"
         async
         strategy="afterInteractive"
       />
