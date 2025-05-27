@@ -14,10 +14,10 @@ import { Pinecone } from 'npm:@pinecone-database/pinecone@2.0.1'; // Ensure this
 import { processCsvToText, detectCsvDelimiter, isValidCsv } from './csv-processor.ts';
 
 // Constants
-const EMBEDDING_MODEL = 'text-embedding-ada-002'
+const EMBEDDING_MODEL = 'text-embedding-3-large'
 // const EMBEDDING_DIMENSIONS = 1536; // Not directly used in this version of code, but good for reference
-const TEXT_CHUNK_SIZE = 1000 
-const TEXT_CHUNK_OVERLAP = 100
+const TEXT_CHUNK_SIZE = 800 
+const TEXT_CHUNK_OVERLAP = 200
 const BATCH_SIZE_OPENAI = 50; // Batch size for OpenAI and Supabase operations
 
 console.log('generate-embeddings function booting up (PDF, Direct Text, Pinecone support).')
@@ -374,8 +374,11 @@ Deno.serve(async (req: Request) => {
           metadata: {
               chunk_text: originalChunkText,
             document_id: docIdToProcess,
-            chatbot_id: chatbotId, 
-              // file_name: fileName, // Consider adding if useful for Pinecone queries
+            chatbot_id: chatbotId,
+            file_name: fileName || 'unknown',
+            chunk_index: chunkGlobalIndex,
+            content_type: contentType || 'unknown',
+            chunk_length: originalChunkText.length,
           },
         });
       }

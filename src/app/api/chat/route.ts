@@ -29,9 +29,9 @@ interface ChatMessage {
 
 // --- Constants ---
 const OPENAI_CHAT_MODEL = 'gpt-4o'; // Changed from gpt-4.1-mini
-const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
-const SIMILARITY_THRESHOLD = 0.75; // Adjust this threshold
-const MATCH_COUNT = 5; // Max number of context chunks to retrieve
+const OPENAI_EMBEDDING_MODEL = 'text-embedding-3-large';
+const SIMILARITY_THRESHOLD = 0.65; // Lowered for better recall with complete documents
+const MATCH_COUNT = 8; // Increased for better context coverage with complete documents
 
 // NEW: Global base prompt that is always prepended to every chatbot prompt
 const SITEAGENT_GLOBAL_BASE_PROMPT = `Always provide helpful, polite, and accurate responses based only on the information and tools provided.
