@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 // Type definition for a document (matching the one in page.tsx)
@@ -20,6 +20,18 @@ export default function DocumentList({ documents }: DocumentListProps) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  // Auto-refresh when documents are processing
+  useEffect(() => {
+    const hasProcessingDocs = documents.some(doc => doc.embedding_status === 'processing')
+    if (hasProcessingDocs) {
+      const intervalId = setInterval(() => {
+        router.refresh()
+      }, 3000) // Refresh every 3 seconds
+      
+      return () => clearInterval(intervalId)
+    }
+  }, [documents, router])
 
   const handleDelete = async (documentId: string, fileName: string) => {
     // Simple confirmation dialog
@@ -97,11 +109,16 @@ export default function DocumentList({ documents }: DocumentListProps) {
                </span>
                <button
                   onClick={() => handleDelete(doc.id, doc.file_name)}
-                  disabled={deletingId === doc.id}
-                  className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition duration-150 ease-in-out"
-                  title="Delete document"
+                  disabled={deletingId === doc.id || doc.embedding_status === 'processing'}
+                  className={`text-sm font-medium transition duration-150 ease-in-out ${
+                    doc.embedding_status === 'processing' 
+                      ? 'text-gray-400 cursor-not-allowed' 
+                      : 'text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed'
+                  }`}
+                  title={doc.embedding_status === 'processing' ? 'Cannot delete while processing' : 'Delete document'}
                 >
-                  {deletingId === doc.id ? 'Deleting...' : 'Delete'}
+                  {deletingId === doc.id ? 'Deleting...' : 
+                   doc.embedding_status === 'processing' ? 'Processing...' : 'Delete'}
                </button>
             </div>
           </li>

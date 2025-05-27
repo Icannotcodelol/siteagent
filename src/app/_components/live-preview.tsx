@@ -126,9 +126,9 @@ export default function LivePreview() {
     if (!file) return;
 
     // Validate file type
-    const allowedTypes = ['application/pdf', 'text/plain'];
+    const allowedTypes = ['application/pdf', 'text/plain', 'text/csv', 'application/csv'];
     if (!allowedTypes.includes(file.type)) {
-      setError('Only PDF and TXT files are supported');
+      setError('Only PDF, TXT, and CSV files are supported');
       return;
     }
 
@@ -388,7 +388,7 @@ export default function LivePreview() {
                   Upload Your Document
                 </h3>
                 <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                  Drag and drop a PDF or TXT file, or click to browse. 
+                  Drag and drop a PDF, TXT, or CSV file, or click to browse. 
                   We'll extract the content and create your chatbot instantly.
                 </p>
                 <Button
@@ -409,10 +409,10 @@ export default function LivePreview() {
                     </>
                   )}
                 </Button>
-                <input
+                                  <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".pdf,.txt"
+                  accept=".pdf,.txt,.csv"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) handleFileUpload(file);
@@ -422,7 +422,7 @@ export default function LivePreview() {
                 <div className="mt-6 flex items-center justify-center gap-6 text-xs text-gray-500">
                   <div className="flex items-center gap-1">
                     <FileText className="h-3 w-3" />
-                    PDF & TXT
+                    PDF, TXT & CSV
                   </div>
                   <div className="flex items-center gap-1">
                     <Shield className="h-3 w-3" />

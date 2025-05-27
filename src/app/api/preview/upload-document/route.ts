@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { OpenAI } from 'openai';
 import { v4 as uuidv4 } from 'uuid';
+import { processCsvToText, detectCsvDelimiter, isValidCsv } from '@/lib/services/csv-processor';
 
 // Rate limiting storage (in production, use Redis)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -356,10 +357,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate file type
-    const allowedTypes = ['application/pdf', 'text/plain'];
+    const allowedTypes = ['application/pdf', 'text/plain', 'text/csv', 'application/csv'];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Only PDF and TXT files are supported' },
+        { error: 'Only PDF, TXT, and CSV files are supported' },
         { status: 400 }
       );
     }
@@ -401,6 +402,31 @@ export async function POST(request: NextRequest) {
         console.log('PDF content extracted, first 200 chars:', content.substring(0, 200));
       } else if (file.type === 'text/plain') {
         content = buffer.toString('utf-8');
+      } else if (file.type === 'text/csv' || file.type === 'application/csv') {
+        const csvContent = buffer.toString('utf-8');
+        
+        // Validate CSV format
+        if (!isValidCsv(csvContent)) {
+          return NextResponse.json(
+            { error: 'Invalid CSV format. Please ensure your file is properly formatted.' },
+            { status: 400 }
+          );
+        }
+
+        // Detect delimiter and process CSV
+        const delimiter = detectCsvDelimiter(csvContent);
+        const csvResult = processCsvToText(csvContent, { 
+          delimiter,
+          includeHeaders: true,
+          maxRows: 5000 // Limit for preview
+        });
+
+        if (csvResult.errors.length > 0) {
+          console.warn('CSV processing warnings:', csvResult.errors);
+        }
+
+        content = csvResult.text;
+        console.log(`CSV processed: ${csvResult.rowCount} rows, ${csvResult.columnCount} columns`);
       }
     } catch (error) {
       console.error('Error processing file:', error);

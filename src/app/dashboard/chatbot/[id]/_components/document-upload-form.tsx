@@ -99,7 +99,7 @@ export default function DocumentUploadForm({ chatbotId }: DocumentUploadFormProp
         onChange={handleFileChange}
         className="hidden"
         disabled={loading}
-        // accept=".pdf,.txt,.md,.docx" // Specify accepted types
+        accept=".pdf,.txt,.md,.docx,.csv" // Added CSV support
       />
 
       {/* Drag and Drop Area / Select Button Area */}
@@ -116,7 +116,7 @@ export default function DocumentUploadForm({ chatbotId }: DocumentUploadFormProp
         <p className="mt-2 text-sm text-gray-400">
            <span className="font-medium text-purple-400 hover:text-purple-300">Click to upload</span> or drag & drop
         </p>
-        <p className="mt-1 text-xs text-gray-500">PDF, DOCX, TXT, MD (Max 10MB)</p> {/* Example size limit */}
+        <p className="mt-1 text-xs text-gray-500">PDF, DOCX, TXT, MD, CSV (Max 10MB)</p> {/* Added CSV to size limit */}
         
         {/* Display selected file name */}
         {file && <p className="text-sm text-green-500 mt-3">Selected: {file.name}</p>}

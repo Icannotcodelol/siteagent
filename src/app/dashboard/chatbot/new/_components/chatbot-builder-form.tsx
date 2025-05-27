@@ -11,6 +11,7 @@ import MultipleDomainInput from './multiple-domain-input'
 // Import components for tabs (adjust paths if necessary)
 import DocumentUploadForm from '../../[id]/_components/document-upload-form' 
 import DocumentList from '../../[id]/_components/document-list'
+import ProcessingStatus from '../../[id]/_components/processing-status'
 import EmbedCodeDisplay from '../../[id]/_components/embed-code-display'
 // Import the new (placeholder) Actions component
 import ActionManager from '../../[id]/_components/action-manager'
@@ -184,39 +185,21 @@ export default function ChatbotBuilderForm({
     return Object.keys(errors).length === 0
   }
 
-  // Auto-save functionality
+  // Auto-save functionality - DISABLED
   const triggerAutoSave = () => {
-    if (!isEditMode || !name.trim()) return
-    
-    if (autoSaveTimer.current) {
-      clearTimeout(autoSaveTimer.current)
-    }
-    
-    autoSaveTimer.current = setTimeout(async () => {
-      if (!validateForm()) return
-      
-      setAutoSaveStatus('saving')
-      try {
-        await handleSave(true) // Silent save
-        setAutoSaveStatus('saved')
-        setLastSaved(new Date())
-        setTimeout(() => setAutoSaveStatus('idle'), 3000)
-      } catch (error) {
-        setAutoSaveStatus('error')
-        setTimeout(() => setAutoSaveStatus('idle'), 5000)
-      }
-    }, 2000)
+    // Auto-save disabled - manual save only
+    return
   }
 
-  // Trigger auto-save when form data changes
-  useEffect(() => {
-    triggerAutoSave()
-    return () => {
-      if (autoSaveTimer.current) {
-        clearTimeout(autoSaveTimer.current)
-      }
-    }
-  }, [name, systemPrompt, pastedText, websiteUrls, primaryColor, secondaryColor, backgroundColor, textColor, fontFamily, welcomeMessage, botAvatarUrl, userAvatarUrl, chatBubbleStyle, headerText, inputPlaceholder, showBranding])
+  // Auto-save trigger - DISABLED
+  // useEffect(() => {
+  //   triggerAutoSave()
+  //   return () => {
+  //     if (autoSaveTimer.current) {
+  //       clearTimeout(autoSaveTimer.current)
+  //     }
+  //   }
+  // }, [name, systemPrompt, pastedText, websiteUrls, primaryColor, secondaryColor, backgroundColor, textColor, fontFamily, welcomeMessage, botAvatarUrl, userAvatarUrl, chatBubbleStyle, headerText, inputPlaceholder, showBranding])
 
   const initializeProgressSteps = (hasWebsiteUrls: boolean, hasPastedText: boolean) => {
     const steps = [
@@ -451,15 +434,15 @@ export default function ChatbotBuilderForm({
         onFieldFocus={handleFieldFocus}
       />
 
-      {/* Auto-save Indicator */}
-      <div className="flex justify-between items-center mb-4">
+      {/* Auto-save Indicator - DISABLED */}
+      {/* <div className="flex justify-between items-center mb-4">
         <div></div>
         <AutoSaveIndicator 
           status={autoSaveStatus}
           lastSaved={lastSaved}
           error={error?.message}
         />
-      </div>
+      </div> */}
 
       {/* Main container: flex row, form card styling */}
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-700">
@@ -581,9 +564,12 @@ export default function ChatbotBuilderForm({
                   {/* File Upload Section (Conditional based on mode) */}
                   <div className="border-t border-gray-700 pt-6">
                        <h3 className="text-sm font-medium text-gray-300 mb-1">Upload Files</h3>
-                       <p className="text-xs text-gray-500 mb-3">Upload documents like PDF, TXT, or MD.</p>
+                       <p className="text-xs text-gray-500 mb-3">Upload documents like PDF, TXT, MD, or CSV.</p>
                        {isEditMode && chatbotId ? (
                          <>
+                           {/* Processing Status Component */}
+                           <ProcessingStatus chatbotId={chatbotId} />
+                           
                            <DocumentUploadForm chatbotId={chatbotId} />
                            {documentsError && (
                               <div className="mt-4 bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded relative" role="alert">

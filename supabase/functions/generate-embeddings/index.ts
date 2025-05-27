@@ -11,6 +11,7 @@ import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import { OpenAI } from 'npm:openai@4' // Use OpenAI SDK v4+
 import pdfParse from 'npm:pdf-parse/lib/pdf-parse.js';
 import { Pinecone } from 'npm:@pinecone-database/pinecone@2.0.1'; // Ensure this is your desired version
+import { processCsvToText, detectCsvDelimiter, isValidCsv } from './csv-processor.ts';
 
 // Constants
 const EMBEDDING_MODEL = 'text-embedding-ada-002'
@@ -143,13 +144,7 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    if (initialStatus !== 'pending') {
-      console.log(`Document ${docIdToProcess} status is '${initialStatus}', skipping embedding.`);
-      return new Response(JSON.stringify({ message: 'Document not in pending state.' }), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+
 
     console.log(`Processing document ID: ${docIdToProcess}, Source: ${rawContent ? 'Direct Content' : `Storage (${storagePath})`}, File hint: ${fileName ?? 'N/A'}`);
 
@@ -190,6 +185,33 @@ Deno.serve(async (req: Request) => {
       // throw new Error('Pinecone configuration is missing.');
     }
     // --- End Pinecone Client Initialization ---
+
+    // Check if document is already being processed by another function instance
+    const { data: currentDoc, error: statusCheckError } = await supabaseAdminClient
+      .from('documents')
+      .select('embedding_status')
+      .eq('id', docIdToProcess)
+      .single();
+    
+    if (statusCheckError) {
+      throw new Error(`Failed to check document status: ${statusCheckError.message}`);
+    }
+    
+    if (currentDoc.embedding_status === 'processing') {
+      console.log(`Document ${docIdToProcess} is already being processed by another instance. Exiting.`);
+      return new Response(JSON.stringify({ message: 'Document is already being processed.' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    
+    if (currentDoc.embedding_status !== 'pending') {
+      console.log(`Document ${docIdToProcess} status is '${currentDoc.embedding_status}', skipping embedding.`);
+      return new Response(JSON.stringify({ message: 'Document not in pending state.' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'processing');
     
@@ -234,6 +256,34 @@ Deno.serve(async (req: Request) => {
             console.log("Reading text file from storage...");
             textContent = await fileDataBuffer.text();
             console.log(`Read text file. Length: ${textContent.length}`);
+        } else if (fileExtension === 'csv' || contentType === 'text/csv' || contentType === 'application/csv') {
+            console.log("Processing CSV file from storage...");
+            const csvContent = await fileDataBuffer.text();
+            
+            // Validate CSV format
+            if (!isValidCsv(csvContent)) {
+                console.error(`Invalid CSV format for document ${docIdToProcess}`);
+                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', 'Invalid CSV format');
+                return new Response(JSON.stringify({ message: 'Invalid CSV format' }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                });
+            }
+
+            // Detect delimiter and process CSV
+            const delimiter = detectCsvDelimiter(csvContent);
+            const csvResult = processCsvToText(csvContent, { 
+                delimiter,
+                includeHeaders: true,
+                maxRows: 10000 // Reasonable limit for processing
+            });
+
+            if (csvResult.errors.length > 0) {
+                console.warn(`CSV processing warnings for document ${docIdToProcess}:`, csvResult.errors);
+            }
+
+            textContent = csvResult.text;
+            console.log(`CSV processed successfully. Rows: ${csvResult.rowCount}, Columns: ${csvResult.columnCount}, Text length: ${textContent.length}`);
         } else {
             console.warn(`Unsupported file type from storage: Extension=${fileExtension}, ContentType=${contentType}`);
             await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Unsupported file type: ${fileExtension ?? contentType}`);
@@ -334,14 +384,46 @@ Deno.serve(async (req: Request) => {
       // 2. Batch Insert to Supabase document_chunks
       if (documentChunkBatchForSupabase.length > 0) {
         console.log(`[${docIdToProcess}] Inserting ${documentChunkBatchForSupabase.length} chunks to Supabase for batch starting at index ${i}.`);
+        
+        // Check if document still exists before inserting chunks
+        const { data: docExists, error: checkError } = await supabaseAdminClient
+          .from('documents')
+          .select('id')
+          .eq('id', docIdToProcess)
+          .single();
+        
+        if (checkError || !docExists) {
+          console.warn(`[${docIdToProcess}] Document no longer exists before chunk insertion. Document may have been deleted during processing.`);
+          return new Response(JSON.stringify({ 
+            message: `Document ${docIdToProcess} was deleted during processing.`,
+            status: 'aborted'
+          }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+        
+        // Use regular insert - upsert requires unique constraints that don't exist
         const { error: insertChunkError } = await supabaseAdminClient
           .from('document_chunks')
           .insert(documentChunkBatchForSupabase);
         
         if (insertChunkError) {
           console.error(`[${docIdToProcess}] Supabase batch insert error for batch starting at index ${i}:`, insertChunkError);
-          // Decide on error strategy: stop, or try to continue with Pinecone for this batch?
-          // For now, we'll throw, which will mark the document as failed.
+          
+          // Check if this is a foreign key constraint error (document was deleted)
+          if (insertChunkError.code === '23503' && insertChunkError.message.includes('document_chunks_document_id_fkey')) {
+            console.warn(`[${docIdToProcess}] Document was deleted during processing - foreign key constraint violation.`);
+            return new Response(JSON.stringify({ 
+              message: `Document ${docIdToProcess} was deleted during processing.`,
+              status: 'aborted'
+            }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+          
+          // For other errors, still fail as before
           await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Supabase batch insert error: ${insertChunkError.message}`);
           throw new Error(`Supabase batch insert failed: ${insertChunkError.message}`);
         }
