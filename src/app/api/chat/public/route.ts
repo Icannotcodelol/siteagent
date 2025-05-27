@@ -32,7 +32,7 @@ type Action = {
 // --- Constants ---
 // Should match the ones used in the authenticated chat route and embedding function
 const OPENAI_CHAT_MODEL = 'gpt-4o';
-const OPENAI_EMBEDDING_MODEL = 'text-embedding-3-large';
+const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
 const SIMILARITY_THRESHOLD = 0.65; // Lowered for better recall with complete documents
 const MATCH_COUNT = 8; // Increased for better context coverage with complete documents
 

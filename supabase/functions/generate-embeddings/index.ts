@@ -14,7 +14,7 @@ import { Pinecone } from 'npm:@pinecone-database/pinecone@2.0.1'; // Ensure this
 import { processCsvToText, detectCsvDelimiter, isValidCsv } from './csv-processor.ts';
 
 // Constants
-const EMBEDDING_MODEL = 'text-embedding-3-large'
+const EMBEDDING_MODEL = 'text-embedding-ada-002'
 // const EMBEDDING_DIMENSIONS = 1536; // Not directly used in this version of code, but good for reference
 const TEXT_CHUNK_SIZE = 800 
 const TEXT_CHUNK_OVERLAP = 200
