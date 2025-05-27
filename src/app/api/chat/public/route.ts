@@ -7,6 +7,8 @@ import { decrypt } from '@/lib/encryption';
 import { getValidCalendlyAccessToken } from '@/lib/calendly';
 import { v4 as uuidv4 } from 'uuid'; // Import uuid
 import { canSendMessage, incrementMessageCount } from '@/lib/services/subscriptionService';
+import { createClient as createAdminClient } from '@supabase/supabase-js'
+import { extractIdentifiers, filterChunksByIdentifiers } from '@/lib/utils/query-identifiers'
 
 // Define ChatMessage type for conversation history
 interface ChatMessage {
@@ -811,8 +813,21 @@ export async function POST(request: NextRequest) {
           }
         }
         
+        // ---------------------------------------------
+        // NEW: Post-retrieval validation for identifiers
+        // ---------------------------------------------
+        const identifiers = extractIdentifiers(query);
+        if (identifiers.length > 0 && chunks && chunks.length > 0) {
+            const preFilterCount = chunks.length;
+            const filtered = filterChunksByIdentifiers(chunks as any, identifiers);
+            if (filtered && filtered.length !== preFilterCount) {
+                console.log(`Filtered chunks from ${preFilterCount} to ${filtered.length} using identifiers: ${identifiers.join(', ')}`);
+            }
+            chunks = filtered as typeof chunks;
+        }
+
         const contextText = (chunks && chunks.length > 0)
-            ? chunks.map((chunk) => chunk!.chunk_text).join("\n\n---\n\n") // Added non-null assertion operator
+            ? chunks.map((chunk) => chunk!.chunk_text).join("\n\n---\n\n")
             : "No relevant context found in documents."; 
 
         if (!chunks || chunks.length === 0) {

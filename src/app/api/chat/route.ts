@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import OpenAI from 'openai'; // Standard Node.js import
 import { createClient } from '@supabase/supabase-js'
+import { extractIdentifiers, filterChunksByIdentifiers } from '@/lib/utils/query-identifiers'
 
 // Define Action type (can be shared)
 type Action = {
@@ -400,12 +401,26 @@ export async function POST(request: NextRequest) {
             throw new Error(`Database error retrieving relevant context: ${rpcError.message}`);
         }
 
-        const contextText = (chunks && chunks.length > 0)
-            ? chunks.map((chunk: any) => chunk.content).join("\n\n---\n\n")
+        // ---------------------------------------------
+        // NEW: Post-retrieval validation for identifiers
+        // ---------------------------------------------
+        const identifiers = extractIdentifiers(query);
+        let validatedChunks = chunks;
+        if (identifiers.length > 0 && chunks && chunks.length > 0) {
+            const preCount = chunks.length;
+            validatedChunks = filterChunksByIdentifiers(chunks as any, identifiers) as typeof chunks;
+            if (validatedChunks && validatedChunks.length !== preCount) {
+                console.log(`Filtered chunks from ${preCount} to ${validatedChunks.length} using identifiers: ${identifiers.join(', ')}`);
+            }
+        }
+
+        // Use validatedChunks for context building
+        const contextText = (validatedChunks && validatedChunks.length > 0)
+            ? validatedChunks.map((chunk: any) => chunk.content).join("\n\n---\n\n")
             : "No relevant context found in documents.";
 
-        if (!chunks || chunks.length === 0) { console.log("No relevant chunks found."); }
-        else { console.log(`Found ${chunks.length} relevant chunks.`); }
+        if (!validatedChunks || validatedChunks.length === 0) { console.log("No relevant chunks found after validation."); }
+        else { console.log(`Found ${validatedChunks.length} relevant chunks after validation.`); }
 
         // 5. Construct the prompt for the LLM (using fetched system_prompt)
         const finalSystemPrompt = `
