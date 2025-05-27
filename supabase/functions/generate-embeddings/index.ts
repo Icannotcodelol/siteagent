@@ -11,7 +11,7 @@ import { createClient, SupabaseClient } from 'npm:@supabase/supabase-js@2'
 import { OpenAI } from 'npm:openai@4' // Use OpenAI SDK v4+
 import pdfParse from 'npm:pdf-parse/lib/pdf-parse.js';
 import { Pinecone } from 'npm:@pinecone-database/pinecone@2.0.1'; // Ensure this is your desired version
-import { processCsvToText, detectCsvDelimiter, isValidCsv } from './csv-processor.ts';
+import { processCsvToText, detectCsvDelimiter, isValidCsv, parseSimpleCsv } from './csv-processor.ts';
 
 // Constants
 const EMBEDDING_MODEL = 'text-embedding-3-large'
@@ -278,12 +278,58 @@ Deno.serve(async (req: Request) => {
                 maxRows: 10000 // Reasonable limit for processing
             });
 
-            if (csvResult.errors.length > 0) {
-                console.warn(`CSV processing warnings for document ${docIdToProcess}:`, csvResult.errors);
-            }
+            // NEW: Skip RAG for CSV and store each row as a plain chunk (no embedding)
+            // ----------------------------------------------------------------------
+            {
+              // Parse again to get structured rows
+              const parsedRows = parseSimpleCsv(csvContent, delimiter);
+              const headers = parsedRows[0] || [];
+              const dataRows = parsedRows.slice(1);
+              const rowChunks: any[] = [];
+              dataRows.forEach((row, idx) => {
+                const rowTextParts = row.map((cell, cellIdx) => {
+                  const columnName = headers[cellIdx] || `Column ${cellIdx + 1}`;
+                  return `${columnName}: ${cell}`;
+                }).filter(Boolean);
+                if (rowTextParts.length === 0) return;
+                const rowText = rowTextParts.join(', ');
 
-            textContent = csvResult.text;
-            console.log(`CSV processed successfully. Rows: ${csvResult.rowCount}, Columns: ${csvResult.columnCount}, Text length: ${textContent.length}`);
+                rowChunks.push({
+                  document_id: docIdToProcess,
+                  chatbot_id: chatbotId,
+                  chunk_text: rowText,
+                  embedding: null, // Explicitly no embedding – we are skipping RAG for CSV rows
+                  token_count: rowText.length,
+                });
+              });
+
+              if (rowChunks.length > 0) {
+                const { error: insertCsvChunksErr } = await supabaseAdminClient
+                  .from('document_chunks')
+                  .insert(rowChunks);
+
+                if (insertCsvChunksErr) {
+                  console.error(`Failed to insert CSV chunks for doc ${docIdToProcess}:`, insertCsvChunksErr);
+                  await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `CSV chunk insert error: ${insertCsvChunksErr.message}`);
+                  return new Response(JSON.stringify({ message: 'CSV processing failed', error: insertCsvChunksErr.message }), {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' },
+                  });
+                }
+                console.log(`Stored ${rowChunks.length} CSV rows for document ${docIdToProcess} without embeddings.`);
+              } else {
+                console.warn(`No non-empty rows found in CSV document ${docIdToProcess}.`);
+              }
+
+              // Mark document as completed and exit early – no embeddings / Pinecone upsert
+              await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'completed', 'CSV stored without embeddings');
+              return new Response(JSON.stringify({ message: `CSV document ${docIdToProcess} processed without embeddings. Rows stored: ${rowChunks.length}` }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+              });
+            }
+            // ----------------------------------------------------------------------
+            // (Note: The original embedding logic for CSV is now bypassed by the early return above)
         } else {
             console.warn(`Unsupported file type from storage: Extension=${fileExtension}, ContentType=${contentType}`);
             await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Unsupported file type: ${fileExtension ?? contentType}`);

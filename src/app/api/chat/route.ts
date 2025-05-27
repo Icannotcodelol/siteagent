@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import OpenAI from 'openai'; // Standard Node.js import
 import { createClient } from '@supabase/supabase-js'
-import { extractIdentifiers, filterChunksByIdentifiers } from '@/lib/utils/query-identifiers'
 
 // Define Action type (can be shared)
 type Action = {
@@ -125,6 +124,18 @@ async function initializeSupabaseClient() {
             },
         },
     });
+}
+
+// Utility: extract significant tokens (numbers and long words) for simple fallback search
+function extractSearchTokens(text: string): string[] {
+  const tokens: Set<string> = new Set();
+  const numeric = text.match(/\b\d{4,}\b/g);
+  if (numeric) numeric.forEach(n => tokens.add(n));
+  const stop = new Set(['welcher','ist','für','und','oder','eine','einen','die','der','das']);
+  text.toLowerCase().split(/[^a-z0-9äöüß]+/).forEach(word => {
+    if (word.length > 3 && !stop.has(word)) tokens.add(word);
+  });
+  return Array.from(tokens);
 }
 
 // --- Main POST Handler ---
@@ -401,26 +412,50 @@ export async function POST(request: NextRequest) {
             throw new Error(`Database error retrieving relevant context: ${rpcError.message}`);
         }
 
-        // ---------------------------------------------
-        // NEW: Post-retrieval validation for identifiers
-        // ---------------------------------------------
-        const identifiers = extractIdentifiers(query);
-        let validatedChunks = chunks;
-        if (identifiers.length > 0 && chunks && chunks.length > 0) {
-            const preCount = chunks.length;
-            validatedChunks = filterChunksByIdentifiers(chunks as any, identifiers) as typeof chunks;
-            if (validatedChunks && validatedChunks.length !== preCount) {
-                console.log(`Filtered chunks from ${preCount} to ${validatedChunks.length} using identifiers: ${identifiers.join(', ')}`);
+        // Fallback: If no chunks via embeddings, run simple text search in document_chunks
+        let effectiveChunks = chunks as any[] | undefined;
+        if (!effectiveChunks || effectiveChunks.length === 0) {
+            console.log("[AUTH] No chunks from embedding RPC, attempting Postgres text fallback...");
+            try {
+                const supabaseAdminSearch = createClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+                    process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+                );
+                const tokens = extractSearchTokens(query);
+                let rows: any[] = [];
+                for (const tok of tokens) {
+                    const { data, error } = await supabaseAdminSearch
+                        .from('document_chunks')
+                        .select('chunk_text')
+                        .eq('chatbot_id', chatbotId)
+                        .ilike('chunk_text', `%${tok}%`)
+                        .limit(Math.ceil(MATCH_COUNT / tokens.length));
+                    if (error) {
+                        console.error('[AUTH] Postgres fallback search error:', error);
+                        continue;
+                    }
+                    if (data) rows.push(...data);
+                }
+                if (rows.length > 0) {
+                    const seen = new Set<string>();
+                    const dedup = rows.filter(r => {
+                        if (seen.has(r.chunk_text)) return false;
+                        seen.add(r.chunk_text); return true;
+                    });
+                    effectiveChunks = dedup.slice(0, MATCH_COUNT).map((m: any) => ({ content: m.chunk_text }));
+                    console.log(`[AUTH] Postgres fallback returned ${effectiveChunks.length} chunks after dedup.`);
+                }
+            } catch (pgEx) {
+                console.error('[AUTH] Exception during Postgres fallback search:', pgEx);
             }
         }
 
-        // Use validatedChunks for context building
-        const contextText = (validatedChunks && validatedChunks.length > 0)
-            ? validatedChunks.map((chunk: any) => chunk.content).join("\n\n---\n\n")
+        const contextText = (effectiveChunks && effectiveChunks.length > 0)
+            ? effectiveChunks.map((chunk: any) => chunk.content ?? chunk.chunk_text).join("\n\n---\n\n")
             : "No relevant context found in documents.";
 
-        if (!validatedChunks || validatedChunks.length === 0) { console.log("No relevant chunks found after validation."); }
-        else { console.log(`Found ${validatedChunks.length} relevant chunks after validation.`); }
+        if (!effectiveChunks || effectiveChunks.length === 0) { console.log("No relevant chunks found after fallback."); }
+        else { console.log(`Found ${effectiveChunks.length} relevant chunks (after fallback if applied).`); }
 
         // 5. Construct the prompt for the LLM (using fetched system_prompt)
         const finalSystemPrompt = `

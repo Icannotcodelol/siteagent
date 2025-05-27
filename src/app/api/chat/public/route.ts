@@ -7,8 +7,6 @@ import { decrypt } from '@/lib/encryption';
 import { getValidCalendlyAccessToken } from '@/lib/calendly';
 import { v4 as uuidv4 } from 'uuid'; // Import uuid
 import { canSendMessage, incrementMessageCount } from '@/lib/services/subscriptionService';
-import { createClient as createAdminClient } from '@supabase/supabase-js'
-import { extractIdentifiers, filterChunksByIdentifiers } from '@/lib/utils/query-identifiers'
 
 // Define ChatMessage type for conversation history
 interface ChatMessage {
@@ -445,6 +443,19 @@ const openAiTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
     },
 ] ;
 
+// Utility: extract candidate tokens (numeric codes and words >3 chars)
+function extractSearchTokens(text: string): string[] {
+  const tokens: Set<string> = new Set();
+  const numericMatches = text.match(/\b\d{4,}\b/g); // 4+ digit numbers (postal codes, IDs)
+  if (numericMatches) numericMatches.forEach(t => tokens.add(t));
+  // Fallback: significant words (>3 chars, ignore common stopwords)
+  const stop = new Set(['welcher','ist','für','und','oder','eine','einen','die','der','das']);
+  text.toLowerCase().split(/[^a-z0-9äöüß]+/).forEach(w => {
+    if (w.length > 3 && !stop.has(w)) tokens.add(w);
+  });
+  return Array.from(tokens);
+}
+
 // --- Main POST Handler ---
 export async function POST(request: NextRequest) {
     // Re-check environment variables per request in case they failed init
@@ -813,27 +824,49 @@ export async function POST(request: NextRequest) {
           }
         }
         
-        // ---------------------------------------------
-        // NEW: Post-retrieval validation for identifiers
-        // ---------------------------------------------
-        const identifiers = extractIdentifiers(query);
-        if (identifiers.length > 0 && chunks && chunks.length > 0) {
-            const preFilterCount = chunks.length;
-            const filtered = filterChunksByIdentifiers(chunks as any, identifiers);
-            if (filtered && filtered.length !== preFilterCount) {
-                console.log(`Filtered chunks from ${preFilterCount} to ${filtered.length} using identifiers: ${identifiers.join(', ')}`);
+        if (!chunks || chunks.length === 0) {
+            console.log("[DEBUG] No relevant chunks from Pinecone. Falling back to Postgres text search...");
+            try {
+                const tokens = extractSearchTokens(query);
+                let pgMatches: any[] = [];
+                for (const tok of tokens) {
+                    const { data, error } = await supabaseAdmin
+                        .from('document_chunks')
+                        .select('chunk_text')
+                        .eq('chatbot_id', chatbotId)
+                        .ilike('chunk_text', `%${tok}%`)
+                        .limit(Math.ceil(MATCH_COUNT / tokens.length));
+                    if (error) {
+                        console.error('Postgres fallback search error:', error);
+                        continue;
+                    }
+                    if (data) pgMatches.push(...data);
+                }
+
+                if (pgMatches.length > 0) {
+                    // Deduplicate by chunk_text
+                    const seen = new Set<string>();
+                    const dedup = pgMatches.filter((m: any) => {
+                        if (seen.has(m.chunk_text)) return false;
+                        seen.add(m.chunk_text);
+                        return true;
+                    });
+                    chunks = dedup.slice(0, MATCH_COUNT).map((m: any) => ({ chunk_text: m.chunk_text }));
+                    console.log(`[DEBUG] Postgres fallback returned ${chunks.length} chunks after dedup.`);
+                }
+            } catch (pgEx) {
+                console.error('Exception during Postgres fallback search:', pgEx);
             }
-            chunks = filtered as typeof chunks;
         }
 
         const contextText = (chunks && chunks.length > 0)
-            ? chunks.map((chunk) => chunk!.chunk_text).join("\n\n---\n\n")
-            : "No relevant context found in documents."; 
+            ? chunks.map((chunk) => (chunk as any).chunk_text).join("\n\n---\n\n")
+            : "No relevant context found in documents.";
 
         if (!chunks || chunks.length === 0) {
-            console.log("[DEBUG] No relevant chunks found for query. ContextText:", contextText);
+            console.log("[DEBUG] No relevant chunks found for query after fallback. ContextText:", contextText);
         } else {
-             console.log(`[DEBUG] Found ${chunks.length} relevant chunks. Constructed contextText (first 500 chars):`, contextText.substring(0, 500));
+             console.log(`[DEBUG] Found ${chunks.length} relevant chunks (after fallback if applied). Constructed contextText (first 500 chars):`, contextText.substring(0, 500));
         }
 
         // 4. Construct the messages for the LLM, incorporating history and new system prompt structure
