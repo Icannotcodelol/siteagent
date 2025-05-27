@@ -48,7 +48,7 @@ export class AdvancedRetrieval {
 
     // 1. Generate query embedding
     const embeddingResponse = await this.openai.embeddings.create({
-      model: 'text-embedding-ada-002',
+      model: 'text-embedding-3-large',
       input: query,
     });
     const queryEmbedding = embeddingResponse.data[0].embedding;
@@ -119,7 +119,7 @@ export class AdvancedRetrieval {
       const batch = textsToRank.slice(i, i + batchSize);
       
       const embeddingResponse = await this.openai.embeddings.create({
-        model: 'text-embedding-ada-002',
+        model: 'text-embedding-3-large',
         input: batch,
       });
       

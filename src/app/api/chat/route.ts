@@ -29,7 +29,7 @@ interface ChatMessage {
 
 // --- Constants ---
 const OPENAI_CHAT_MODEL = 'gpt-4o'; // Changed from gpt-4.1-mini
-const OPENAI_EMBEDDING_MODEL = 'text-embedding-ada-002';
+const OPENAI_EMBEDDING_MODEL = 'text-embedding-3-large';
 const SIMILARITY_THRESHOLD = 0.65; // Lowered for better recall with complete documents
 const MATCH_COUNT = 8; // Increased for better context coverage with complete documents
 

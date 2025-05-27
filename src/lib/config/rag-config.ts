@@ -5,8 +5,8 @@
 
 export const RAG_CONFIG = {
   // === EMBEDDING SETTINGS ===
-  EMBEDDING_MODEL: 'text-embedding-ada-002', // Compatible with 1536-dimension Pinecone index
-  EMBEDDING_DIMENSIONS: 1536, // text-embedding-ada-002 dimensions
+  EMBEDDING_MODEL: 'text-embedding-3-large', // 3072-dimension model
+  EMBEDDING_DIMENSIONS: 3072, // text-embedding-3-large dimensions
   
   // === CHUNKING SETTINGS ===
   CHUNK_SIZE: 800, // Optimal for coherent context
