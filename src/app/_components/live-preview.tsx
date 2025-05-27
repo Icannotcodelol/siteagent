@@ -635,7 +635,14 @@ export default function LivePreview() {
         </div>
 
         {/* Chatbot Widget */}
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-8 duration-500 delay-300">
+        <div 
+          className="fixed bottom-6 right-6 z-[9999] animate-in fade-in slide-in-from-bottom-8 duration-500 delay-300"
+          style={{
+            /* Safari fix: Ensure widget doesn't get trapped in transform stacking context */
+            transform: 'translateZ(0)',
+            willChange: 'transform'
+          }}
+        >
           {isMinimized ? (
             // Minimized widget launcher
             <button

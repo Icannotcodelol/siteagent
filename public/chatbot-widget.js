@@ -37,6 +37,9 @@
       justify-content: center;
       cursor: pointer;
       z-index: 2147483647; /* At the very top */
+      /* Safari fix: Ensure widget doesn't get trapped in transform stacking context */
+      transform: translateZ(0);
+      will-change: transform;
     }
     .siteagent-chatbot-launcher-btn img {
       width: 100%;
@@ -66,6 +69,9 @@
       z-index: 2147483646;
       display: none;
       flex-direction: column;
+      /* Safari fix: Ensure widget doesn't get trapped in transform stacking context */
+      transform: translateZ(0);
+      will-change: transform;
     }
     .siteagent-chatbot-close-btn {
       position: absolute;
@@ -409,6 +415,8 @@
       border-style: solid;
       /* Default border color for the tail, will be overridden by dynamic styles if custom color set */
       border-color: #111827 transparent transparent transparent;
+      /* Safari fix: Ensure proactive bubble doesn't get trapped in transform stacking context */
+      will-change: transform;
     }
     .siteagent-proactive-bubble .siteagent-proactive-close {
       position: absolute;
