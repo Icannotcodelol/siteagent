@@ -410,7 +410,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
               if (message.sender !== 'ai') {
                 return (
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'} bg-gray-700 text-white whitespace-pre-wrap`}
+                    className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'} bg-gray-700 text-white whitespace-pre-wrap break-words`}
                   >
                     <p className="text-sm">{renderTextWithLinks(message.text, backgroundColor, false)}</p>
                   </div>
@@ -443,10 +443,10 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
               // Default render as text
               return (
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'}`}
+                  className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'} whitespace-pre-wrap break-words`}
                   style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}
                 >
-                  <div className="text-sm whitespace-pre-wrap">
+                  <div className="text-sm">
                     <ReactMarkdown
                       components={{
                         a: ({node, href, ...props}) => {
