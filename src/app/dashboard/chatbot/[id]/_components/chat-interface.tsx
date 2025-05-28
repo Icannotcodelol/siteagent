@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'; // Import usePathname
 import ReactMarkdown from 'react-markdown';
 import CalendlyEmbed from './calendly-embed';
 import ProactiveMessageBubble from '@/app/embed/chatbot/[id]/_components/proactive-message-bubble'; // Import ProactiveMessageBubble
+import { HandThumbUpIcon, HandThumbDownIcon } from '@heroicons/react/24/outline'
 
 // Define the structure of a chat message
 interface Message {
@@ -372,6 +373,26 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
     inputRef.current?.focus();
   };
 
+  const [feedbackGiven, setFeedbackGiven] = useState<Set<string>>(new Set());
+
+  const sendFeedback = async (messageLocalId: string, feedbackType: 'thumbs_up' | 'thumbs_down') => {
+    if (!sessionId) return;
+    try {
+      await fetch(`/api/chatbots/${chatbotId}/feedback`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId,
+          messageId: null, // TODO: use real DB message ID when available
+          feedbackType,
+        }),
+      });
+    } catch (e) {
+      console.error('Failed to send feedback', e);
+    }
+    setFeedbackGiven((prev) => new Set(prev).add(messageLocalId));
+  };
+
   return (
     <div
       className="rounded shadow-md flex flex-col h-full"
@@ -459,6 +480,28 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
                     >
                       {message.text}
                     </ReactMarkdown>
+                  </div>
+                  <div className="flex items-center space-x-2 mt-1" aria-label="Feedback buttons" >
+                    { !feedbackGiven.has(message.id) ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => sendFeedback(message.id, 'thumbs_up')}
+                          className="text-gray-400 hover:text-green-400 focus:outline-none"
+                        >
+                          <HandThumbUpIcon className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => sendFeedback(message.id, 'thumbs_down')}
+                          className="text-gray-400 hover:text-red-400 focus:outline-none"
+                        >
+                          <HandThumbDownIcon className="w-4 h-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-xs text-gray-500">Thanks for the feedback!</span>
+                    ) }
                   </div>
                 </div>
               );

@@ -18,6 +18,7 @@ import ActionManager from '../../[id]/_components/action-manager'
 // Import ChatInterface for the preview tab
 import ChatInterface from '../../[id]/_components/chat-interface'
 import IntegrationsPanel from '../../[id]/_components/integrations-panel'
+import AnalyticsPanel from '../../[id]/_components/analytics-panel'
 import { useChatbotAppearance } from './chatbot-appearance-context'
 
 // Import new loading and error components
@@ -40,7 +41,7 @@ import {
 import EnhancedAppearanceTab from './enhanced-appearance-tab'
 
 // Define possible tab values
-type ActiveTab = 'settings' | 'dataSources' | 'appearance' | 'embed' | 'actions' | 'integrations';
+type ActiveTab = 'settings' | 'dataSources' | 'appearance' | 'embed' | 'actions' | 'integrations' | 'analytics';
 
 // Define props for the component
 interface ChatbotBuilderFormProps {
@@ -455,6 +456,7 @@ export default function ChatbotBuilderForm({
               <button type="button" className={`${getTabClass('embed')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('embed')}>Embed Code</button>
               <button type="button" className={`${getTabClass('actions')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('actions')}>Actions</button>
               <button type="button" className={`${getTabClass('integrations')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('integrations')}>Integrations</button>
+              <button type="button" className={`${getTabClass('analytics')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('analytics')}>Analytics</button>
           </div>
         </div>
 
@@ -765,6 +767,17 @@ export default function ChatbotBuilderForm({
                         </LoadingButton>
                       </div>
                    )}
+              </div>
+           )}
+
+           {/* Analytics Tab Content */}
+           {activeTab === 'analytics' && (
+              <div>
+                {isEditMode && chatbotId ? (
+                  <AnalyticsPanel chatbotId={chatbotId} />
+                ) : (
+                  <p className="text-gray-400">Analytics are available after the chatbot is saved and has activity.</p>
+                )}
               </div>
            )}
          </div>
