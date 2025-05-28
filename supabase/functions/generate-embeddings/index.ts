@@ -144,8 +144,6 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-
-
     console.log(`Processing document ID: ${docIdToProcess}, Source: ${rawContent ? 'Direct Content' : `Storage (${storagePath})`}, File hint: ${fileName ?? 'N/A'}`);
 
     // --- Pinecone Client Initialization ---
@@ -217,7 +215,71 @@ Deno.serve(async (req: Request) => {
     
     let textContent = '';
     if (rawContent) {
-        console.log('Using direct content from database.');
+        // NEW: Detect and handle CSV content that is supplied inline (via `content` column)
+        const looksLikeCsv = (fileName?.toLowerCase().endsWith('.csv') ?? false) || isValidCsv(rawContent);
+        if (looksLikeCsv) {
+            console.log('Detected inline CSV content. Processing without embeddings...');
+
+            // Validate CSV format (already implied by isValidCsv but good to double-check)
+            if (!isValidCsv(rawContent)) {
+                console.error(`Inline CSV content appears invalid for document ${docIdToProcess}`);
+                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', 'Invalid inline CSV format');
+                return new Response(JSON.stringify({ message: 'Invalid CSV format' }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' },
+                });
+            }
+
+            const delimiter = detectCsvDelimiter(rawContent);
+            const parsedRows = parseSimpleCsv(rawContent, delimiter);
+            const headers = parsedRows[0] || [];
+            const dataRows = parsedRows.slice(1);
+
+            const rowChunks: any[] = [];
+            dataRows.forEach((row) => {
+                const rowTextParts = row.map((cell, cellIdx) => {
+                    const columnName = headers[cellIdx] || `Column ${cellIdx + 1}`;
+                    return `${columnName}: ${cell}`;
+                }).filter(Boolean);
+
+                if (rowTextParts.length === 0) return;
+
+                const rowText = rowTextParts.join(', ');
+                rowChunks.push({
+                    document_id: docIdToProcess,
+                    chatbot_id: chatbotId,
+                    chunk_text: rowText,
+                    embedding: null, // Skip embeddings for CSV rows
+                    token_count: rowText.length,
+                });
+            });
+
+            if (rowChunks.length > 0) {
+                const { error: insertErr } = await supabaseAdminClient
+                    .from('document_chunks')
+                    .insert(rowChunks);
+
+                if (insertErr) {
+                    console.error(`Failed to insert inline CSV chunks for doc ${docIdToProcess}:`, insertErr);
+                    await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `CSV chunk insert error: ${insertErr.message}`);
+                    return new Response(JSON.stringify({ message: 'CSV processing failed', error: insertErr.message }), {
+                        status: 500,
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+                }
+                console.log(`Stored ${rowChunks.length} CSV rows for inline document ${docIdToProcess} without embeddings.`);
+            } else {
+                console.warn(`No non-empty rows found in inline CSV document ${docIdToProcess}.`);
+            }
+
+            await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'completed', 'CSV stored without embeddings');
+            return new Response(JSON.stringify({ message: `CSV document ${docIdToProcess} processed without embeddings. Rows stored: ${rowChunks.length}` }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        console.log('Using direct content from database as plain text.');
         textContent = rawContent;
     } else if (storagePath) {
         console.log(`Downloading from storage path: ${storagePath}`);
