@@ -450,6 +450,43 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        // NEW: If the query contains numeric tokens (e.g., postal codes), ensure we return chunks that include those numbers.
+        const numericTokensInQuery = query.match(/\b\d{4,}\b/g) || [];
+        if (numericTokensInQuery.length > 0) {
+            const containsNumeric = (txt: string) => numericTokensInQuery.some(tok => txt.includes(tok));
+            const numericFiltered = (effectiveChunks || []).filter(chunk => containsNumeric(chunk.content ?? chunk.chunk_text));
+
+            if (numericFiltered.length > 0) {
+                // Prefer chunks that explicitly include the numeric token(s)
+                effectiveChunks = numericFiltered;
+                console.log(`[AUTH] Numeric filter applied – using ${numericFiltered.length} chunks that contain token(s): ${numericTokensInQuery.join(', ')}`);
+            } else {
+                // If no current chunks include the numeric token, perform a direct numeric search
+                try {
+                    console.log('[AUTH] Performing direct numeric search for tokens:', numericTokensInQuery.join(', '));
+                    const supabaseAdminNumeric = createClient(
+                        process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+                        process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+                    );
+                    const { data: numericRows, error: numErr } = await supabaseAdminNumeric
+                        .from('document_chunks')
+                        .select('chunk_text')
+                        .eq('chatbot_id', chatbotId)
+                        .or(numericTokensInQuery.map(t => `chunk_text.ilike.%${t}%`).join(','))
+                        .limit(MATCH_COUNT);
+
+                    if (numErr) {
+                        console.error('[AUTH] Numeric direct search error:', numErr);
+                    } else if (numericRows && numericRows.length > 0) {
+                        effectiveChunks = numericRows.map((m: any) => ({ content: m.chunk_text })).slice(0, MATCH_COUNT);
+                        console.log(`[AUTH] Direct numeric search found ${numericRows.length} chunks.`);
+                    }
+                } catch (numEx) {
+                    console.error('[AUTH] Exception during numeric direct search:', numEx);
+                }
+            }
+        }
+
         const contextText = (effectiveChunks && effectiveChunks.length > 0)
             ? effectiveChunks.map((chunk: any) => chunk.content ?? chunk.chunk_text).join("\n\n---\n\n")
             : "No relevant context found in documents.";

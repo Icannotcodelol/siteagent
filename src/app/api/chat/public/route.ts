@@ -859,6 +859,38 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        // NEW: Numeric token prioritization – if the user query contains 4+ digit numbers (e.g., PLZ), ensure we surface chunks containing those numbers
+        const numericTokensInQuery = query.match(/\b\d{4,}\b/g) || [];
+        if (numericTokensInQuery.length > 0) {
+            const containsNumeric = (txt: string) => numericTokensInQuery.some(tok => txt.includes(tok));
+            const numericFiltered = (chunks || []).filter(chunk => containsNumeric((chunk as any).chunk_text ?? ''));
+
+            if (numericFiltered.length > 0) {
+                chunks = numericFiltered;
+                console.log(`[DEBUG] Numeric filter applied – using ${numericFiltered.length} chunks that contain token(s): ${numericTokensInQuery.join(', ')}`);
+            } else {
+                // Perform a direct numeric search if current chunks don't include the number
+                try {
+                    console.log('[DEBUG] Performing direct numeric search for tokens:', numericTokensInQuery.join(', '));
+                    const { data: numericRows, error: numErr } = await supabaseAdmin
+                        .from('document_chunks')
+                        .select('chunk_text')
+                        .eq('chatbot_id', chatbotId)
+                        .or(numericTokensInQuery.map(t => `chunk_text.ilike.%${t}%`).join(','))
+                        .limit(MATCH_COUNT);
+
+                    if (numErr) {
+                        console.error('[DEBUG] Numeric direct search error:', numErr);
+                    } else if (numericRows && numericRows.length > 0) {
+                        chunks = numericRows.map((m: any) => ({ chunk_text: m.chunk_text })).slice(0, MATCH_COUNT);
+                        console.log(`[DEBUG] Direct numeric search found ${numericRows.length} chunks.`);
+                    }
+                } catch (numEx) {
+                    console.error('[DEBUG] Exception during numeric direct search:', numEx);
+                }
+            }
+        }
+
         const contextText = (chunks && chunks.length > 0)
             ? chunks.map((chunk) => (chunk as any).chunk_text).join("\n\n---\n\n")
             : "No relevant context found in documents.";
