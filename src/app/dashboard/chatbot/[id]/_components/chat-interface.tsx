@@ -2,6 +2,7 @@
 
 import { useState, FormEvent, useRef, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation'; // Import usePathname
+import ReactMarkdown from 'react-markdown';
 import CalendlyEmbed from './calendly-embed';
 import ProactiveMessageBubble from '@/app/embed/chatbot/[id]/_components/proactive-message-bubble'; // Import ProactiveMessageBubble
 
@@ -445,7 +446,20 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
                   className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'}`}
                   style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{renderTextWithLinks(message.text, backgroundColor, true)}</p>
+                  <div className="text-sm whitespace-pre-wrap">
+                    <ReactMarkdown
+                      components={{
+                        a: ({node, href, ...props}) => {
+                          if (href && href.startsWith('mailto:')) {
+                            return <a {...props} href={href} className="text-white underline decoration-2 hover:text-blue-100 font-medium break-all" />
+                          }
+                          return <a {...props} href={href} target="_blank" rel="noopener noreferrer" className="text-white underline decoration-2 hover:text-blue-100 font-medium break-all" />
+                        }
+                      }}
+                    >
+                      {message.text}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               );
             })()}
