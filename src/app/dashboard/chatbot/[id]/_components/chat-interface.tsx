@@ -377,14 +377,19 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
 
   const sendFeedback = async (messageLocalId: string, feedbackType: 'thumbs_up' | 'thumbs_down') => {
     if (!sessionId) return;
+    let userComment: string | undefined = undefined;
+    if (feedbackType === 'thumbs_down') {
+      userComment = window.prompt("Sorry that wasn't helpful. Please tell us why (optional):") || undefined;
+    }
     try {
       await fetch(`/api/chatbots/${chatbotId}/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId,
-          messageId: null, // TODO: use real DB message ID when available
+          messageId: null,
           feedbackType,
+          userComment,
         }),
       });
     } catch (e) {

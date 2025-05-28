@@ -2,6 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowPathIcon } from '@heroicons/react/24/outline'
+// @ts-ignore
+import { Line } from 'react-chartjs-2'
+// @ts-ignore
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+} from 'chart.js'
 
 interface AnalyticsPanelProps {
   chatbotId: string
@@ -16,6 +28,7 @@ type MetricRow = {
   thumbs_up: number
   thumbs_down: number
   satisfaction: number | null
+  avg_messages_per_session: number
 }
 
 export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
@@ -77,10 +90,16 @@ export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
   )
   const satisfaction = totals.up + totals.down > 0 ? Math.round((totals.up / (totals.up + totals.down)) * 100) : '—'
 
+  // Prepare data for charts (reverse so oldest first)
+  const dates = [...data].reverse().map((d) => d.date)
+  const satisfactionSeries = [...data].reverse().map((d) => (d.satisfaction !== null ? d.satisfaction : null))
+  const messagesSeries = [...data].reverse().map((d) => d.total_messages)
+  const engagementSeries = [...data].reverse().map((d) => Number(d.avg_messages_per_session.toFixed(2)))
+
   return (
     <div className="space-y-6">
       {/* Summary cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className="bg-gray-800 border border-gray-700 p-4 rounded-lg text-center">
           <p className="text-sm text-gray-400">Messages (7 days)</p>
           <p className="mt-1 text-2xl font-semibold text-white">{totals.total}</p>
@@ -92,6 +111,10 @@ export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
         <div className="bg-gray-800 border border-gray-700 p-4 rounded-lg text-center">
           <p className="text-sm text-gray-400">Satisfaction</p>
           <p className="mt-1 text-2xl font-semibold text-white">{typeof satisfaction === 'number' ? `${satisfaction}%` : satisfaction}</p>
+        </div>
+        <div className="bg-gray-800 border border-gray-700 p-4 rounded-lg text-center">
+          <p className="text-sm text-gray-400">Avg Msgs / Session</p>
+          <p className="mt-1 text-2xl font-semibold text-white">{engagementSeries.length > 0 ? engagementSeries[engagementSeries.length - 1] : '—'}</p>
         </div>
       </div>
 
@@ -123,6 +146,79 @@ export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Trend Charts */}
+      <div className="space-y-8">
+        <div>
+          <h3 className="text-sm text-gray-300 mb-2">Satisfaction Trend</h3>
+          <Line
+            data={{
+              labels: dates,
+              datasets: [
+                {
+                  label: 'Satisfaction %',
+                  data: satisfactionSeries,
+                  borderColor: '#10B981',
+                  backgroundColor: 'rgba(16,185,129,0.2)',
+                  spanGaps: true,
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { display: false },
+              },
+              scales: {
+                y: { beginAtZero: true, max: 100 },
+              },
+            }}
+          />
+        </div>
+        <div>
+          <h3 className="text-sm text-gray-300 mb-2">Messages & Engagement</h3>
+          <Line
+            data={{
+              labels: dates,
+              datasets: [
+                {
+                  label: 'Total Messages',
+                  data: messagesSeries,
+                  borderColor: '#3B82F6',
+                  backgroundColor: 'rgba(59,130,246,0.2)',
+                  yAxisID: 'y',
+                },
+                {
+                  label: 'Avg Msgs / Session',
+                  data: engagementSeries,
+                  borderColor: '#F59E0B',
+                  backgroundColor: 'rgba(245,158,11,0.2)',
+                  yAxisID: 'y1',
+                },
+              ],
+            }}
+            options={{
+              responsive: true,
+              plugins: {
+                legend: { position: 'top' as const },
+              },
+              scales: {
+                y: {
+                  type: 'linear' as const,
+                  display: true,
+                  position: 'left' as const,
+                },
+                y1: {
+                  type: 'linear' as const,
+                  display: true,
+                  position: 'right' as const,
+                  grid: { drawOnChartArea: false },
+                },
+              },
+            }}
+          />
+        </div>
       </div>
     </div>
   )
