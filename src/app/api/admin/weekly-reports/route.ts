@@ -69,6 +69,31 @@ export async function POST(request: Request) {
     // Here you would typically send emails using a service like SendGrid, Resend, etc.
     // For now, we'll just return the report data
     
+    // EMAIL INTEGRATION OPTIONS:
+    // 
+    // Option 1: Resend (recommended)
+    // const { Resend } = require('resend')
+    // const resend = new Resend(process.env.RESEND_API_KEY)
+    // 
+    // for (const report of reports) {
+    //   if (report.ownerEmail) {
+    //     await resend.emails.send({
+    //       from: 'analytics@siteagent.eu',
+    //       to: report.ownerEmail,
+    //       subject: `Weekly Analytics for ${report.chatbotName}`,
+    //       html: generateEmailHTML(report)
+    //     })
+    //   }
+    // }
+    //
+    // Option 2: SendGrid
+    // const sgMail = require('@sendgrid/mail')
+    // sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+    // 
+    // Option 3: Nodemailer (SMTP)
+    // const nodemailer = require('nodemailer')
+    // const transporter = nodemailer.createTransporter({...})
+    
     return NextResponse.json({ 
       success: true, 
       reportsGenerated: reports.length,

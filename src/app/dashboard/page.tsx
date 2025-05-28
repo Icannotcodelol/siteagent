@@ -11,6 +11,7 @@ import { Suspense } from 'react'
 import UsageTrendsChart from './_components/usage-trends-chart';
 import ChatbotActivityChart from './_components/chatbot-activity-chart';
 import AvgMessagesChart from './_components/avg-messages-chart';
+import AdminReportsTest from './_components/admin-reports-test'
 
 // Type representing the chatbot data passed to the list component
 export type Chatbot = {
@@ -349,6 +350,9 @@ export default async function DashboardPage() {
             </div>
           </div>
         </section>
+
+        {/* Temporary admin testing component */}
+        <AdminReportsTest />
       </div>
     </div>
   )
