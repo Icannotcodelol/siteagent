@@ -446,7 +446,7 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
                   className={`max-w-xs lg:max-w-md px-4 py-2 ${chatBubbleStyle === 'square' ? 'rounded-md' : 'rounded-lg'} whitespace-pre-wrap break-words`}
                   style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}
                 >
-                  <div className="text-sm">
+                  <div className="text-sm whitespace-pre-wrap break-words">
                     <ReactMarkdown
                       components={{
                         a: ({node, href, ...props}) => {
