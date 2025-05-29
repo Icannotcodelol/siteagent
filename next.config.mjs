@@ -59,16 +59,27 @@ const nextConfig = {
   // Headers for performance
   async headers() {
     return [
+      // Allow the chatbot embed pages to be framed by external sites
+      {
+        source: '/embed/:path*',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on',
+          },
+          // Use Content-Security-Policy instead of X-Frame-Options for finer control
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors *",
+          },
+        ],
+      },
       {
         source: '/(.*)',
         headers: [
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
           },
         ],
       },
