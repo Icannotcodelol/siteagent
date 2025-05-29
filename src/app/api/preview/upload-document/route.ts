@@ -8,9 +8,10 @@ import { processCsvToText, detectCsvDelimiter, isValidCsv } from '@/lib/services
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 // Initialize clients
+// Prefer service-role key but gracefully fall back to anon key in dev.
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 const openai = new OpenAI({

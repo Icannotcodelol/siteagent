@@ -114,13 +114,16 @@ export default function Page() {
         <LandingPageClient authButtonSlot={<AuthButton />} />
       </Suspense>
       
-      {/* Optimized chatbot script - load after page interaction */}
-      <Script
-        src="https://www.siteagent.eu/chatbot-widget.js"
-        data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
-        data-launcher-icon="https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg?semt=ais_hybrid&w=740"
-        strategy="lazyOnload"
-      />
+      {/* External widget is only required in production to avoid CORS/403 errors
+          during local development. */}
+      {process.env.NODE_ENV === 'production' && (
+        <Script
+          src="https://www.siteagent.eu/chatbot-widget.js"
+          data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
+          data-launcher-icon="https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg?semt=ais_hybrid&w=740"
+          strategy="lazyOnload"
+        />
+      )}
     </>
   );
 } 

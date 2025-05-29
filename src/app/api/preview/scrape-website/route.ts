@@ -7,9 +7,15 @@ import OpenAI from 'openai';
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 // Initialize clients
+// Prefer the service-role key for unrestricted DB access. When running the
+// application locally or in preview environments the key might be missing.
+// In that case we gracefully fall back to the public anon key so that the
+// endpoint still works instead of throwing at runtime. Make sure the anon
+// key has the correct RLS policies for the preview tables when using this
+// fallback.
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 const openai = new OpenAI({
@@ -136,15 +142,36 @@ ${content.substring(0, 2000)}...`;
 // Simple web scraping function
 async function scrapeWebsite(url: string): Promise<string> {
   try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; SiteAgent-Preview/1.0)',
-      },
-      signal: AbortSignal.timeout(10000), // 10 second timeout
-    });
+    // Some sites block generic or bot-like user-agents ( e.g. Cloudflare '403').
+    // We first try with a modern Chrome UA string. If we still receive a status
+    // in the 4xx range we make a second attempt with Safari, falling back only
+    // then to an error.
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    const uaStrings = [
+      // Latest Chrome on Mac
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+      // Safari on iPhone
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
+    ];
+
+    let response: Response | null = null;
+
+    for (const ua of uaStrings) {
+      response = await fetch(url, {
+        headers: {
+          'User-Agent': ua,
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+        },
+        redirect: 'follow',
+        signal: AbortSignal.timeout(10000), // 10 second timeout
+      });
+
+      // Break early if the site lets us in
+      if (response.status < 400) break;
+    }
+
+    if (!response || !response.ok) {
+      throw new Error(`HTTP ${response?.status}: ${response?.statusText}`);
     }
 
     const html = await response.text();

@@ -7,9 +7,11 @@ import OpenAI from 'openai';
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 // Initialize clients
+// Use service role key when available. Fallback to anon key for local
+// development to avoid runtime crashes when the secret is undefined.
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
 const openai = new OpenAI({
