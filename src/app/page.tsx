@@ -13,82 +13,249 @@ export const metadata: Metadata = {
   }
 };
 
-// Critical navbar component for immediate rendering
-function CriticalNavbar({ authButtonSlot }: { authButtonSlot: React.ReactNode }) {
+// Modern asymmetric navbar with floating design
+function ModernNavbar({ authButtonSlot }: { authButtonSlot: React.ReactNode }) {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-800/0 backdrop-blur transition-all duration-300 bg-transparent">
-      <div className="container flex h-16 items-center justify-between px-4 md:px-8">
-        <div className="flex items-center gap-2">
-          <Link href="/" className="group flex items-center gap-2">
-            <Image src="/sitelogo.svg" alt="SiteAgent Logo" width={40} height={40} priority />
-          </Link>
-        </div>
-
-        <nav className="hidden md:flex md:items-center md:gap-6">
-          {["Features", "How It Works", "Pricing", "FAQ"].map((item) => (
-            <Link
-              key={item}
-              href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-              className="relative text-sm font-medium text-gray-300 transition-colors hover:text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-blue-500 after:transition-all after:duration-300 hover:after:w-full"
-            >
-              {item}
+    <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-7xl px-6">
+      <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl">
+        <div className="flex h-16 items-center justify-between px-6">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="group flex items-center gap-3">
+              <div className="relative">
+                <Image src="/sitelogo.svg" alt="SiteAgent Logo" width={36} height={36} priority />
+                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-20 group-hover:opacity-40 transition-opacity blur-sm"></div>
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                SiteAgent
+              </span>
             </Link>
-          ))}
-        </nav>
+          </div>
 
-        <div className="hidden md:flex md:items-center md:gap-4">
-          {authButtonSlot}
-        </div>
+          <nav className="hidden md:flex md:items-center md:gap-1">
+            {[
+              { label: "Features", href: "#features" },
+              { label: "How It Works", href: "#how-it-works" },
+              { label: "Pricing", href: "#pricing" },
+              { label: "FAQ", href: "#faq" }
+            ].map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="relative px-4 py-2 text-sm font-medium text-gray-300 rounded-lg transition-all hover:text-white hover:bg-gray-800/50"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
-        {/* Mobile menu button - simplified for critical path */}
-        <div className="flex items-center md:hidden">
-          <button className="text-gray-300 hover:text-white p-2">
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-3">
+            {authButtonSlot}
+          </div>
         </div>
       </div>
     </header>
   );
 }
 
-// Critical hero content for immediate rendering (LCP optimization)
-function CriticalHeroContent() {
+// Revolutionary hero with split-screen asymmetric design
+function RevolutionaryHero() {
   return (
-    <section className="relative overflow-hidden py-20 md:py-32">
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Dynamic animated background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
+        {/* Animated geometric shapes */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-l from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        
+        {/* Floating particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          {[...Array(20)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-blue-400/30 rounded-full animate-pulse"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${3 + Math.random() * 4}s`
+              }}
+            />
+          ))}
+        </div>
       </div>
       
-      <div className="container relative mx-auto px-4 md:px-6">
-        <div className="flex flex-col items-center justify-center text-center">
-          {/* Live demo badge */}
-          <div className="group mb-8 inline-flex items-center rounded-full border border-gray-700/50 bg-gray-800/60 backdrop-blur-xl px-4 py-2">
-            <span className="mr-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-0.5 text-xs font-semibold text-white">LIVE</span>
-            <span className="text-sm text-gray-300">Interactive AI demo - No signup required!</span>
+      <div className="container relative mx-auto px-6 pt-24">
+        <div className="grid lg:grid-cols-12 gap-12 items-center min-h-[80vh]">
+          {/* Left side - Content (60% width) */}
+          <div className="lg:col-span-7 space-y-8">
+            {/* Live demo badge with modern design */}
+            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-6 py-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-green-400 text-sm font-bold tracking-wide">LIVE DEMO</span>
+              </div>
+              <div className="w-px h-4 bg-gray-600"></div>
+              <span className="text-gray-300 text-sm">Try it now - No signup required!</span>
+            </div>
+            
+            <div className="space-y-6">
+              <h1 className="text-5xl md:text-7xl font-black leading-none tracking-tight">
+                <div className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                  Your AI
+                </div>
+                <div className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent relative">
+                  Automation
+                  <div className="absolute -right-4 top-0">
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full animate-bounce"></div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                  Revolution
+                </div>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-gray-400 leading-relaxed max-w-2xl">
+                Upload your content and watch SiteAgent transform it into an intelligent automation powerhouse. 
+                <span className="text-blue-400 font-semibold"> See it work in real-time.</span>
+              </p>
+            </div>
+            
+            {/* Modern CTA with side-by-side layout */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <Link 
+                href="#live-demo" 
+                className="group relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center gap-3"
+              >
+                <span>🚀 Launch Demo</span>
+                <div className="w-2 h-2 bg-white rounded-full group-hover:animate-ping"></div>
+              </Link>
+              
+              <Link 
+                href="/signup" 
+                className="border-2 border-gray-600 text-gray-300 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:border-gray-400 hover:text-white hover:bg-gray-800/30 flex items-center gap-3"
+              >
+                <span>Start Free Trial</span>
+                <span className="text-green-400">✓</span>
+              </Link>
+            </div>
+
+            {/* Trust indicators in a horizontal layout */}
+            <div className="flex flex-wrap items-center gap-8 pt-8 text-gray-500 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-500/20 rounded border border-green-500/30 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-green-400 rounded"></div>
+                </div>
+                <span>Enterprise Security</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-500/20 rounded border border-blue-500/30 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-blue-400 rounded"></div>
+                </div>
+                <span>5-Minute Setup</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-purple-500/20 rounded border border-purple-500/30 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-purple-400 rounded"></div>
+                </div>
+                <span>14-Day Free Trial</span>
+              </div>
+            </div>
           </div>
-          
-          <h1 className="mb-8 max-w-5xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-              See Your New AI Chatbot{" "}
-            </span>
-            <span className="block bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent">
-              in Action—Instantly
-            </span>
-          </h1>
-          
-          {/* Critical LCP element - optimized for immediate render */}
-          <p className="mb-12 max-w-3xl text-xl leading-relaxed text-gray-400 md:text-2xl">
-            Upload your content and experience SiteAgent's powerful automation in real-time—no signup required.
-          </p>
-          
-          {/* Simplified CTA buttons for critical path */}
-          <div className="flex flex-col items-center space-y-6 sm:flex-row sm:space-x-6 sm:space-y-0">
-            <Link href="#live-demo" className="h-14 px-8 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md font-medium flex items-center transition-transform hover:scale-105">
-              🚀 Launch Instant Demo
-            </Link>
+
+          {/* Right side - Visual element (40% width) */}
+          <div className="lg:col-span-5 relative">
+            <div className="relative">
+              {/* Floating cards design */}
+              <div className="relative w-full h-96 lg:h-[800px]">
+
+                {/* Instant Automation - Prominent Top Right */}
+                <div className="absolute top-[5%] right-[5%] w-60 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 rounded-2xl p-4 shadow-2xl backdrop-blur-sm transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">🚀</span>
+                    </div>
+                    <span className="text-white font-semibold text-sm">Instant Automation</span>
+                  </div>
+                  <div className="text-blue-300 text-xs font-medium mb-2">AI That Acts, Not Just Chats</div>
+                  <p className="text-gray-400 text-xs mb-3">Automatically create CRM contacts, schedule meetings, and handle customer inquiries.</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-green-400 text-xs font-medium">Live Processing</span>
+                  </div>
+                </div>
+
+                {/* Real-Time Demo - Upper Left */}
+                <div className="absolute top-[15%] left-[8%] w-56 bg-gradient-to-br from-blue-900/80 to-purple-900/80 border border-blue-500/30 rounded-xl p-4 shadow-xl backdrop-blur-sm transform -rotate-4 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-blue-300 text-xs">⚡</span>
+                    <div className="text-blue-300 text-sm font-semibold">Real-Time Demo</div>
+                  </div>
+                  <div className="text-blue-200 text-xs font-medium mb-2">Interactive & Instant Setup</div>
+                  <p className="text-blue-100 text-xs">Upload your content and experience real-time AI automation immediately—no sign-up required.</p>
+                </div>
+
+                {/* Integrations - Mid Left */}
+                <div className="absolute top-[35%] left-[2%] w-48 bg-gradient-to-br from-orange-900/80 to-red-900/80 border border-orange-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-5 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-4 h-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-md flex items-center justify-center">
+                      <span className="text-white text-xs">🔌</span>
+                    </div>
+                    <div className="text-orange-300 text-xs font-semibold">Integrations</div>
+                  </div>
+                  <div className="text-orange-200 text-xs font-medium mb-1">Seamless Integration</div>
+                  <p className="text-orange-100 text-xs">Instantly connect with HubSpot, Calendly, Jira, Shopify, and more.</p>
+                </div>
+                
+                {/* Always On - Mid Right */}
+                <div className="absolute top-[40%] right-[10%] w-44 bg-gradient-to-br from-purple-900/80 to-pink-900/80 border border-purple-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded flex items-center justify-center">
+                      <span className="text-white text-xs">⏰</span>
+                    </div>
+                    <div className="text-purple-300 text-xs font-semibold">Always On</div>
+                  </div>
+                  <div className="text-purple-200 text-xs font-medium mb-1">24/7 Availability</div>
+                  <p className="text-purple-100 text-xs">Engage visitors, generate leads, and handle tasks around the clock.</p>
+                </div>
+
+                {/* Multi-Language - Lower Left */}
+                <div className="absolute top-[60%] left-[10%] w-52 bg-gradient-to-br from-teal-900/80 to-cyan-900/80 border border-teal-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-4 h-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-md flex items-center justify-center">
+                      <span className="text-white text-xs">🌍</span>
+                    </div>
+                    <div className="text-teal-300 text-xs font-semibold">Multi-Language</div>
+                  </div>
+                  <div className="text-teal-200 text-xs font-medium mb-1">Global Reach, Local Engagement</div>
+                  <p className="text-teal-100 text-xs">Provide seamless customer interactions in multiple languages.</p>
+                </div>
+
+                {/* Quick Setup - Moved Up Vertically */}
+                <div className="absolute top-[55%] right-[25%] w-40 bg-gradient-to-br from-green-900/80 to-blue-900/80 border border-green-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-1 mb-2">
+                    <span className="text-green-300 text-xs">⚙️</span>
+                    <div className="text-green-300 text-xs font-semibold">Quick Setup</div>
+                  </div>
+                  <div className="text-green-200 text-xs font-medium mb-1">Deploy in Minutes</div>
+                  <p className="text-green-100 text-xs">Simple embed snippet—start automating immediately without coding.</p>
+                </div>
+
+                {/* Secure & Private - Prominent Bottom Right */}
+                <div className="absolute bottom-[5%] right-[8%] w-52 bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border border-indigo-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform rotate-4 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-4 h-4 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-md flex items-center justify-center">
+                      <span className="text-white text-xs">🔒</span>
+                    </div>
+                    <div className="text-indigo-300 text-xs font-semibold">Secure & Private</div>
+                  </div>
+                  <div className="text-indigo-200 text-xs font-medium mb-1">Enterprise-Grade Security</div>
+                  <p className="text-indigo-100 text-xs">Fully GDPR compliant with advanced encryption and data protection.</p>
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -99,13 +266,13 @@ function CriticalHeroContent() {
 export default function Page() {
   return (
     <>
-      {/* Critical above-the-fold content rendered immediately */}
-      <div className="relative min-h-screen overflow-hidden bg-gray-900 text-gray-100">
-        <CriticalNavbar authButtonSlot={<AuthButton />} />
-        <CriticalHeroContent />
+      {/* Modern redesigned landing page */}
+      <div className="relative overflow-hidden bg-gray-900 text-gray-100">
+        <ModernNavbar authButtonSlot={<AuthButton />} />
+        <RevolutionaryHero />
       </div>
       
-      {/* Non-critical content loaded after LCP */}
+      {/* Non-critical content loaded after main hero */}
       <Suspense fallback={
         <div className="flex items-center justify-center min-h-[50vh] bg-gray-900">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -114,8 +281,7 @@ export default function Page() {
         <LandingPageClient authButtonSlot={<AuthButton />} />
       </Suspense>
       
-      {/* External widget is only required in production to avoid CORS/403 errors
-          during local development. */}
+      {/* External widget for production */}
       {process.env.NODE_ENV === 'production' && (
         <Script
           src="https://www.siteagent.eu/chatbot-widget.js"
