@@ -9,9 +9,43 @@ import type { Metadata } from "next";
 
 // Metadata for this page
 export const metadata: Metadata = {
+  title: "SiteAgent - AI Automation Revolution | Upload Content, Get Instant AI Automation",
+  description: "Transform your content into intelligent automation systems in minutes. Upload documents or paste website URLs to create AI assistants that schedule meetings, update CRM, and handle customer inquiries automatically.",
+  keywords: "AI automation, chatbot, customer service automation, AI assistant, business automation, CRM integration, meeting scheduling, AI customer support",
+  authors: [{ name: "SiteAgent" }],
+  creator: "SiteAgent",
+  publisher: "SiteAgent",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://www.siteagent.ai/',
+    title: 'SiteAgent - AI Automation Revolution',
+    description: 'Transform your content into intelligent automation systems. Upload documents or paste URLs to create AI assistants that automate real business tasks.',
+    siteName: 'SiteAgent',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'SiteAgent - AI Automation Revolution',
+    description: 'Transform your content into intelligent automation systems in minutes.',
+    creator: '@SiteAgent',
+  },
   alternates: {
     canonical: 'https://www.siteagent.ai/'
-  }
+  },
+  verification: {
+    google: 'your-google-verification-code', // You should replace this with actual verification code
+  },
 };
 
 // Revolutionary hero with split-screen asymmetric design
@@ -125,6 +159,7 @@ function RevolutionaryHero() {
           <div className="lg:col-span-5 relative mt-8 lg:mt-0">
             {/* Mobile-optimized feature showcase - visible only on mobile */}
             <div className="lg:hidden">
+              <h2 className="text-2xl font-bold text-white mb-6 text-center">Key Features</h2>
               <div className="space-y-4">
                 {/* Hero feature card */}
                 <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6 backdrop-blur-sm">
