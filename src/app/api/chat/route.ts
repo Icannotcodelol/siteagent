@@ -176,7 +176,7 @@ export async function POST(request: NextRequest) {
     // 1. Extract query and chatbotId from request body
     let query: string;
     let chatbotId: string;
-    let history: ChatMessage[] | undefined = undefined; // Client-sent history, will be replaced by DB history
+    const history: ChatMessage[] | undefined = undefined; // Client-sent history, will be replaced by DB history
     let sessionIdFromRequest: string | undefined;
 
     try {
@@ -472,7 +472,7 @@ export async function POST(request: NextRequest) {
                     process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
                 );
                 const tokens = extractSearchTokens(query);
-                let rows: any[] = [];
+                const rows: any[] = [];
                 for (const tok of tokens) {
                     const { data, error } = await supabaseAdminSearch
                         .from('document_chunks')

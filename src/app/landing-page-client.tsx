@@ -1515,11 +1515,10 @@ function Footer() {
 
 export default function LandingPageClient({ authButtonSlot }: LandingPageClientProps) {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gray-900 text-gray-100">
+    <div className="relative overflow-hidden bg-gray-900 text-gray-100">
       <MouseFollower />
-      <Navbar authButtonSlot={authButtonSlot} />
+      {/* Navbar and HeroSection moved to critical path - skip here to avoid duplication */}
       <main className="overflow-x-hidden">
-        <HeroSection />
         <HowDemoWorksSection />
         <LiveDemoSection />
         <FeaturesSection />

@@ -853,7 +853,7 @@ export async function POST(request: NextRequest) {
             console.log("[DEBUG] No relevant chunks from Pinecone. Falling back to Postgres text search...");
             try {
                 const tokens = extractSearchTokens(query);
-                let pgMatches: any[] = [];
+                const pgMatches: any[] = [];
                 for (const tok of tokens) {
                     const { data, error } = await supabaseAdmin
                         .from('document_chunks')

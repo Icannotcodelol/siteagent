@@ -13,7 +13,7 @@ const openai = new OpenAI({
 });
 
 // Constants
-const SIMILARITY_THRESHOLD = 0.75;
+const SIMILARITY_THRESHOLD = 0.3;
 const MATCH_COUNT = 5;
 
 // Global base prompt for preview chatbots
@@ -35,9 +35,11 @@ interface ChatMessage {
 // Function to find relevant content using vector similarity
 async function findRelevantContent(sessionToken: string, query: string): Promise<string[]> {
   try {
+    console.log(`Finding relevant content for query: "${query}"`);
+    
     // Generate embedding for the query
     const queryEmbedding = await openai.embeddings.create({
-      model: 'text-embedding-ada-002',
+      model: 'text-embedding-3-large',
       input: query,
     });
 
@@ -52,6 +54,13 @@ async function findRelevantContent(sessionToken: string, query: string): Promise
     if (error) {
       console.error('Error searching for relevant content:', error);
       return [];
+    }
+
+    console.log(`Found ${chunks?.length || 0} relevant chunks with similarity >= ${SIMILARITY_THRESHOLD}`);
+    if (chunks && chunks.length > 0) {
+      chunks.forEach((chunk: any, index: number) => {
+        console.log(`Chunk ${index + 1} (similarity: ${chunk.similarity?.toFixed(3)}): ${chunk.chunk_text.substring(0, 100)}...`);
+      });
     }
 
     return chunks?.map((chunk: any) => chunk.chunk_text) || [];
@@ -122,6 +131,11 @@ export async function POST(request: NextRequest) {
     let context = '';
     if (relevantContent.length > 0) {
       context = `Based on the following content:\n\n${relevantContent.join('\n\n')}\n\n`;
+      console.log(`Providing context to AI (${relevantContent.length} chunks)`);
+    } else {
+      console.log('No relevant content found - AI will use general knowledge with fallback');
+      // When no relevant content is found, we still want the AI to try to help
+      context = `Note: No specific relevant content was found for this query in the uploaded material. Try to provide a helpful general response while mentioning that the user might want to ask about the specific content that was uploaded.\n\n`;
     }
 
     // --- SERVER-SIDE CONVERSATION HISTORY FETCH (like main chatbot system) ---

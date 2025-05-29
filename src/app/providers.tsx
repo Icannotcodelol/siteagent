@@ -11,8 +11,19 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
       api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com',
-      person_profiles: 'identified_only', // or 'always' to create profiles for anonymous users as well
-      capture_pageview: false // Disable automatic pageview capture, as we capture manually
+      person_profiles: 'identified_only',
+      capture_pageview: false, // Disable automatic pageview capture for manual control
+      capture_pageleave: true,
+      loaded: (posthog) => {
+        if (process.env.NODE_ENV === 'development') posthog.debug()
+      },
+      // Core performance optimizations
+      autocapture: false, // Disable to reduce bundle size
+      persistence: 'localStorage',
+      cross_subdomain_cookie: false,
+      secure_cookie: true,
+      opt_out_capturing_by_default: false,
+      respect_dnt: true
     })
   }, [])
 
@@ -29,15 +40,23 @@ function PostHogPageView() {
   const searchParams = useSearchParams()
   const posthog = usePostHog()
 
-  // Track pageviews
+  // Track pageviews with debouncing for better performance
   useEffect(() => {
     if (pathname && posthog) {
-      let url = window.origin + pathname
-      if (searchParams.toString()) {
-        url = url + "?" + searchParams.toString();
-      }
+      // Debounce pageview tracking to prevent excessive calls
+      const timeoutId = setTimeout(() => {
+        let url = window.origin + pathname
+        if (searchParams.toString()) {
+          url = url + "?" + searchParams.toString();
+        }
 
-      posthog.capture('$pageview', { '$current_url': url })
+        posthog.capture('$pageview', { 
+          '$current_url': url,
+          '$title': document.title
+        })
+      }, 100)
+
+      return () => clearTimeout(timeoutId)
     }
   }, [pathname, searchParams, posthog])
 

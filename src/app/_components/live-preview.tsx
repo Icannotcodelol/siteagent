@@ -71,37 +71,74 @@ export default function LivePreview() {
 
   // Poll for status updates when processing
   useEffect(() => {
-    if (!session || session.status !== 'processing') return;
+    if (!session || session.status !== 'processing') {
+      console.log('Polling stopped - session status:', session?.status);
+      return;
+    }
+
+    console.log('Starting polling for session:', session.sessionToken);
 
     const pollStatus = async () => {
       try {
         const response = await fetch(`/api/preview/status?sessionToken=${session.sessionToken}`);
         if (response.ok) {
           const data = await response.json();
-          setSession(prev => prev ? { ...prev, ...data } : null);
+          console.log('Polling status update:', data); // Debug log
           
-          if (data.status === 'completed') {
-            // Add welcome message when ready
-            const welcomeMessage: Message = {
-              id: Date.now().toString(),
-              content: "Hello! I'm ready to help you with questions about your uploaded content. What would you like to know?",
-              isUser: false,
-              timestamp: new Date()
+          // Force state update with new data - ensure we're updating all relevant fields
+          setSession(prev => {
+            if (!prev) return null;
+            
+            const updatedSession = {
+              ...prev,
+              status: data.status,
+              suggestedQuestions: data.suggestedQuestions || [],
+              messageCount: data.messageCount || 0,
+              maxMessages: data.maxMessages || 10,
+              remainingMessages: data.remainingMessages || 10,
+              errorMessage: data.errorMessage
             };
-            setMessages([welcomeMessage]);
+            
+            console.log('Previous session state:', prev);
+            console.log('Updated session state:', updatedSession);
+            return updatedSession;
+          });
+          
+          // Handle status changes
+          if (data.status === 'completed') {
+            console.log('Status completed, adding welcome message'); // Debug log
+            // Add welcome message when ready
+            setTimeout(() => {
+              const welcomeMessage: Message = {
+                id: Date.now().toString(),
+                content: "Hello! I'm ready to help you with questions about your uploaded content. What would you like to know?",
+                isUser: false,
+                timestamp: new Date()
+              };
+              setMessages([welcomeMessage]);
+            }, 100); // Small delay to ensure state is updated
           } else if (data.status === 'failed') {
+            console.log('Status failed:', data.errorMessage); // Debug log
             // Show error message if processing failed
-            setError(data.error_message || 'Failed to process content. Please try again.');
+            setError(data.errorMessage || 'Failed to process content. Please try again.');
           }
+        } else {
+          console.error('Status polling failed:', response.status, response.statusText);
         }
       } catch (error) {
         console.error('Error polling status:', error);
       }
     };
 
+    // Poll immediately, then every 2 seconds
+    pollStatus();
     const interval = setInterval(pollStatus, 2000);
-    return () => clearInterval(interval);
-  }, [session]);
+    
+    return () => {
+      console.log('Cleaning up polling interval');
+      clearInterval(interval);
+    };
+  }, [session?.sessionToken, session?.status]); // Add sessionToken to dependencies
 
   const resetPreview = () => {
     setSession(null);

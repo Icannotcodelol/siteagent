@@ -20,7 +20,7 @@ const openai = new OpenAI({
 function checkRateLimit(clientIP: string): boolean {
   const now = Date.now();
   const windowMs = 24 * 60 * 60 * 1000; // 24 hours
-  const maxRequests = 3;
+  const maxRequests = 10; // Increased from 3 to 10 for testing
 
   const userLimit = rateLimitStore.get(clientIP);
   
@@ -43,6 +43,8 @@ function sanitizeText(text: string): string {
     .replace(/\u0000/g, '') // Remove null characters
     .replace(/[\u0001-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '') // Remove other control characters
     .replace(/\uFFFD/g, '') // Remove replacement characters
+    .replace(/[\uD800-\uDFFF]/g, '') // Remove lone surrogate characters that cause JSON issues
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\x80-\xFF]/g, '') // Keep only printable ASCII and extended ASCII
     .trim();
 }
 
@@ -212,7 +214,7 @@ async function processWebsite(sessionToken: string, content: string) {
     
     // Generate embeddings for each chunk
     const embeddings = await openai.embeddings.create({
-      model: 'text-embedding-ada-002',
+      model: 'text-embedding-3-large',
       input: chunks,
     });
 
@@ -268,7 +270,7 @@ export async function POST(request: NextRequest) {
     // Check rate limit
     if (!checkRateLimit(clientIP)) {
       return NextResponse.json(
-        { error: 'Rate limit exceeded. You can only create 3 previews per day.' },
+        { error: 'Rate limit exceeded. You can only create 10 previews per day.' },
         { status: 429 }
       );
     }
