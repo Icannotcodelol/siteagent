@@ -366,7 +366,7 @@ function HeroSection() {
           {/* Right side - Floating UI elements */}
           <div ref={previewRef} className="relative mt-12 md:mt-0 flex flex-col items-center space-y-6 lg:space-y-0 lg:h-[500px] group">
             {/* Real-Time Demo Card */}
-            <div className="animate-float w-full max-w-sm lg:absolute lg:left-[-20px] lg:top-[5%] lg:w-72 absolute-desktop-card" style={{ animationDelay: '0s', '--rotation': '-4deg' } as React.CSSProperties}>
+            <div className="animate-float w-full max-w-sm relative lg:absolute lg:left-[-20px] lg:top-[5%] lg:w-72" style={{ animationDelay: '0s', '--rotation': '-4deg' } as React.CSSProperties}>
               <div className="bg-gradient-to-br from-blue-700/30 to-purple-700/30 backdrop-blur-xl border border-blue-500/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-blue-500/40">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
@@ -381,7 +381,7 @@ function HeroSection() {
             </div>
 
             {/* Instant Automation Card */}
-            <div className="animate-float w-full max-w-sm lg:absolute lg:right-[-30px] lg:top-[calc(5%+90px)] lg:w-80 absolute-desktop-card" style={{ animationDelay: '0.5s', '--rotation': '3deg' } as React.CSSProperties}>
+            <div className="animate-float w-full max-w-sm relative lg:absolute lg:right-[-30px] lg:top-[calc(5%+90px)] lg:w-80" style={{ animationDelay: '0.5s', '--rotation': '3deg' } as React.CSSProperties}>
               <div className="bg-gradient-to-br from-gray-700/30 to-gray-800/30 backdrop-blur-xl border border-gray-600/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-gray-500/40">
                 <div className="flex items-center gap-3 mb-2">
                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center shadow-md">
@@ -396,7 +396,7 @@ function HeroSection() {
             </div>
 
             {/* Integrations Card */}
-            <div className="animate-float w-full max-w-sm lg:absolute lg:left-[5%] lg:top-[calc(5%+220px)] lg:w-64 absolute-desktop-card" style={{ animationDelay: '1s', '--rotation': '2deg' } as React.CSSProperties}>
+            <div className="animate-float w-full max-w-sm relative lg:absolute lg:left-[5%] lg:top-[calc(5%+220px)] lg:w-64" style={{ animationDelay: '1s', '--rotation': '2deg' } as React.CSSProperties}>
               <div className="bg-gradient-to-br from-orange-700/30 to-red-700/30 backdrop-blur-xl border border-orange-500/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-orange-500/40">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center shadow-md">
@@ -411,7 +411,7 @@ function HeroSection() {
             </div>
             
             {/* Secure & Private Card */}
-            <div className="animate-float w-full max-w-sm lg:absolute lg:right-[0%] lg:top-[calc(5%+350px)] lg:w-72 absolute-desktop-card" style={{ animationDelay: '1.2s', '--rotation': '-3deg' } as React.CSSProperties}>
+            <div className="animate-float w-full max-w-sm relative lg:absolute lg:right-[0%] lg:top-[calc(5%+350px)] lg:w-72" style={{ animationDelay: '1.2s', '--rotation': '-3deg' } as React.CSSProperties}>
               <div className="bg-gradient-to-br from-teal-700/30 to-cyan-700/30 backdrop-blur-xl border border-teal-500/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-teal-500/40">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-md">
