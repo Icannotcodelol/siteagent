@@ -9,6 +9,14 @@ interface SessionPageProps {
   params: { id: string; sessionId: string }
 }
 
+// Client component for Quick Tests
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - dynamic import path
+const QuickTestsDropdown = dynamic(
+  () => import('../../_components/quick-tests-dropdown'),
+  { ssr: false }
+)
+
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - dynamic import path
 const InterrogationChat = dynamic<any>(() => import('../../_components/interrogation-chat'), {
@@ -87,8 +95,11 @@ export default async function InterrogationSessionPage({ params }: SessionPagePr
               {session.title || 'Untitled Session'}
             </h1>
           </div>
-          <div className="text-sm text-gray-500">
-            Interrogation Mode
+          <div className="flex items-center space-x-3">
+            <span className="text-sm text-gray-500">
+              Interrogation Mode
+            </span>
+            <QuickTestsDropdown />
           </div>
         </div>
         

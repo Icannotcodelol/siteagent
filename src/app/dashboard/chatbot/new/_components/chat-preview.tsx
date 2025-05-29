@@ -331,13 +331,31 @@ export default function ChatPreview(props: ChatPreviewProps) {
                   </ReactMarkdown>
                   {/* Flag link - only show on bot messages */}
                   {isInterrogation && (
-                    <button
-                      onClick={() => setFlagTargetId((msg as any).id ?? '')}
-                      className="absolute -bottom-5 left-0 text-xs underline text-red-600"
-                      disabled={(msg as any).flagged}
-                    >
-                      {(msg as any).flagged ? 'Flagged' : 'Flag'}
-                    </button>
+                    <div className="mt-2 flex items-center space-x-2">
+                      <button
+                        onClick={() => setFlagTargetId((msg as any).id ?? '')}
+                        className={`text-xs px-2 py-1 rounded transition-colors ${
+                          (msg as any).flagged 
+                            ? 'bg-red-100 text-red-700 cursor-not-allowed' 
+                            : 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                        }`}
+                        disabled={(msg as any).flagged}
+                      >
+                        {(msg as any).flagged ? (
+                          <span className="flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                            Flagged
+                          </span>
+                        ) : 'Flag as incorrect'}
+                      </button>
+                      {(msg as any).flagged && (
+                        <span className="text-xs text-green-600 font-medium">
+                          ✓ Correction submitted
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
               );
@@ -390,34 +408,104 @@ export default function ChatPreview(props: ChatPreviewProps) {
       {/* Flag modal */}
       {isInterrogation && flagTargetId && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4">Flag Incorrect Response</h2>
-            <label className="block text-sm font-medium mb-1">Error type</label>
-            <select ref={flagTypeRef} className="w-full border rounded px-2 py-1 mb-3">
-              <option value="factual">Factual error</option>
-              <option value="context">Context misunderstanding</option>
-              <option value="relevance">Irrelevant answer</option>
-            </select>
-            <label className="block text-sm font-medium mb-1">Description</label>
-            <textarea ref={flagDescRef} rows={3} className="w-full border rounded px-2 py-1 mb-3" />
-            <label className="block text-sm font-medium mb-1">Correct answer</label>
-            <textarea ref={correctAnswerRef} rows={3} className="w-full border rounded px-2 py-1 mb-3" />
-            <div className="flex justify-end space-x-2">
-              <button onClick={() => setFlagTargetId(null)} className="px-3 py-1 rounded border">Cancel</button>
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Flag Incorrect Response</h2>
+              <button 
+                onClick={() => setFlagTargetId(null)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <p className="text-sm text-blue-800">
+                💡 This will help improve the chatbot by creating a correction that gets added to the knowledge base.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  What type of error is this? <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  ref={flagTypeRef} 
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="factual">Factual error - Wrong information provided</option>
+                  <option value="context">Context misunderstanding - Didn't understand the question</option>
+                  <option value="relevance">Irrelevant answer - Answer doesn't address the question</option>
+                  <option value="incomplete">Incomplete answer - Missing important details</option>
+                  <option value="tone">Wrong tone - Inappropriate style or approach</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Describe the problem (optional)
+                </label>
+                <textarea 
+                  ref={flagDescRef} 
+                  rows={3} 
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="What specifically was wrong with the response?"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  What should the correct answer be? <span className="text-red-500">*</span>
+                </label>
+                <textarea 
+                  ref={correctAnswerRef} 
+                  rows={4} 
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Provide the accurate response the chatbot should have given..."
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button 
+                onClick={() => setFlagTargetId(null)} 
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
               <button
                 onClick={async () => {
                   if (!onFlag) { setFlagTargetId(null); return; }
+                  
                   const cat = flagTypeRef.current?.value || 'factual';
                   const desc = flagDescRef.current?.value || '';
-                  const corr = correctAnswerRef.current?.value || '';
+                  const corr = correctAnswerRef.current?.value?.trim() || '';
+                  
+                  if (!corr) {
+                    alert('Please provide a correct answer before submitting.');
+                    return;
+                  }
+                  
                   try {
                     await onFlag(flagTargetId!, cat, desc, corr);
                     // mark flagged
                     setMessages(prev => prev.map(m => (m as any).id===flagTargetId ? { ...m, flagged:true }: m));
-                  } catch(e){ console.error('Flag error',e);} finally { setFlagTargetId(null);}  
+                    setFlagTargetId(null);
+                    
+                    // Show success feedback
+                    alert('✅ Response flagged successfully! This correction will help improve future responses.');
+                  } catch(e){ 
+                    console.error('Flag error',e);
+                    alert('❌ Failed to submit flag. Please try again.');
+                  }
                 }}
-                className="px-3 py-1 rounded bg-red-600 text-white"
-              >Submit</button>
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Submit Flag
+              </button>
             </div>
           </div>
         </div>

@@ -56,7 +56,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Missing chatbotId' }, { status: 400 })
   }
 
-  // 3. Verify ownership via RLS attempt to select chatbot
+  // 3. Parse optional title from request body
+  let title = null
+  try {
+    const body = await request.json()
+    title = body.title?.trim() || null
+  } catch {
+    // If no valid JSON body, title remains null (creating blank session)
+  }
+
+  // 4. Verify ownership via RLS attempt to select chatbot
   const { data: chatbot, error: chatbotError } = await supabase
     .from('chatbots')
     .select('id')
@@ -66,10 +75,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Chatbot not found or access denied' }, { status: 404 })
   }
 
-  // 4. Create new session
+  // 5. Create new session with optional title
   const { data: session, error: insertError } = await supabase
     .from('interrogation_sessions')
-    .insert({ chatbot_id: chatbotId, admin_user_id: user.id })
+    .insert({ 
+      chatbot_id: chatbotId, 
+      admin_user_id: user.id,
+      title: title
+    })
     .select()
     .single()
 
