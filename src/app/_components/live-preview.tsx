@@ -91,7 +91,7 @@ export default function LivePreview() {
             
             const updatedSession = {
               ...prev,
-              status: data.status,
+              status: data.status ?? prev.status,
               suggestedQuestions: data.suggestedQuestions || [],
               messageCount: data.messageCount || 0,
               maxMessages: data.maxMessages || 10,
@@ -139,6 +139,17 @@ export default function LivePreview() {
       clearInterval(interval);
     };
   }, [session?.sessionToken, session?.status]); // Add sessionToken to dependencies
+
+  useEffect(() => {
+    if (session?.status === 'processing') {
+      const timeout = setTimeout(() => {
+        // If we are still processing after 60s, surface an error
+        setError('Processing is taking longer than expected. Please try again shortly.');
+        setSession(prev => prev ? { ...prev, status: 'failed' } : null);
+      }, 60000); // 60 seconds
+      return () => clearTimeout(timeout);
+    }
+  }, [session?.status]);
 
   const resetPreview = () => {
     setSession(null);
@@ -737,6 +748,16 @@ export default function LivePreview() {
                     </div>
                     <p className="text-gray-600 text-sm font-medium">Training your AI assistant...</p>
                     <p className="text-gray-500 text-xs mt-1">This usually takes just a few seconds</p>
+                  </div>
+                )}
+
+                {session?.status === 'failed' && (
+                  <div className="text-center py-12 animate-in fade-in duration-500">
+                    <XCircle className="h-10 w-10 text-red-500 mx-auto mb-4" />
+                    <p className="text-gray-600 text-sm font-medium mb-1">We ran into a problem while training your assistant.</p>
+                    <p className="text-gray-500 text-xs max-w-xs mx-auto whitespace-pre-wrap">
+                      {error || 'Please try again with different content or come back later.'}
+                    </p>
                   </div>
                 )}
 

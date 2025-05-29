@@ -275,19 +275,31 @@ async function processDocument(sessionToken: string, content: string) {
     }
 
     // Split text into chunks
-    const chunks = splitTextIntoChunks(sanitizedContent);
+    let chunks = splitTextIntoChunks(sanitizedContent);
+
+    // Cap at 32 chunks (~8k tokens) so the embedding request stays inside
+    // OpenAI limits and returns quickly for the demo.
+    if (chunks.length > 32) {
+      chunks = chunks.slice(0, 32);
+    }
     
-    // Generate embeddings for each chunk
-    const embeddings = await openai.embeddings.create({
-      model: 'text-embedding-3-large',
-      input: chunks,
-    });
+    // Generate embeddings in batches (≤32 inputs) to respect request limits.
+    const embeddingsData: { embedding: number[] }[] = [];
+    const batchSize = 32;
+    for (let i = 0; i < chunks.length; i += batchSize) {
+      const batch = chunks.slice(i, i + batchSize);
+      const resp = await openai.embeddings.create({
+        model: 'text-embedding-3-large',
+        input: batch,
+      });
+      embeddingsData.push(...resp.data);
+    }
 
     // Store chunks with embeddings
     const chunkData = chunks.map((chunk: string, index: number) => ({
       session_token: sessionToken,
       chunk_text: sanitizeText(chunk),
-      embedding: embeddings.data[index].embedding,
+      embedding: embeddingsData[index].embedding,
       token_count: Math.ceil(chunk.length / 4), // Rough token estimate
     }));
 
@@ -449,8 +461,13 @@ export async function POST(request: NextRequest) {
     console.log('About to process document with content length:', content.length);
     console.log('Content preview:', content.substring(0, 100));
 
-    // Process document asynchronously
-    processDocument(sessionToken, content).catch(console.error);
+    // Offload heavy work to Supabase Edge Function
+    const { error: invokeError } = await supabase.functions.invoke('preview-embeddings', {
+      body: { sessionToken, content },
+    });
+    if (invokeError) {
+      console.error('Failed to invoke preview-embeddings function:', invokeError);
+    }
 
     return NextResponse.json({
       sessionToken,

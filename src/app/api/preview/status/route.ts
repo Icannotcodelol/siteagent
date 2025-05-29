@@ -41,8 +41,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const status = session.embedding_status ?? 'processing';
+
     return NextResponse.json({
-      status: session.embedding_status,
+      status,
       suggestedQuestions: session.suggested_questions || [],
       messageCount: session.message_count,
       maxMessages: session.max_messages,

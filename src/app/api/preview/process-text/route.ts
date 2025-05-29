@@ -268,8 +268,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process text asynchronously
-    processText(sessionToken, text).catch(console.error);
+    // Offload to Supabase Edge Function
+    const { error: invokeError } = await supabase.functions.invoke('preview-embeddings', {
+      body: { sessionToken, content: text },
+    });
+    if (invokeError) {
+      console.error('Failed to invoke preview-embeddings function:', invokeError);
+    }
 
     return NextResponse.json({
       sessionToken,

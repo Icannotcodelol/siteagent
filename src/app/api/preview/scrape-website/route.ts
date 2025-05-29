@@ -237,19 +237,33 @@ async function processWebsite(sessionToken: string, content: string) {
     }
 
     // Split text into chunks
-    const chunks = splitTextIntoChunks(sanitizedContent);
+    let chunks = splitTextIntoChunks(sanitizedContent);
+
+    // Limit number of chunks for the preview environment. We must keep the
+    // total token count under ~8k (OpenAI embedding limit). 32 × 1k-char
+    // chunks ≈ 8 000 tokens so that is a safe upper-bound.
+    if (chunks.length > 32) {
+      chunks = chunks.slice(0, 32);
+    }
     
-    // Generate embeddings for each chunk
-    const embeddings = await openai.embeddings.create({
-      model: 'text-embedding-3-large',
-      input: chunks,
-    });
+    // Generate embeddings – call the API in batches of ≤32 inputs to stay
+    // comfortably under request limits and reduce latency spikes.
+    const embeddingsData: { embedding: number[] }[] = [];
+    const batchSize = 32;
+    for (let i = 0; i < chunks.length; i += batchSize) {
+      const batch = chunks.slice(i, i + batchSize);
+      const resp = await openai.embeddings.create({
+        model: 'text-embedding-3-large',
+        input: batch,
+      });
+      embeddingsData.push(...resp.data);
+    }
 
     // Store chunks with embeddings
     const chunkData = chunks.map((chunk: string, index: number) => ({
       session_token: sessionToken,
       chunk_text: sanitizeText(chunk),
-      embedding: embeddings.data[index].embedding,
+      embedding: embeddingsData[index].embedding,
       token_count: Math.ceil(chunk.length / 4), // Rough token estimate
     }));
 
@@ -373,8 +387,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Process website asynchronously
-    processWebsite(sessionToken, content).catch(console.error);
+    // Offload heavy embedding work to Supabase Edge Function to keep the Next.js route fast
+    const { error: invokeError } = await supabase.functions.invoke('preview-embeddings', {
+      body: { sessionToken, content },
+    });
+
+    if (invokeError) {
+      console.error('Failed to invoke preview-embeddings function:', invokeError);
+      // We do NOT fail the request; the session will eventually timeout and surface the error in the UI.
+    }
 
     return NextResponse.json({
       sessionToken,
