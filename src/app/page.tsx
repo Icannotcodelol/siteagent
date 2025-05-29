@@ -5,6 +5,7 @@ import Script from "next/script";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import React from "react";
 
 // Metadata for this page
 export const metadata: Metadata = {
@@ -15,23 +16,63 @@ export const metadata: Metadata = {
 
 // Modern asymmetric navbar with floating design
 function ModernNavbar({ authButtonSlot }: { authButtonSlot: React.ReactNode }) {
-  return (
-    <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-7xl px-6">
-      <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-700/50 rounded-2xl shadow-2xl">
-        <div className="flex h-16 items-center justify-between px-6">
-          <div className="flex items-center gap-3">
-            <Link href="/" className="group flex items-center gap-3">
-              <div className="relative">
-                <Image src="/sitelogo.svg" alt="SiteAgent Logo" width={36} height={36} priority />
-                <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-20 group-hover:opacity-40 transition-opacity blur-sm"></div>
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                SiteAgent
-              </span>
-            </Link>
-          </div>
+  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
-          <nav className="hidden md:flex md:items-center md:gap-1">
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/50 md:top-6 md:left-1/2 md:right-auto md:transform md:-translate-x-1/2 md:w-full md:max-w-7xl md:px-6 md:bg-gray-900/80 md:border md:border-gray-700/50 md:rounded-2xl md:shadow-2xl">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="group flex items-center gap-3">
+            <div className="relative">
+              <Image src="/sitelogo.svg" alt="SiteAgent Logo" width={36} height={36} priority />
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-20 group-hover:opacity-40 transition-opacity blur-sm"></div>
+            </div>
+            <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              SiteAgent
+            </span>
+          </Link>
+        </div>
+
+        <nav className="hidden md:flex md:items-center md:gap-1">
+          {[
+            { label: "Features", href: "#features" },
+            { label: "How It Works", href: "#how-it-works" },
+            { label: "Pricing", href: "#pricing" },
+            { label: "FAQ", href: "#faq" }
+          ].map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="relative px-4 py-2 text-sm font-medium text-gray-300 rounded-lg transition-all hover:text-white hover:bg-gray-800/50"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="hidden md:flex md:items-center md:gap-3">
+          {authButtonSlot}
+        </div>
+
+        {/* Mobile menu button */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="md:hidden p-2 text-gray-300 hover:text-white"
+        >
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {isMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {isMenuOpen && (
+        <div className="md:hidden border-t border-gray-800/50">
+          <nav className="flex flex-col p-4 space-y-2">
             {[
               { label: "Features", href: "#features" },
               { label: "How It Works", href: "#how-it-works" },
@@ -41,18 +82,18 @@ function ModernNavbar({ authButtonSlot }: { authButtonSlot: React.ReactNode }) {
               <Link
                 key={item.label}
                 href={item.href}
-                className="relative px-4 py-2 text-sm font-medium text-gray-300 rounded-lg transition-all hover:text-white hover:bg-gray-800/50"
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-300 rounded-lg transition-all hover:text-white hover:bg-gray-800/50"
               >
                 {item.label}
               </Link>
             ))}
+            <div className="pt-4 border-t border-gray-800/50">
+              {authButtonSlot}
+            </div>
           </nav>
-
-          <div className="flex items-center gap-3">
-            {authButtonSlot}
-          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
@@ -86,7 +127,7 @@ function RevolutionaryHero() {
         </div>
       </div>
       
-      <div className="container relative mx-auto px-6 pt-24">
+      <div className="container relative mx-auto px-4 md:px-6 pt-20 md:pt-24">
         <div className="grid lg:grid-cols-12 gap-12 items-center min-h-[80vh]">
           {/* Left side - Content (60% width) */}
           <div className="lg:col-span-7 space-y-8">
@@ -165,39 +206,86 @@ function RevolutionaryHero() {
           </div>
 
           {/* Right side - Visual element (40% width) */}
-          <div className="lg:col-span-5 relative">
-            <div className="relative">
-              {/* Floating cards design - Hide on mobile except for 2 key cards */}
-              <div className="relative w-full h-64 sm:h-96 lg:h-[800px]">
-
-                {/* Instant Automation - Always visible, adjusted for mobile */}
-                <div className="absolute top-[5%] right-[5%] w-48 sm:w-60 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-2xl backdrop-blur-sm transform rotate-1 sm:rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">🚀</span>
+          <div className="lg:col-span-5 relative mt-8 lg:mt-0">
+            {/* Mobile-optimized feature showcase - visible only on mobile */}
+            <div className="lg:hidden">
+              <div className="space-y-4">
+                {/* Hero feature card */}
+                <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6 backdrop-blur-sm">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                      <span className="text-white text-lg">🚀</span>
                     </div>
-                    <span className="text-white font-semibold text-xs sm:text-sm">Instant Automation</span>
+                    <h3 className="text-white font-bold text-lg">See It In Action</h3>
                   </div>
-                  <div className="text-blue-300 text-xs font-medium mb-1 sm:mb-2">AI That Acts</div>
-                  <p className="text-gray-400 text-xs mb-2 sm:mb-3 line-clamp-2 sm:line-clamp-none">Automatically create CRM contacts, schedule meetings, and handle customer inquiries.</p>
+                  <p className="text-gray-300 text-sm mb-4">
+                    Upload any document or paste your website URL. Watch as AI instantly creates an intelligent assistant that can automate real tasks.
+                  </p>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 text-xs font-medium">Live</span>
+                    <span className="text-green-400 text-xs font-medium">Live Demo Available</span>
                   </div>
                 </div>
 
-                {/* Real-Time Demo - Always visible, adjusted for mobile */}
-                <div className="absolute top-[35%] sm:top-[15%] left-[5%] sm:left-[8%] w-44 sm:w-56 bg-gradient-to-br from-blue-900/80 to-purple-900/80 border border-blue-500/30 rounded-xl p-3 sm:p-4 shadow-xl backdrop-blur-sm transform -rotate-2 sm:-rotate-4 hover:rotate-0 transition-transform duration-500">
+                {/* Key features grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+                    <div className="text-2xl mb-2">🔌</div>
+                    <h4 className="text-white font-semibold text-sm mb-1">Integrations</h4>
+                    <p className="text-gray-400 text-xs">HubSpot, Calendly, Jira & more</p>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+                    <div className="text-2xl mb-2">🌍</div>
+                    <h4 className="text-white font-semibold text-sm mb-1">Multi-Language</h4>
+                    <p className="text-gray-400 text-xs">Support customers globally</p>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+                    <div className="text-2xl mb-2">⏰</div>
+                    <h4 className="text-white font-semibold text-sm mb-1">24/7 Active</h4>
+                    <p className="text-gray-400 text-xs">Never miss a lead</p>
+                  </div>
+                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+                    <div className="text-2xl mb-2">🔒</div>
+                    <h4 className="text-white font-semibold text-sm mb-1">Secure</h4>
+                    <p className="text-gray-400 text-xs">Enterprise-grade security</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop floating cards - hidden on mobile */}
+            <div className="hidden lg:block relative">
+              {/* Floating cards design - Only visible on desktop */}
+              <div className="relative w-full h-[800px]">
+
+                {/* Instant Automation */}
+                <div className="absolute top-[5%] right-[5%] w-60 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 rounded-2xl p-4 shadow-2xl backdrop-blur-sm transform rotate-3 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">🚀</span>
+                    </div>
+                    <span className="text-white font-semibold text-sm">Instant Automation</span>
+                  </div>
+                  <div className="text-blue-300 text-xs font-medium mb-2">AI That Acts, Not Just Chats</div>
+                  <p className="text-gray-400 text-xs mb-3">Automatically create CRM contacts, schedule meetings, and handle customer inquiries.</p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-green-400 text-xs font-medium">Live Processing</span>
+                  </div>
+                </div>
+
+                {/* Real-Time Demo */}
+                <div className="absolute top-[15%] left-[8%] w-56 bg-gradient-to-br from-blue-900/80 to-purple-900/80 border border-blue-500/30 rounded-xl p-4 shadow-xl backdrop-blur-sm transform -rotate-4 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-blue-300 text-xs">⚡</span>
-                    <div className="text-blue-300 text-xs sm:text-sm font-semibold">Real-Time Demo</div>
+                    <div className="text-blue-300 text-sm font-semibold">Real-Time Demo</div>
                   </div>
-                  <div className="text-blue-200 text-xs font-medium mb-1 sm:mb-2">Interactive Setup</div>
-                  <p className="text-blue-100 text-xs line-clamp-2 sm:line-clamp-none">Upload your content and experience real-time AI automation immediately.</p>
+                  <div className="text-blue-200 text-xs font-medium mb-2">Interactive & Instant Setup</div>
+                  <p className="text-blue-100 text-xs">Upload your content and experience real-time AI automation immediately—no sign-up required.</p>
                 </div>
 
-                {/* Integrations - Hidden on mobile */}
-                <div className="hidden sm:block absolute top-[35%] left-[2%] w-48 bg-gradient-to-br from-orange-900/80 to-red-900/80 border border-orange-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-5 hover:rotate-0 transition-transform duration-500">
+                {/* Integrations */}
+                <div className="absolute top-[35%] left-[2%] w-48 bg-gradient-to-br from-orange-900/80 to-red-900/80 border border-orange-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-5 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-md flex items-center justify-center">
                       <span className="text-white text-xs">🔌</span>
@@ -208,8 +296,8 @@ function RevolutionaryHero() {
                   <p className="text-orange-100 text-xs">Instantly connect with HubSpot, Calendly, Jira, Shopify, and more.</p>
                 </div>
                 
-                {/* Always On - Hidden on mobile */}
-                <div className="hidden md:block absolute top-[40%] right-[10%] w-44 bg-gradient-to-br from-purple-900/80 to-pink-900/80 border border-purple-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500">
+                {/* Always On */}
+                <div className="absolute top-[40%] right-[10%] w-44 bg-gradient-to-br from-purple-900/80 to-pink-900/80 border border-purple-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded flex items-center justify-center">
                       <span className="text-white text-xs">⏰</span>
@@ -220,8 +308,8 @@ function RevolutionaryHero() {
                   <p className="text-purple-100 text-xs">Engage visitors, generate leads, and handle tasks around the clock.</p>
                 </div>
 
-                {/* Multi-Language - Hidden on mobile */}
-                <div className="hidden md:block absolute top-[60%] left-[10%] w-52 bg-gradient-to-br from-teal-900/80 to-cyan-900/80 border border-teal-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                {/* Multi-Language */}
+                <div className="absolute top-[60%] left-[10%] w-52 bg-gradient-to-br from-teal-900/80 to-cyan-900/80 border border-teal-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-md flex items-center justify-center">
                       <span className="text-white text-xs">🌍</span>
@@ -232,8 +320,8 @@ function RevolutionaryHero() {
                   <p className="text-teal-100 text-xs">Provide seamless customer interactions in multiple languages.</p>
                 </div>
 
-                {/* Quick Setup - Hidden on mobile */}
-                <div className="hidden lg:block absolute top-[55%] right-[25%] w-40 bg-gradient-to-br from-green-900/80 to-blue-900/80 border border-green-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                {/* Quick Setup */}
+                <div className="absolute top-[55%] right-[25%] w-40 bg-gradient-to-br from-green-900/80 to-blue-900/80 border border-green-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-1 mb-2">
                     <span className="text-green-300 text-xs">⚙️</span>
                     <div className="text-green-300 text-xs font-semibold">Quick Setup</div>
@@ -242,8 +330,8 @@ function RevolutionaryHero() {
                   <p className="text-green-100 text-xs">Simple embed snippet—start automating immediately without coding.</p>
                 </div>
 
-                {/* Secure & Private - Hidden on mobile */}
-                <div className="hidden lg:block absolute bottom-[5%] right-[8%] w-52 bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border border-indigo-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform rotate-4 hover:rotate-0 transition-transform duration-500">
+                {/* Secure & Private */}
+                <div className="absolute bottom-[5%] right-[8%] w-52 bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border border-indigo-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform rotate-4 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-md flex items-center justify-center">
                       <span className="text-white text-xs">🔒</span>
@@ -257,20 +345,6 @@ function RevolutionaryHero() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Added key selling points below hero text for mobile, hidden on md+ */}
-        <div className="mt-12 sm:mt-16 md:hidden space-y-3 sm:space-y-4">
-          {[
-            { title: "Enterprise Security", icon: "🔒" },
-            { title: "5-Minute Setup", icon: "⚙️" },
-            { title: "14-Day Free Trial", icon: "✓" },
-          ].map(item => (
-            <div key={item.title} className="flex items-center gap-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-3 sm:p-4 text-xs sm:text-sm">
-              <span className="text-xl">{item.icon}</span>
-              <span className="text-gray-200 font-medium">{item.title}</span>
-            </div>
-          ))}
         </div>
       </div>
     </section>
