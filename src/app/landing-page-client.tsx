@@ -24,6 +24,10 @@ import {
   X,
   Zap,
   Sparkles,
+  Layers,
+  MessageSquare,
+  ExternalLink,
+  Users
 } from "lucide-react";
 import { Button, cn } from "@/app/_components/ui/button";
 import IntegrationsBar from "@/app/_components/ui/integrations-bar";
@@ -663,6 +667,174 @@ function HowItWorksSection() {
   );
 }
 
+// Integration Ecosystem Showcase Section Component
+function IntegrationEcosystemSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            cardsRef.current.forEach((card, index) => {
+              if (card) {
+                setTimeout(() => {
+                  card.classList.add("opacity-100", "translate-y-0", "scale-100");
+                }, index * 100);
+              }
+            });
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => {
+      if (sectionRef.current) observer.unobserve(sectionRef.current);
+    };
+  }, []);
+
+  const integrations = [
+    {
+      name: "HubSpot",
+      description: "Create contacts, update deals, and manage your CRM directly from chat",
+      icon: "🚀",
+      color: "from-orange-500 to-red-500",
+      actions: ["Create Contact", "Update Deal", "Log Activity"]
+    },
+    {
+      name: "Calendly",
+      description: "Schedule meetings instantly with seamless calendar integration",
+      icon: "📅",
+      color: "from-blue-500 to-blue-600",
+      actions: ["Schedule Meeting", "Check Availability", "Send Reminders"]
+    },
+    {
+      name: "Jira",
+      description: "Create tickets, track issues, and manage projects efficiently",
+      icon: "🎯",
+      color: "from-blue-600 to-indigo-600",
+      actions: ["Create Ticket", "Update Status", "Assign Tasks"]
+    },
+    {
+      name: "Shopify",
+      description: "Access order information, product details, and customer data",
+      icon: "🛍️",
+      color: "from-green-500 to-green-600",
+      actions: ["Check Orders", "Product Info", "Customer Support"]
+    },
+    {
+      name: "Monday.com",
+      description: "Manage boards, update items, and track project progress",
+      icon: "📊",
+      color: "from-purple-500 to-pink-500",
+      actions: ["Update Board", "Create Item", "Track Progress"]
+    },
+    {
+      name: "Custom APIs",
+      description: "Connect to any service with webhook and API integrations",
+      icon: "⚡",
+      color: "from-gray-500 to-gray-600",
+      actions: ["Webhook Triggers", "API Calls", "Data Sync"]
+    }
+  ];
+
+  return (
+    <section ref={sectionRef} className="relative py-20 md:py-24 bg-gradient-to-b from-gray-800 to-gray-900">
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%)`,
+          backgroundSize: '20px 20px'
+        }}></div>
+      </div>
+
+      <div className="container relative mx-auto px-4 md:px-6">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center rounded-full border border-purple-500/20 bg-purple-600/10 px-4 py-2 mb-6">
+            <Layers className="h-4 w-4 text-purple-400 mr-2" />
+            <span className="text-purple-400 text-sm font-medium">Integration Hub</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Connect Everything
+            <span className="block text-purple-400">Your Users Need</span>
+          </h2>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            Turn conversations into actions with powerful integrations. Your chatbot doesn't just talk—it does.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+          {integrations.map((integration, index) => (
+            <div
+              key={index}
+              ref={(el) => { cardsRef.current[index] = el; }}
+              className="group relative bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 transition-all duration-500 hover:border-purple-500/30 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-purple-500/10 opacity-0 translate-y-8 scale-95"
+            >
+              <div className="flex items-center mb-4">
+                <div className={`rounded-lg bg-gradient-to-r ${integration.color} p-2 shadow-lg transition-transform duration-300 group-hover:scale-110 text-2xl`}>
+                  {integration.icon}
+                </div>
+                <h3 className="ml-3 text-lg font-semibold text-white">{integration.name}</h3>
+              </div>
+              <p className="text-gray-400 mb-4 text-sm">{integration.description}</p>
+              <div className="space-y-2">
+                {integration.actions.map((action, actionIndex) => (
+                  <div key={actionIndex} className="flex items-center text-sm text-gray-300">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mr-2"></div>
+                    {action}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Live Integration Demo */}
+        <div className="relative bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
+          
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-white mb-2">See Integration in Action</h3>
+            <p className="text-gray-400">Watch how your chatbot performs real actions</p>
+          </div>
+
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/30">
+            <div className="flex items-start space-x-3 mb-4">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <Bot className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-gray-300 text-sm">I can help you schedule a meeting with our sales team. What time works best for you?</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3 mb-4">
+              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
+                <Users className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-gray-300 text-sm">Tomorrow at 2 PM would be perfect</p>
+              </div>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <Bot className="h-4 w-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-gray-300 text-sm">Perfect! I've scheduled a 30-minute meeting for tomorrow at 2:00 PM. You'll receive a Calendly confirmation shortly.</p>
+                <div className="mt-2 bg-green-600/20 border border-green-500/30 rounded-lg px-3 py-2">
+                  <p className="text-green-400 text-xs font-medium">✓ Meeting scheduled via Calendly integration</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // PRICING SECTION COMPONENT (visual-only)
 function PricingSection() {
   const plans = [
@@ -1222,6 +1394,7 @@ export default function LandingPageClient({ authButtonSlot }: LandingPageClientP
         <LiveDemoSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <IntegrationEcosystemSection />
         <IntegrationsBar />
         <PricingSection />
         <TestimonialsSection />
