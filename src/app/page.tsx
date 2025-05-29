@@ -167,37 +167,37 @@ function RevolutionaryHero() {
           {/* Right side - Visual element (40% width) */}
           <div className="lg:col-span-5 relative">
             <div className="relative">
-              {/* Floating cards design */}
-              <div className="relative w-full h-96 lg:h-[800px]">
+              {/* Floating cards design - Hide on mobile except for 2 key cards */}
+              <div className="relative w-full h-64 sm:h-96 lg:h-[800px]">
 
-                {/* Instant Automation - Prominent Top Right */}
-                <div className="absolute top-[5%] right-[5%] w-60 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 rounded-2xl p-4 shadow-2xl backdrop-blur-sm transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                {/* Instant Automation - Always visible, adjusted for mobile */}
+                <div className="absolute top-[5%] right-[5%] w-48 sm:w-60 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-2xl backdrop-blur-sm transform rotate-1 sm:rotate-3 hover:rotate-0 transition-transform duration-500">
+                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
                       <span className="text-white text-xs font-bold">🚀</span>
                     </div>
-                    <span className="text-white font-semibold text-sm">Instant Automation</span>
+                    <span className="text-white font-semibold text-xs sm:text-sm">Instant Automation</span>
                   </div>
-                  <div className="text-blue-300 text-xs font-medium mb-2">AI That Acts, Not Just Chats</div>
-                  <p className="text-gray-400 text-xs mb-3">Automatically create CRM contacts, schedule meetings, and handle customer inquiries.</p>
+                  <div className="text-blue-300 text-xs font-medium mb-1 sm:mb-2">AI That Acts</div>
+                  <p className="text-gray-400 text-xs mb-2 sm:mb-3 line-clamp-2 sm:line-clamp-none">Automatically create CRM contacts, schedule meetings, and handle customer inquiries.</p>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 text-xs font-medium">Live Processing</span>
+                    <span className="text-green-400 text-xs font-medium">Live</span>
                   </div>
                 </div>
 
-                {/* Real-Time Demo - Upper Left */}
-                <div className="absolute top-[15%] left-[8%] w-56 bg-gradient-to-br from-blue-900/80 to-purple-900/80 border border-blue-500/30 rounded-xl p-4 shadow-xl backdrop-blur-sm transform -rotate-4 hover:rotate-0 transition-transform duration-500">
+                {/* Real-Time Demo - Always visible, adjusted for mobile */}
+                <div className="absolute top-[35%] sm:top-[15%] left-[5%] sm:left-[8%] w-44 sm:w-56 bg-gradient-to-br from-blue-900/80 to-purple-900/80 border border-blue-500/30 rounded-xl p-3 sm:p-4 shadow-xl backdrop-blur-sm transform -rotate-2 sm:-rotate-4 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <span className="text-blue-300 text-xs">⚡</span>
-                    <div className="text-blue-300 text-sm font-semibold">Real-Time Demo</div>
+                    <div className="text-blue-300 text-xs sm:text-sm font-semibold">Real-Time Demo</div>
                   </div>
-                  <div className="text-blue-200 text-xs font-medium mb-2">Interactive & Instant Setup</div>
-                  <p className="text-blue-100 text-xs">Upload your content and experience real-time AI automation immediately—no sign-up required.</p>
+                  <div className="text-blue-200 text-xs font-medium mb-1 sm:mb-2">Interactive Setup</div>
+                  <p className="text-blue-100 text-xs line-clamp-2 sm:line-clamp-none">Upload your content and experience real-time AI automation immediately.</p>
                 </div>
 
-                {/* Integrations - Mid Left */}
-                <div className="absolute top-[35%] left-[2%] w-48 bg-gradient-to-br from-orange-900/80 to-red-900/80 border border-orange-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-5 hover:rotate-0 transition-transform duration-500">
+                {/* Integrations - Hidden on mobile */}
+                <div className="hidden sm:block absolute top-[35%] left-[2%] w-48 bg-gradient-to-br from-orange-900/80 to-red-900/80 border border-orange-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-5 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-md flex items-center justify-center">
                       <span className="text-white text-xs">🔌</span>
@@ -208,8 +208,8 @@ function RevolutionaryHero() {
                   <p className="text-orange-100 text-xs">Instantly connect with HubSpot, Calendly, Jira, Shopify, and more.</p>
                 </div>
                 
-                {/* Always On - Mid Right */}
-                <div className="absolute top-[40%] right-[10%] w-44 bg-gradient-to-br from-purple-900/80 to-pink-900/80 border border-purple-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500">
+                {/* Always On - Hidden on mobile */}
+                <div className="hidden md:block absolute top-[40%] right-[10%] w-44 bg-gradient-to-br from-purple-900/80 to-pink-900/80 border border-purple-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded flex items-center justify-center">
                       <span className="text-white text-xs">⏰</span>
@@ -220,8 +220,8 @@ function RevolutionaryHero() {
                   <p className="text-purple-100 text-xs">Engage visitors, generate leads, and handle tasks around the clock.</p>
                 </div>
 
-                {/* Multi-Language - Lower Left */}
-                <div className="absolute top-[60%] left-[10%] w-52 bg-gradient-to-br from-teal-900/80 to-cyan-900/80 border border-teal-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                {/* Multi-Language - Hidden on mobile */}
+                <div className="hidden md:block absolute top-[60%] left-[10%] w-52 bg-gradient-to-br from-teal-900/80 to-cyan-900/80 border border-teal-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-md flex items-center justify-center">
                       <span className="text-white text-xs">🌍</span>
@@ -232,8 +232,8 @@ function RevolutionaryHero() {
                   <p className="text-teal-100 text-xs">Provide seamless customer interactions in multiple languages.</p>
                 </div>
 
-                {/* Quick Setup - Moved Up Vertically */}
-                <div className="absolute top-[55%] right-[25%] w-40 bg-gradient-to-br from-green-900/80 to-blue-900/80 border border-green-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
+                {/* Quick Setup - Hidden on mobile */}
+                <div className="hidden lg:block absolute top-[55%] right-[25%] w-40 bg-gradient-to-br from-green-900/80 to-blue-900/80 border border-green-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-1 mb-2">
                     <span className="text-green-300 text-xs">⚙️</span>
                     <div className="text-green-300 text-xs font-semibold">Quick Setup</div>
@@ -242,8 +242,8 @@ function RevolutionaryHero() {
                   <p className="text-green-100 text-xs">Simple embed snippet—start automating immediately without coding.</p>
                 </div>
 
-                {/* Secure & Private - Prominent Bottom Right */}
-                <div className="absolute bottom-[5%] right-[8%] w-52 bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border border-indigo-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform rotate-4 hover:rotate-0 transition-transform duration-500">
+                {/* Secure & Private - Hidden on mobile */}
+                <div className="hidden lg:block absolute bottom-[5%] right-[8%] w-52 bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border border-indigo-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform rotate-4 hover:rotate-0 transition-transform duration-500">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="w-4 h-4 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-md flex items-center justify-center">
                       <span className="text-white text-xs">🔒</span>
@@ -257,6 +257,20 @@ function RevolutionaryHero() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Added key selling points below hero text for mobile, hidden on md+ */}
+        <div className="mt-12 sm:mt-16 md:hidden space-y-3 sm:space-y-4">
+          {[
+            { title: "Enterprise Security", icon: "🔒" },
+            { title: "5-Minute Setup", icon: "⚙️" },
+            { title: "14-Day Free Trial", icon: "✓" },
+          ].map(item => (
+            <div key={item.title} className="flex items-center gap-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-3 sm:p-4 text-xs sm:text-sm">
+              <span className="text-xl">{item.icon}</span>
+              <span className="text-gray-200 font-medium">{item.title}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>

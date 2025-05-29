@@ -364,62 +364,62 @@ function HeroSection() {
           </div>
 
           {/* Right side - Floating UI elements */}
-          <div ref={previewRef} className="relative mt-12 md:mt-0 flex flex-col items-center space-y-6 lg:space-y-0 h-auto lg:h-[500px] group">
-            {/* Real-Time Demo Card */}
+          <div ref={previewRef} className="relative mt-12 md:mt-0 flex flex-col items-center space-y-4 sm:space-y-6 lg:space-y-0 h-auto lg:h-[500px] group">
+            {/* Real-Time Demo Card - Always visible */}
             <div className="animate-float w-full max-w-sm block lg:absolute lg:left-[-20px] lg:top-[5%] lg:w-72" style={{ animationDelay: '0s', '--rotation': '-4deg' } as React.CSSProperties}>
-              <div className="bg-gradient-to-br from-blue-700/30 to-purple-700/30 backdrop-blur-xl border border-blue-500/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-blue-500/40">
+              <div className="bg-gradient-to-br from-blue-700/30 to-purple-700/30 backdrop-blur-xl border border-blue-500/40 rounded-xl p-4 sm:p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-blue-500/40">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center shadow-md">
                      <Zap className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-blue-200 text-base font-semibold">Real-Time Demo</span>
+                  <span className="text-blue-200 text-sm sm:text-base font-semibold">Real-Time Demo</span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                   Upload any document and watch it become an intelligent automation system in seconds!
                 </p>
               </div>
             </div>
 
-            {/* Instant Automation Card */}
+            {/* Instant Automation Card - Always visible */}
             <div className="animate-float w-full max-w-sm block lg:absolute lg:right-[-30px] lg:top-[calc(5%+90px)] lg:w-80" style={{ animationDelay: '0.5s', '--rotation': '3deg' } as React.CSSProperties}>
-              <div className="bg-gradient-to-br from-gray-700/30 to-gray-800/30 backdrop-blur-xl border border-gray-600/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-gray-500/40">
+              <div className="bg-gradient-to-br from-gray-700/30 to-gray-800/30 backdrop-blur-xl border border-gray-600/40 rounded-xl p-4 sm:p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-gray-500/40">
                 <div className="flex items-center gap-3 mb-2">
-                   <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center shadow-md">
+                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center shadow-md">
                      <Layers className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-green-300 text-base font-semibold">Instant Automation</span>
+                  <span className="text-green-300 text-sm sm:text-base font-semibold">Instant Automation</span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                   AI that acts, not just chats. Automatically create CRM contacts, schedule meetings, and handle customer inquiries.
                 </p>
               </div>
             </div>
 
-            {/* Integrations Card */}
-            <div className="animate-float w-full max-w-sm block lg:absolute lg:left-[5%] lg:top-[calc(5%+220px)] lg:w-64" style={{ animationDelay: '1s', '--rotation': '2deg' } as React.CSSProperties}>
-              <div className="bg-gradient-to-br from-orange-700/30 to-red-700/30 backdrop-blur-xl border border-orange-500/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-orange-500/40">
+            {/* Integrations Card - Hidden on mobile, visible on sm and up */}
+            <div className="animate-float w-full max-w-sm hidden sm:block lg:absolute lg:left-[5%] lg:top-[calc(5%+220px)] lg:w-64" style={{ animationDelay: '1s', '--rotation': '2deg' } as React.CSSProperties}>
+              <div className="bg-gradient-to-br from-orange-700/30 to-red-700/30 backdrop-blur-xl border border-orange-500/40 rounded-xl p-4 sm:p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-orange-500/40">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center shadow-md">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center shadow-md">
                     <Webhook className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-orange-300 text-base font-semibold">Integrations</span>
+                  <span className="text-orange-300 text-sm sm:text-base font-semibold">Integrations</span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                   Connect with HubSpot, Calendly, Jira, Shopify, and more.
                 </p>
               </div>
             </div>
             
-            {/* Secure & Private Card */}
-            <div className="animate-float w-full max-w-sm block lg:absolute lg:right-[0%] lg:top-[calc(5%+350px)] lg:w-72" style={{ animationDelay: '1.2s', '--rotation': '-3deg' } as React.CSSProperties}>
-              <div className="bg-gradient-to-br from-teal-700/30 to-cyan-700/30 backdrop-blur-xl border border-teal-500/40 rounded-xl p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-teal-500/40">
+            {/* Secure & Private Card - Hidden on mobile, visible on md and up */}
+            <div className="animate-float w-full max-w-sm hidden md:block lg:absolute lg:right-[0%] lg:top-[calc(5%+350px)] lg:w-72" style={{ animationDelay: '1.2s', '--rotation': '-3deg' } as React.CSSProperties}>
+              <div className="bg-gradient-to-br from-teal-700/30 to-cyan-700/30 backdrop-blur-xl border border-teal-500/40 rounded-xl p-4 sm:p-5 shadow-2xl transition-all duration-300 lg:group-hover:scale-105 lg:hover:!scale-110 lg:hover:shadow-teal-500/40">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-md">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-md">
                     <Lock className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-teal-300 text-base font-semibold">Secure & Private</span>
+                  <span className="text-teal-300 text-sm sm:text-base font-semibold">Secure & Private</span>
                 </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">
                   Enterprise-grade security, fully GDPR compliant with advanced encryption.
                 </p>
               </div>
@@ -432,13 +432,13 @@ function HeroSection() {
         </div>
 
         {/* Added key selling points below hero text for mobile, hidden on md+ */}
-        <div className="mt-16 md:hidden space-y-6">
+        <div className="mt-12 sm:mt-16 md:hidden space-y-3 sm:space-y-4">
           {[
-            { title: "Enterprise Security", icon: <Lock className="w-5 h-5 text-green-400" /> },
-            { title: "5-Minute Setup", icon: <Zap className="w-5 h-5 text-blue-400" /> },
-            { title: "14-Day Free Trial", icon: <Check className="w-5 h-5 text-purple-400" /> },
+            { title: "Enterprise Security", icon: <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" /> },
+            { title: "5-Minute Setup", icon: <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" /> },
+            { title: "14-Day Free Trial", icon: <Check className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400" /> },
           ].map(item => (
-            <div key={item.title} className="flex items-center gap-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4 text-sm">
+            <div key={item.title} className="flex items-center gap-3 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-lg p-3 sm:p-4 text-xs sm:text-sm">
               {item.icon}
               <span className="text-gray-200 font-medium">{item.title}</span>
             </div>
