@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sendWeeklyReport } from '@/lib/services/email-service'
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +22,7 @@ export async function POST(request: Request) {
     if (chatbotsError) throw chatbotsError
 
     const reports = []
+    const emailResults = []
     
     for (const chatbot of chatbots) {
       // Get weekly metrics for this chatbot
@@ -58,45 +60,41 @@ export async function POST(request: Request) {
         weeklyStats: {
           totalMessages,
           totalSessions,
-          satisfaction,
+          satisfaction: satisfaction || 0,
           avgMessagesPerSession: totalSessions > 0 ? Math.round((totalMessages / totalSessions) * 10) / 10 : 0
         }
       }
       
       reports.push(report)
-    }
 
-    // Here you would typically send emails using a service like SendGrid, Resend, etc.
-    // For now, we'll just return the report data
-    
-    // EMAIL INTEGRATION OPTIONS:
-    // 
-    // Option 1: Resend (recommended)
-    // const { Resend } = require('resend')
-    // const resend = new Resend(process.env.RESEND_API_KEY)
-    // 
-    // for (const report of reports) {
-    //   if (report.ownerEmail) {
-    //     await resend.emails.send({
-    //       from: 'analytics@siteagent.eu',
-    //       to: report.ownerEmail,
-    //       subject: `Weekly Analytics for ${report.chatbotName}`,
-    //       html: generateEmailHTML(report)
-    //     })
-    //   }
-    // }
-    //
-    // Option 2: SendGrid
-    // const sgMail = require('@sendgrid/mail')
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-    // 
-    // Option 3: Nodemailer (SMTP)
-    // const nodemailer = require('nodemailer')
-    // const transporter = nodemailer.createTransporter({...})
+      // Send email if owner has an email address
+      if (report.ownerEmail && report.ownerName) {
+        try {
+          const emailResult = await sendWeeklyReport(report)
+          emailResults.push({
+            chatbotId: chatbot.id,
+            email: report.ownerEmail,
+            success: true,
+            messageId: emailResult.data?.id
+          })
+        } catch (emailError: any) {
+          console.error(`Failed to send weekly report for ${chatbot.name}:`, emailError)
+          emailResults.push({
+            chatbotId: chatbot.id,
+            email: report.ownerEmail,
+            success: false,
+            error: emailError.message
+          })
+        }
+      }
+    }
     
     return NextResponse.json({ 
       success: true, 
       reportsGenerated: reports.length,
+      emailsSent: emailResults.filter(r => r.success).length,
+      emailsFailed: emailResults.filter(r => !r.success).length,
+      emailResults,
       reports: reports.slice(0, 5) // Return first 5 for preview
     })
     

@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { stripe } from '@/lib/stripe'; // Assuming stripe.ts is in src/lib
 import Stripe from 'stripe'; // Import Stripe namespace for types
+import { sendPaymentFailureNotification, sendUsageOverageWarning } from './email-service';
 
 // Basic type definitions (replace with auto-generated types later if possible)
 export interface Plan {
@@ -438,7 +439,21 @@ export async function updateUserSubscriptionOnWebhookEvent(
         throw paymentFailedError;
       }
       console.log(`🔔 Subscription status updated for user ${userId} due to payment failure.`);
-      // TODO: Implement user notification (email) about payment failure
+      
+      // Send payment failure notification email
+      try {
+        const { data: userProfile, error: profileError } = await supabase.auth.admin.getUserById(userId);
+        if (profileError || !userProfile.user?.email) {
+          console.warn(`Could not retrieve user email for payment failure notification: ${userId}`);
+        } else {
+          const userName = userProfile.user.user_metadata?.full_name || userProfile.user.email.split('@')[0];
+          await sendPaymentFailureNotification(userProfile.user.email, userName);
+          console.log(`📧 Payment failure notification sent to ${userProfile.user.email}`);
+        }
+      } catch (emailError: any) {
+        console.error(`Failed to send payment failure notification for user ${userId}:`, emailError.message);
+        // Don't throw - email failure shouldn't break webhook processing
+      }
       break;
 
     case 'customer.subscription.updated':
@@ -643,6 +658,35 @@ export async function canSendMessage(
   const canSend = subscription.current_messages_used_in_cycle < messagesAllowed;
   
   console.log(`User ${userId}: Messages ${subscription.current_messages_used_in_cycle}/${messagesAllowed}. Can send: ${canSend}`);
+  
+  // Check for overage warning (at 80% and 100% of main limit)
+  const warningThreshold80 = Math.floor(subscription.plans.max_messages_per_month * 0.8);
+  const warningThreshold100 = subscription.plans.max_messages_per_month;
+  
+  if (subscription.current_messages_used_in_cycle === warningThreshold80 || 
+      subscription.current_messages_used_in_cycle === warningThreshold100) {
+    console.log(`User ${userId} has reached ${subscription.current_messages_used_in_cycle >= warningThreshold100 ? '100%' : '80%'} of their message limit.`);
+    
+    // Send usage warning email
+    try {
+      const { data: userProfile, error: profileError } = await supabase.auth.admin.getUserById(userId);
+      if (profileError || !userProfile.user?.email) {
+        console.warn(`Could not retrieve user email for usage warning: ${userId}`);
+      } else {
+        const userName = userProfile.user.user_metadata?.full_name || userProfile.user.email.split('@')[0];
+        await sendUsageOverageWarning(
+          userProfile.user.email, 
+          userName, 
+          subscription.current_messages_used_in_cycle,
+          subscription.plans.max_messages_per_month
+        );
+        console.log(`📧 Usage warning sent to ${userProfile.user.email}`);
+      }
+    } catch (emailError: any) {
+      console.error(`Failed to send usage warning for user ${userId}:`, emailError.message);
+      // Don't throw - email failure shouldn't break message processing
+    }
+  }
   
   // Future: Add overage warning email trigger here if `subscription.current_messages_used_in_cycle` approaches `subscription.plans.max_messages_per_month`
   if (subscription.current_messages_used_in_cycle >= subscription.plans.max_messages_per_month && 

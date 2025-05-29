@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AuthButton } from '@/app/_components/auth-button';
 import { Facebook, Twitter, Linkedin, Github, Mail, Phone, MapPin, ArrowRight } from 'lucide-react';
+import ContactForm from './_components/contact-form';
 
 // Consistent Navbar (Copied from AboutPage - consider refactoring to a shared component)
 function PageNavbar() {
@@ -159,27 +160,9 @@ export default function ContactPage() {
         <div>
           <h2 className="mb-6 text-2xl font-semibold tracking-tight text-white sm:text-3xl border-l-4 border-blue-500 pl-4">Send us a Message</h2>
           <p className="text-gray-400 mb-6">
-            Alternatively, you can fill out the form below and we'll get back to you as soon as possible. (Contact form functionality coming soon).
+            Fill out the form below and we'll get back to you within 24 hours.
           </p>
-          <form className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-300">Full Name</label>
-              <input type="text" name="name" id="name" autoComplete="name" disabled className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm placeholder-gray-500 opacity-50 cursor-not-allowed" placeholder="Your Name" />
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email Address</label>
-              <input type="email" name="email" id="email" autoComplete="email" disabled className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm placeholder-gray-500 opacity-50 cursor-not-allowed" placeholder="you@example.com" />
-            </div>
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-gray-300">Message</label>
-              <textarea id="message" name="message" rows={4} disabled className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm placeholder-gray-500 opacity-50 cursor-not-allowed" placeholder="Your message..."></textarea>
-            </div>
-            <div>
-              <button type="submit" disabled className="group relative inline-flex w-full h-12 items-center justify-center overflow-hidden rounded-md bg-blue-600 px-6 font-medium text-white transition-all duration-300 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 opacity-50 cursor-not-allowed">
-                <span className="relative z-10">Send Message (Coming Soon)</span>
-              </button>
-            </div>
-          </form>
+          <ContactForm />
         </div>
       </div>
 
