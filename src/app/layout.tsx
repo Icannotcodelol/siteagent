@@ -8,6 +8,7 @@ import { WebVitals } from '@/app/_components/web-vitals'
 import { Analytics } from '@/app/_components/analytics'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.siteagent.ai'),
   title: {
     default: "Add AI Chatbot to Your Website Easily | SiteAgent",
     template: "%s | SiteAgent",
