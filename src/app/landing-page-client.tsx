@@ -309,36 +309,49 @@ function HeroSection() {
         <div className="flex flex-col items-center justify-center text-center">
           {/* Enhanced badge with better animation */}
           <div className="group mb-8 inline-flex items-center rounded-full border border-gray-700/50 bg-gray-800/60 backdrop-blur-xl px-4 py-2 transition-all duration-500 hover:border-blue-500/30 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-blue-500/10">
-            <span className="mr-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-0.5 text-xs font-semibold text-white shadow-lg">NEW</span>
-            <span className="text-sm text-gray-300 transition-colors duration-300 group-hover:text-gray-200">Try our AI chatbot instantly - no signup required!</span>
+            <span className="mr-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-0.5 text-xs font-semibold text-white shadow-lg">LIVE</span>
+            <span className="text-sm text-gray-300 transition-colors duration-300 group-hover:text-gray-200">Interactive AI demo - No signup required!</span>
             <ArrowRight className="ml-2 h-3 w-3 text-gray-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-blue-400" />
           </div>
           
           {/* Enhanced heading with better typography */}
           <h1 className="mb-8 max-w-5xl text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-              Build AI Chatbots That{" "}
+              See Your New AI Chatbot{" "}
             </span>
             <span className="block bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent animate-pulse">
-              Actually Solve Problems
+              in Action—Instantly
             </span>
           </h1>
           
           {/* Enhanced description with better spacing */}
           <p className="mb-12 max-w-3xl text-xl leading-relaxed text-gray-400 md:text-2xl">
-            Create, deploy, and manage intelligent chatbots that integrate with your tools, understand your documents,
-            and deliver real value to your visitors.
+            Upload your content and experience SiteAgent's powerful automation in real-time—no signup required.
           </p>
           
           {/* Enhanced button group with better visual hierarchy */}
           <div className="flex flex-col items-center space-y-6 sm:flex-row sm:space-x-6 sm:space-y-0">
+            <Link href="#live-demo">
+              <Button
+                size="lg"
+                className="group relative h-14 overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 px-8 text-lg font-medium text-white shadow-2xl shadow-blue-600/25 transition-all duration-300 hover:scale-105 hover:from-blue-500 hover:to-blue-600 hover:shadow-3xl hover:shadow-blue-600/40 active:scale-95"
+              >
+                <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-1">
+                  🚀 Launch Instant Demo
+                  <Sparkles className="ml-2 h-5 w-5 transition-all duration-300 group-hover:translate-x-1 group-hover:scale-110" />
+                </span>
+                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+              </Button>
+            </Link>
+            
             <Button
               size="lg"
-              className="group relative h-14 overflow-hidden bg-gradient-to-r from-blue-600 to-blue-700 px-8 text-lg font-medium text-white shadow-2xl shadow-blue-600/25 transition-all duration-300 hover:scale-105 hover:from-blue-500 hover:to-blue-600 hover:shadow-3xl hover:shadow-blue-600/40 active:scale-95"
+              variant="outline"
+              className="group h-14 border-2 border-gray-600/50 bg-gray-800/30 px-8 text-lg font-medium text-gray-300 backdrop-blur-sm transition-all duration-300 hover:border-gray-500 hover:bg-gray-700/50 hover:text-white hover:shadow-xl hover:shadow-gray-900/50"
               onClick={handleGetStarted}
               disabled={loading}
             >
-              <span className="relative z-10 flex items-center transition-transform duration-300 group-hover:translate-x-1">
+              <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
                 {loading ? (
                   <>
                     <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"></div>
@@ -351,21 +364,7 @@ function HeroSection() {
                   </>
                 )}
               </span>
-              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-blue-400 to-blue-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
             </Button>
-            
-            <Link href="#live-demo">
-              <Button
-                size="lg"
-                variant="outline"
-                className="group h-14 border-2 border-gray-600/50 bg-gray-800/30 px-8 text-lg font-medium text-gray-300 backdrop-blur-sm transition-all duration-300 hover:border-gray-500 hover:bg-gray-700/50 hover:text-white hover:shadow-xl hover:shadow-gray-900/50"
-              >
-                <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
-                  Try Live Demo
-                  <Sparkles className="ml-2 h-5 w-5 transition-all duration-300 group-hover:rotate-12 group-hover:scale-110" />
-                </span>
-              </Button>
-            </Link>
           </div>
           
           {error && (
@@ -403,6 +402,89 @@ function HeroSection() {
   );
 }
 
+// How Demo Works Section Component
+function HowDemoWorksSection() {
+  const steps = [
+    {
+      icon: "📁",
+      title: "Upload",
+      description: "Choose your own document or enter a website URL"
+    },
+    {
+      icon: "⚡",
+      title: "Watch",
+      description: "Instantly see SiteAgent analyze and learn your content in real-time"
+    },
+    {
+      icon: "💬",
+      title: "Chat",
+      description: "Ask questions and watch your AI assistant perform real actions immediately"
+    }
+  ];
+
+  return (
+    <section className="relative py-12 md:py-16 bg-gradient-to-b from-gray-900 to-gray-800">
+      {/* Background pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0" style={{
+          backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+          backgroundSize: '32px 32px'
+        }}></div>
+      </div>
+
+      <div className="container relative mx-auto px-4 md:px-6">
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-600/10 px-4 py-2 mb-6">
+            <span className="text-blue-400 text-sm font-medium">💡 No Friction Experience</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Experience AI Automation in
+            <span className="block text-blue-400">Under 60 Seconds</span>
+          </h2>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            Curious how SiteAgent would perform for your business? Just follow three simple steps—no forms, no friction:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+          {steps.map((step, index) => (
+            <div key={index} className="group text-center">
+              <div className="relative mb-6">
+                <div className="w-20 h-20 mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-3xl shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-blue-600/25">
+                  {step.icon}
+                </div>
+                {index < steps.length - 1 && (
+                  <div className="hidden md:block absolute top-10 left-[calc(100%+2rem)] w-[calc(100%-4rem)] h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 opacity-30"></div>
+                )}
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3 transition-colors duration-300 group-hover:text-blue-400">
+                {step.title}
+              </h3>
+              <p className="text-gray-400 leading-relaxed transition-colors duration-300 group-hover:text-gray-300">
+                {step.description}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link href="#live-demo">
+            <Button
+              size="lg"
+              className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+            >
+              <span className="flex items-center">
+                ▶️ Start Live AI Demo (30 sec setup)
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </span>
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // Live Demo Section Component
 function LiveDemoSection() {
   return (
@@ -420,18 +502,30 @@ function LiveDemoSection() {
 
       <div className="container relative mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-600/10 px-4 py-2 mb-6">
-            <Sparkles className="h-4 w-4 text-blue-400 mr-2" />
-            <span className="text-blue-400 text-sm font-medium">Interactive Experience</span>
+          <div className="inline-flex items-center rounded-full border border-purple-500/20 bg-purple-600/10 px-4 py-2 mb-6">
+            <Sparkles className="h-4 w-4 text-purple-400 mr-2" />
+            <span className="text-purple-400 text-sm font-medium">🥇 Unique Interactive Experience</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Experience the Magic
-            <span className="block text-blue-400">Before You Build</span>
+            Not Another Chatbot Demo—
+            <span className="block text-purple-400">The Only One That Acts</span>
           </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            See exactly how your chatbot will look and behave on your website. 
-            Upload content, watch it train, and interact with your AI assistant in real-time.
+          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-6">
+            Competitors show generic examples; we show your actual content. Instantly experience how SiteAgent automates real tasks like scheduling meetings, updating CRM, and more.
           </p>
+          
+          {/* Social proof about demo */}
+          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 max-w-2xl mx-auto mb-8">
+            <div className="flex items-center justify-center mb-3">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="h-5 w-5 fill-current text-yellow-500 mx-0.5" />
+              ))}
+            </div>
+            <blockquote className="text-gray-300 text-lg italic mb-3">
+              "The demo sold us instantly. Seeing SiteAgent actually automate our customer interactions in real-time was unbelievable."
+            </blockquote>
+            <p className="text-gray-500 text-sm">— Beta user at TechCorp</p>
+          </div>
         </div>
 
         {/* Demo container with enhanced styling */}
@@ -442,6 +536,17 @@ function LiveDemoSection() {
           {/* Demo content */}
           <div className="relative bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 md:p-8">
             <LivePreview />
+          </div>
+        </div>
+
+        {/* Visual demo preview teaser */}
+        <div className="mt-12 text-center">
+          <p className="text-gray-400 text-sm mb-4">
+            💡 Watch how SiteAgent instantly turns your content into an interactive AI experience
+          </p>
+          <div className="inline-flex items-center text-blue-400 text-sm">
+            <MessageSquare className="h-4 w-4 mr-2" />
+            <span>Real AI • Real Actions • Real Results</span>
           </div>
         </div>
 
@@ -462,15 +567,39 @@ function LiveDemoSection() {
   );
 }
 
-// Features Section Component
+// Features Section Component (now Outcome-focused)
 function FeaturesSection() {
-  const features = [
-    { img: "/icons/AI CHATBOT ICON.svg", title: "AI-Powered Chatbots", description: "Create intelligent conversational agents that understand context and provide helpful responses to your users." },
-    { img: "/icons/External API Actions.svg", title: "External API Actions", description: "Connect your chatbot to third-party services like Calendly, HubSpot, Jira, and Shopify to perform real actions." },
-    { img: "/icons/Document Knowledge Base.svg", title: "Document Knowledge Base", description: "Upload documents and let your chatbot answer questions based on their content using advanced RAG technology." },
-    { img: "/icons/Website Embedding.svg", title: "Website Embedding", description: "Easily embed your chatbots into any website with a simple code snippet that works across all platforms." },
-    { img: "/icons/Powerful Analytics.svg", title: "Powerful Analytics", description: "Track conversations, user satisfaction, and chatbot performance with comprehensive analytics." },
-    { img: "/icons/Enterprise Security.svg", title: "Enterprise Security", description: "Keep your data secure with end-to-end encryption, role-based access control, and compliance features." },
+  const benefits = [
+    { 
+      img: "/icons/AI CHATBOT ICON.svg", 
+      title: "Save 70% on Support Costs", 
+      description: "Automatically handle routine inquiries, letting your team focus on complex issues that require human expertise." 
+    },
+    { 
+      img: "/icons/External API Actions.svg", 
+      title: "Convert Visitors into Customers", 
+      description: "Schedule meetings, update CRM records, and create support tickets automatically - turning every conversation into action." 
+    },
+    { 
+      img: "/icons/Document Knowledge Base.svg", 
+      title: "Instant Expert Knowledge", 
+      description: "Upload your documents once and get accurate, contextual answers instantly - like having your best expert available 24/7." 
+    },
+    { 
+      img: "/icons/Website Embedding.svg", 
+      title: "Deploy in Under 5 Minutes", 
+      description: "Add one line of code to your website and start engaging visitors immediately - no complex setup or development time." 
+    },
+    { 
+      img: "/icons/Powerful Analytics.svg", 
+      title: "Measure Real Business Impact", 
+      description: "Track lead generation, customer satisfaction, and cost savings with detailed analytics that prove ROI." 
+    },
+    { 
+      img: "/icons/Enterprise Security.svg", 
+      title: "Enterprise-Ready Security", 
+      description: "Deploy confidently with bank-level encryption, compliance features, and role-based access controls." 
+    },
   ];
 
   const sectionRef = useRef<HTMLElement>(null);
@@ -515,40 +644,40 @@ function FeaturesSection() {
       <div className="container relative mx-auto px-4 md:px-6">
         {/* Enhanced header section */}
         <div className="mx-auto mb-20 max-w-4xl text-center">
-          <div className="group inline-flex items-center rounded-full border border-blue-500/30 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-xl px-6 py-3 mb-8 transition-all duration-500 hover:border-blue-400/50 hover:shadow-lg hover:shadow-blue-500/20">
-            <Database className="h-5 w-5 text-blue-400 mr-3 transition-transform duration-300 group-hover:scale-110" />
-            <span className="text-blue-400 text-sm font-semibold tracking-wide">Powerful Features</span>
+          <div className="group inline-flex items-center rounded-full border border-green-500/30 bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-xl px-6 py-3 mb-8 transition-all duration-500 hover:border-green-400/50 hover:shadow-lg hover:shadow-green-500/20">
+            <Zap className="h-5 w-5 text-green-400 mr-3 transition-transform duration-300 group-hover:scale-110" />
+            <span className="text-green-400 text-sm font-semibold tracking-wide">Real Results</span>
           </div>
           <h2 className="mb-8 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
             <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-              Everything You Need to Build
+              Stop Talking.
             </span>
-            <span className="block bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mt-2">
-              Powerful AI Chatbots
+            <span className="block bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mt-2">
+              Start Delivering Results.
             </span>
           </h2>
           <p className="text-xl md:text-2xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
-            SiteAgent provides all the tools to create, deploy, and manage chatbots that deliver real value to your customers.
+            Transform your website from a brochure into a revenue-generating machine that works around the clock.
           </p>
         </div>
         
         {/* Enhanced feature grid */}
         <div className="grid grid-cols-1 gap-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature, index) => (
+          {benefits.map((benefit, index) => (
             <div
               key={index}
               ref={(el) => { cardsRef.current[index] = el; }}
-              className="group relative overflow-hidden rounded-3xl border border-gray-800/50 bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 shadow-2xl backdrop-blur-sm opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600/50 hover:shadow-3xl hover:shadow-blue-900/20 hover:-translate-y-2"
+              className="group relative overflow-hidden rounded-3xl border border-gray-800/50 bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 shadow-2xl backdrop-blur-sm opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600/50 hover:shadow-3xl hover:shadow-green-900/20 hover:-translate-y-2"
             >
               {/* Background gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-green-600/5 via-transparent to-blue-600/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
               
               {/* Icon container with enhanced design */}
-              <div className="relative mb-8 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600 p-1 shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+              <div className="relative mb-8 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-green-500 via-green-600 to-blue-600 p-1 shadow-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
                 <div className="flex h-full w-full items-center justify-center rounded-[22px] bg-white">
                   <Image
-                    src={feature.img}
-                    alt={feature.title}
+                    src={benefit.img}
+                    alt={benefit.title}
                     width={40}
                     height={40}
                     className="object-contain transition-transform duration-300 group-hover:scale-110"
@@ -558,16 +687,16 @@ function FeaturesSection() {
               
               {/* Content with better typography */}
               <div className="relative">
-                <h3 className="mb-6 text-2xl font-bold text-white transition-all duration-300 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text">
-                  {feature.title}
+                <h3 className="mb-6 text-2xl font-bold text-white transition-all duration-300 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-green-400 group-hover:to-blue-400 group-hover:bg-clip-text">
+                  {benefit.title}
                 </h3>
                 <p className="text-gray-400 leading-relaxed text-lg transition-colors duration-300 group-hover:text-gray-300">
-                  {feature.description}
+                  {benefit.description}
                 </p>
               </div>
               
               {/* Subtle hover effect accent */}
-              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-500 group-hover:w-full"></div>
+              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-500 group-hover:w-full"></div>
             </div>
           ))}
         </div>
@@ -835,6 +964,119 @@ function IntegrationEcosystemSection() {
   );
 }
 
+// Testimonials Section Component
+function TestimonialsSection() {
+  const testimonials = [
+    { quote: "SiteAgent has transformed our customer support. Our chatbot handles 70% of inquiries automatically, saving us countless hours." },
+    { quote: "The ability to connect our chatbot to our CRM and scheduling tools has been a game-changer. It's like having an extra team member." },
+    { quote: "We uploaded our product documentation and within minutes had a chatbot that could answer technical questions accurately. Impressive!" },
+  ];
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            cardsRef.current.forEach((card, index) => {
+              if (card) {
+                setTimeout(() => {
+                  card.classList.add("opacity-100", "translate-y-0");
+                }, index * 150);
+              }
+            });
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => {
+      if (sectionRef.current) observer.unobserve(sectionRef.current);
+    };
+  }, []);
+
+  return (
+    <section ref={sectionRef} className="relative bg-gray-800 py-24 md:py-32 overflow-hidden">
+      {/* Enhanced background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"></div>
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+      
+      <div className="container relative mx-auto px-4 md:px-6">
+        {/* Enhanced header */}
+        <div className="mx-auto mb-20 max-w-3xl text-center">
+          <div className="inline-flex items-center rounded-full border border-yellow-500/30 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 backdrop-blur-xl px-6 py-3 mb-8">
+            <span className="text-yellow-400 text-sm font-semibold tracking-wide">Customer Stories</span>
+          </div>
+          <h2 className="mb-6 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+              Trusted by Innovative
+            </span>
+            <span className="block bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent mt-2">
+              Companies
+            </span>
+          </h2>
+          <p className="text-xl text-gray-400 leading-relaxed">See what our customers are saying about SiteAgent.</p>
+        </div>
+        
+        {/* Enhanced testimonials grid */}
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={index}
+              ref={(el) => { cardsRef.current[index] = el; }}
+              className="group relative rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 shadow-2xl backdrop-blur-sm border border-gray-700/50 opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600/50 hover:shadow-3xl hover:shadow-yellow-900/10 hover:-translate-y-2"
+            >
+              {/* Background gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-600/5 via-transparent to-orange-600/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl"></div>
+              
+              <div className="relative">
+                {/* Star rating with enhanced animation */}
+                <div className="mb-8 flex justify-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star 
+                      key={i} 
+                      className="h-6 w-6 fill-current text-yellow-500 transition-all duration-300 group-hover:scale-125 group-hover:text-yellow-400 mx-0.5" 
+                      style={{ 
+                        animationDelay: `${i * 0.1}s`,
+                        transform: 'rotate(0deg)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Quote icon */}
+                <div className="mb-6 flex justify-center">
+                  <div className="rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 p-3">
+                    <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 32 32">
+                      <path d="M10 8v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4zm12 0v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4z"/>
+                    </svg>
+                  </div>
+                </div>
+                
+                {/* Enhanced quote with better typography */}
+                <blockquote className="mb-8 text-gray-300 text-lg leading-relaxed text-center transition-colors duration-300 group-hover:text-white font-medium">
+                  "{testimonial.quote}"
+                </blockquote>
+              </div>
+              
+              {/* Bottom accent */}
+              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-500 group-hover:w-full rounded-b-3xl"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // PRICING SECTION COMPONENT (visual-only)
 function PricingSection() {
   const plans = [
@@ -1022,119 +1264,6 @@ function PricingSection() {
                   ? "bg-gradient-to-r from-blue-500 to-purple-600"
                   : "bg-gradient-to-r from-gray-600 to-gray-500"
               }`}></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Testimonials Section Component
-function TestimonialsSection() {
-  const testimonials = [
-    { quote: "SiteAgent has transformed our customer support. Our chatbot handles 70% of inquiries automatically, saving us countless hours." },
-    { quote: "The ability to connect our chatbot to our CRM and scheduling tools has been a game-changer. It's like having an extra team member." },
-    { quote: "We uploaded our product documentation and within minutes had a chatbot that could answer technical questions accurately. Impressive!" },
-  ];
-
-  const sectionRef = useRef<HTMLElement>(null);
-  const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            cardsRef.current.forEach((card, index) => {
-              if (card) {
-                setTimeout(() => {
-                  card.classList.add("opacity-100", "translate-y-0");
-                }, index * 150);
-              }
-            });
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => {
-      if (sectionRef.current) observer.unobserve(sectionRef.current);
-    };
-  }, []);
-
-  return (
-    <section ref={sectionRef} className="relative bg-gray-800 py-24 md:py-32 overflow-hidden">
-      {/* Enhanced background */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"></div>
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-      </div>
-      
-      <div className="container relative mx-auto px-4 md:px-6">
-        {/* Enhanced header */}
-        <div className="mx-auto mb-20 max-w-3xl text-center">
-          <div className="inline-flex items-center rounded-full border border-yellow-500/30 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 backdrop-blur-xl px-6 py-3 mb-8">
-            <span className="text-yellow-400 text-sm font-semibold tracking-wide">Customer Stories</span>
-          </div>
-          <h2 className="mb-6 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-              Trusted by Innovative
-            </span>
-            <span className="block bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent mt-2">
-              Companies
-            </span>
-          </h2>
-          <p className="text-xl text-gray-400 leading-relaxed">See what our customers are saying about SiteAgent.</p>
-        </div>
-        
-        {/* Enhanced testimonials grid */}
-        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 md:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <div
-              key={index}
-              ref={(el) => { cardsRef.current[index] = el; }}
-              className="group relative rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 shadow-2xl backdrop-blur-sm border border-gray-700/50 opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600/50 hover:shadow-3xl hover:shadow-yellow-900/10 hover:-translate-y-2"
-            >
-              {/* Background gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-600/5 via-transparent to-orange-600/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl"></div>
-              
-              <div className="relative">
-                {/* Star rating with enhanced animation */}
-                <div className="mb-8 flex justify-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className="h-6 w-6 fill-current text-yellow-500 transition-all duration-300 group-hover:scale-125 group-hover:text-yellow-400 mx-0.5" 
-                      style={{ 
-                        animationDelay: `${i * 0.1}s`,
-                        transform: 'rotate(0deg)',
-                        transition: 'all 0.3s ease'
-                      }}
-                    />
-                  ))}
-                </div>
-                
-                {/* Quote icon */}
-                <div className="mb-6 flex justify-center">
-                  <div className="rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 p-3">
-                    <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 32 32">
-                      <path d="M10 8v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4zm12 0v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4z"/>
-                    </svg>
-                  </div>
-                </div>
-                
-                {/* Enhanced quote with better typography */}
-                <blockquote className="mb-8 text-gray-300 text-lg leading-relaxed text-center transition-colors duration-300 group-hover:text-white font-medium">
-                  "{testimonial.quote}"
-                </blockquote>
-              </div>
-              
-              {/* Bottom accent */}
-              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-500 group-hover:w-full rounded-b-3xl"></div>
             </div>
           ))}
         </div>
@@ -1391,13 +1520,13 @@ export default function LandingPageClient({ authButtonSlot }: LandingPageClientP
       <Navbar authButtonSlot={authButtonSlot} />
       <main className="overflow-x-hidden">
         <HeroSection />
+        <HowDemoWorksSection />
         <LiveDemoSection />
         <FeaturesSection />
         <HowItWorksSection />
         <IntegrationEcosystemSection />
-        <IntegrationsBar />
-        <PricingSection />
         <TestimonialsSection />
+        <PricingSection />
         <FaqSection />
         <CtaSection />
       </main>
