@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://www.siteagent.ai/',
+    url: 'https://www.siteagent.eu/',
     title: 'SiteAgent - AI Automation Revolution',
     description: 'Transform your content into intelligent automation systems. Upload documents or paste URLs to create AI assistants that automate real business tasks.',
     siteName: 'SiteAgent',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     creator: '@SiteAgent',
   },
   alternates: {
-    canonical: 'https://www.siteagent.ai/'
+    canonical: 'https://www.siteagent.eu/'
   },
   verification: {
     google: 'your-google-verification-code', // You should replace this with actual verification code

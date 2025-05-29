@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://www.siteagent.ai'
+  const baseUrl = 'https://www.siteagent.eu'
   
   // Get current date for lastModified
   const currentDate = new Date()
