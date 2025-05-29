@@ -10,19 +10,6 @@ interface EmailOptions {
   from?: string
 }
 
-interface WeeklyReportData {
-  chatbotId: string
-  chatbotName: string
-  ownerEmail: string
-  ownerName: string
-  weeklyStats: {
-    totalMessages: number
-    totalSessions: number
-    satisfaction: number
-    avgMessagesPerSession: number
-  }
-}
-
 /**
  * Send a generic email using Resend
  */
@@ -66,20 +53,6 @@ export async function sendEmail(options: EmailOptions) {
 }
 
 /**
- * Send weekly analytics report email
- */
-export async function sendWeeklyReport(report: WeeklyReportData) {
-  const html = generateWeeklyReportHTML(report)
-  
-  return sendEmail({
-    to: report.ownerEmail,
-    subject: `Weekly Analytics for ${report.chatbotName}`,
-    html,
-    from: 'SiteAgent Analytics <analytics@siteagent.eu>'
-  })
-}
-
-/**
  * Send payment failure notification
  */
 export async function sendPaymentFailureNotification(userEmail: string, userName: string) {
@@ -110,67 +83,6 @@ export async function sendUsageOverageWarning(
     html,
     from: 'SiteAgent Notifications <notifications@siteagent.eu>'
   })
-}
-
-/**
- * Generate HTML for weekly report email
- */
-function generateWeeklyReportHTML(report: WeeklyReportData): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>Weekly Analytics Report</title>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #4F46E5; color: white; padding: 20px; text-align: center; }
-        .stats { background: #f8f9fa; padding: 20px; margin: 20px 0; border-radius: 8px; }
-        .stat-item { display: inline-block; margin: 10px 20px; }
-        .stat-number { font-size: 24px; font-weight: bold; color: #4F46E5; }
-        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #666; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <h1>Weekly Analytics Report</h1>
-          <p>Your chatbot: ${report.chatbotName}</p>
-        </div>
-        
-        <div class="stats">
-          <h2>This Week's Performance</h2>
-          <div class="stat-item">
-            <div class="stat-number">${report.weeklyStats.totalMessages}</div>
-            <div>Total Messages</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">${report.weeklyStats.totalSessions}</div>
-            <div>Total Sessions</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">${report.weeklyStats.satisfaction}%</div>
-            <div>Satisfaction Rate</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">${report.weeklyStats.avgMessagesPerSession}</div>
-            <div>Avg Messages/Session</div>
-          </div>
-        </div>
-        
-        <p>Hello ${report.ownerName},</p>
-        <p>Here's your weekly analytics summary for <strong>${report.chatbotName}</strong>.</p>
-        
-        <p><a href="https://www.siteagent.eu/dashboard" style="background: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;">View Full Dashboard</a></p>
-        
-        <div class="footer">
-          <p>This email was sent by SiteAgent. If you don't want to receive these reports, you can unsubscribe in your dashboard settings.</p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `
 }
 
 /**
