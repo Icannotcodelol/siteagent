@@ -884,6 +884,42 @@ export async function POST(request: NextRequest) {
             }
         }
 
+        // NEW: Special query for correction documents
+        console.log("[DEBUG] Checking for correction documents...");
+        let correctionChunks: any[] = [];
+        try {
+            if (pineconeClient && pineconeIndexName) {
+                const index = pineconeClient.Index(pineconeIndexName);
+                const correctionResponse = await index.query({
+                    vector: queryEmbedding,
+                    topK: 3, // Just a few correction documents
+                    includeMetadata: true,
+                    filter: {
+                        chatbot_id: { '$eq': chatbotId }
+                    }
+                });
+
+                correctionChunks = correctionResponse?.matches
+                    ?.filter(match => 
+                        match.metadata && 
+                        typeof match.metadata.chunk_text === 'string' &&
+                        (match.score || 0) >= 0.55 && // Lower threshold for corrections
+                        match.metadata.chunk_text.includes('CORRECTION:')
+                    )
+                    .map(match => ({
+                        chunk_text: match.metadata!.chunk_text as string,
+                        similarity: match.score || 0,
+                        document_id: match.metadata!.document_id,
+                    })) || [];
+
+                if (correctionChunks.length > 0) {
+                    console.log(`[DEBUG] Found ${correctionChunks.length} correction documents`);
+                }
+            }
+        } catch (corrEx) {
+            console.error('[DEBUG] Error querying correction documents:', corrEx);
+        }
+
         // NEW: Numeric token prioritization – if the user query contains 4+ digit numbers (e.g., PLZ), ensure we surface chunks containing those numbers
         const numericTokensInQuery = query.match(/\b\d{4,}\b/g) || [];
         if (numericTokensInQuery.length > 0) {
@@ -926,6 +962,29 @@ export async function POST(request: NextRequest) {
              console.log(`[DEBUG] Found ${chunks.length} relevant chunks (after fallback if applied). Constructed contextText (first 500 chars):`, contextText.substring(0, 500));
         }
 
+        // Merge and prioritize correction chunks
+        let finalChunks = chunks || [];
+        if (correctionChunks.length > 0) {
+            // Remove any duplicate corrections that might be in chunks
+            const regularChunks = finalChunks.filter((chunk: any) => 
+                !(chunk.chunk_text || '').includes('CORRECTION:')
+            );
+            
+            // Prioritize corrections by putting them first
+            finalChunks = [...correctionChunks, ...regularChunks];
+            console.log(`[DEBUG] Prioritized ${correctionChunks.length} corrections in context`);
+        }
+
+        const finalContextText = (finalChunks && finalChunks.length > 0)
+            ? finalChunks.map((chunk) => (chunk as any).chunk_text).join("\n\n---\n\n")
+            : "No relevant context found in documents.";
+
+        if (!finalChunks || finalChunks.length === 0) {
+            console.log("[DEBUG] No relevant chunks found after correction merge. FinalContextText:", finalContextText);
+        } else {
+             console.log(`[DEBUG] Found ${finalChunks.length} total chunks (${correctionChunks.length} corrections + ${(finalChunks.length - correctionChunks.length)} regular). Final context (first 500 chars):`, finalContextText.substring(0, 500));
+        }
+
         // 4. Construct the messages for the LLM, incorporating history and new system prompt structure
         const messagesForOpenAI: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
 
@@ -934,7 +993,7 @@ export async function POST(request: NextRequest) {
             role: 'system',
             content: `${systemPrompt}\n\nYou are an AI assistant answering the LATEST user question. Your primary goal is to use the "Conversation History" (if provided below) and the "Context from documents" (also provided below) to understand the full dialogue and provide a comprehensive and contextually relevant answer to the LATEST user question. Always refer to the "Conversation History" to understand references to previous topics (e.g., if the user says 'it' or 'that', determine what 'it' or 'that' refers to from the history). \n\nFirst, review the "User-defined instructions", "integration notes", and "integration guidelines" provided earlier in this system prompt. These sections contain specific data, rules, tool usage guidelines, and examples for this particular chatbot. If the answer to the user's LATEST question is found within these primary instructions, prioritize it. This includes deciding if a tool/integration should be used based on its guidelines.\n\nIf these primary instructions do not provide a direct answer, then use both the "Context from documents" and the full "Conversation History" to formulate your response to the LATEST user question. If no source (primary instructions, documents, or history) provides a sufficient answer, clearly state that you cannot answer based on the provided information. Do not make up information or answer based on prior knowledge outside of these provided sources.\n\nContext from documents (for the LATEST user question, use in conjunction with Conversation History):
 ---
-${contextText}
+${finalContextText}
 ---
 Conversation History is provided in the subsequent messages.`
         });

@@ -437,6 +437,31 @@ export async function POST(request: NextRequest) {
             throw new Error(`Database error retrieving relevant context: ${rpcError.message}`);
         }
 
+        // NEW: Special query for correction documents with lower threshold
+        console.log("Checking for correction documents...");
+        let correctionChunks: any[] = [];
+        try {
+            const { data: corrections, error: corrError } = await supabase.rpc('match_document_chunks', {
+                p_query_embedding: queryEmbedding,
+                p_chatbot_id: chatbotId,
+                p_match_threshold: 0.55, // Lower threshold for corrections
+                p_match_count: 3, // Just a few correction documents
+            });
+
+            if (!corrError && corrections) {
+                // Filter for correction documents only
+                correctionChunks = corrections.filter((chunk: any) => 
+                    chunk.content && chunk.content.includes('CORRECTION:')
+                );
+                
+                if (correctionChunks.length > 0) {
+                    console.log(`[CORRECTIONS] Found ${correctionChunks.length} correction documents`);
+                }
+            }
+        } catch (corrEx) {
+            console.error('Error querying correction documents:', corrEx);
+        }
+
         // Fallback: If no chunks via embeddings, run simple text search in document_chunks
         let effectiveChunks = chunks as any[] | undefined;
         if (!effectiveChunks || effectiveChunks.length === 0) {
@@ -519,6 +544,26 @@ export async function POST(request: NextRequest) {
         if (!effectiveChunks || effectiveChunks.length === 0) { console.log("No relevant chunks found after fallback."); }
         else { console.log(`Found ${effectiveChunks.length} relevant chunks (after fallback if applied).`); }
 
+        // Merge and prioritize correction chunks
+        let finalChunks = effectiveChunks || [];
+        if (correctionChunks.length > 0) {
+            // Remove any duplicate corrections that might be in effectiveChunks
+            const regularChunks = finalChunks.filter((chunk: any) => 
+                !(chunk.content || chunk.chunk_text || '').includes('CORRECTION:')
+            );
+            
+            // Prioritize corrections by putting them first
+            finalChunks = [...correctionChunks, ...regularChunks];
+            console.log(`[CORRECTIONS] Prioritized ${correctionChunks.length} corrections in context`);
+        }
+
+        const finalContextText = (finalChunks && finalChunks.length > 0)
+            ? finalChunks.map((chunk: any) => chunk.content ?? chunk.chunk_text).join("\n\n---\n\n")
+            : "No relevant context found in documents.";
+
+        if (!finalChunks || finalChunks.length === 0) { console.log("No relevant chunks found after correction merge."); }
+        else { console.log(`Found ${finalChunks.length} total chunks (${correctionChunks.length} corrections + ${(finalChunks.length - correctionChunks.length)} regular).`); }
+
         // 5. Construct the prompt for the LLM (using fetched system_prompt)
         const finalSystemPrompt = `
 ${combinedSystemPrompt}
@@ -533,7 +578,7 @@ Do not make up information or answer based on prior knowledge outside of these t
 
 Context from documents (secondary source, for the LATEST user question):
 ---
-${contextText}
+${finalContextText}
 ---
 `;
 

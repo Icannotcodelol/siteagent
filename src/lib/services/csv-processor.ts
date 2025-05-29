@@ -128,27 +128,101 @@ export function isValidCsv(content: string): boolean {
       return false;
     }
 
-    // Basic CSV validation
-    const lines = content.split('\n').filter(line => line.trim());
-    if (lines.length === 0) {
+    const trimmedContent = content.trim();
+    
+    // Reject content that looks like HTML/XML
+    if (trimmedContent.includes('<html') || 
+        trimmedContent.includes('<!DOCTYPE') || 
+        trimmedContent.includes('<head>') ||
+        trimmedContent.includes('<body>') ||
+        trimmedContent.includes('<div') ||
+        trimmedContent.includes('<span') ||
+        trimmedContent.includes('<p>') ||
+        trimmedContent.includes('<script') ||
+        trimmedContent.includes('<style')) {
       return false;
     }
 
-    // Check if first few lines have consistent comma structure
-    const firstLineCommas = (lines[0].match(/,/g) || []).length;
-    if (firstLineCommas === 0) {
-      // Single column CSV is valid
-      return true;
+    // Reject content that looks like JSON
+    if ((trimmedContent.startsWith('{') && trimmedContent.endsWith('}')) ||
+        (trimmedContent.startsWith('[') && trimmedContent.endsWith(']'))) {
+      return false;
     }
 
-    // Check if at least the first 3 lines (if available) have similar comma counts
-    const linesToCheck = Math.min(3, lines.length);
-    for (let i = 1; i < linesToCheck; i++) {
-      const commaCount = (lines[i].match(/,/g) || []).length;
-      // Allow some variation in comma count (for incomplete rows)
-      if (Math.abs(commaCount - firstLineCommas) > firstLineCommas * 0.5) {
-        return false;
+    // Reject content that looks like markdown or other formats
+    if (trimmedContent.includes('# ') || 
+        trimmedContent.includes('## ') ||
+        trimmedContent.includes('### ') ||
+        trimmedContent.includes('**') ||
+        trimmedContent.includes('```')) {
+      return false;
+    }
+
+    // Basic CSV validation
+    const lines = trimmedContent.split('\n').filter(line => line.trim());
+    if (lines.length < 2) { // Need at least header + 1 data row
+      return false;
+    }
+
+    // For a file to be considered CSV, we need:
+    // 1. Consistent delimiter usage across lines
+    // 2. At least 2 columns (some delimiter count)
+    // 3. Reasonable structure consistency
+
+    // Check the first few lines for consistent structure
+    const sampleSize = Math.min(5, lines.length);
+    const sampleLines = lines.slice(0, sampleSize);
+    
+    // Try common delimiters
+    const delimiters = [',', ';', '\t', '|'];
+    let bestDelimiter = '';
+    let maxConsistency = 0;
+
+    for (const delimiter of delimiters) {
+      const counts = sampleLines.map(line => (line.match(new RegExp(`\\${delimiter}`, 'g')) || []).length);
+      
+      // All lines should have at least 1 delimiter (2+ columns)
+      if (counts.some(count => count === 0)) continue;
+      
+      // Calculate consistency (variance should be low for CSV)
+      const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
+      if (avgCount < 1) continue; // Need at least 2 columns
+      
+      const variance = counts.reduce((sum, count) => sum + Math.pow(count - avgCount, 2), 0) / counts.length;
+      const consistency = avgCount / (1 + variance);
+
+      if (consistency > maxConsistency) {
+        maxConsistency = consistency;
+        bestDelimiter = delimiter;
       }
+    }
+
+    // Require high consistency and at least 2 columns
+    if (maxConsistency < 1.5 || !bestDelimiter) {
+      return false;
+    }
+
+    // Additional check: lines shouldn't be too long (likely prose text if very long)
+    const avgLineLength = sampleLines.reduce((sum, line) => sum + line.length, 0) / sampleLines.length;
+    if (avgLineLength > 500) { // Arbitrary threshold for very long lines
+      return false;
+    }
+
+    // Check if content has too much natural language text patterns
+    const textContent = trimmedContent.toLowerCase();
+    const naturalLanguageIndicators = [
+      'the ', 'and ', 'or ', 'but ', 'in ', 'on ', 'at ', 'to ', 'for ', 'of ', 'with ', 'by ',
+      'http://', 'https://', 'www.', '.com', '.de', '.org', '.net',
+      'ich ', 'ist ', 'das ', 'der ', 'die ', 'und ', 'oder ', 'für ', 'mit ', // German
+    ];
+    
+    const naturalLanguageMatches = naturalLanguageIndicators.filter(indicator => 
+      textContent.includes(indicator)
+    ).length;
+    
+    // If too many natural language patterns, probably not CSV
+    if (naturalLanguageMatches > 10) {
+      return false;
     }
 
     return true;

@@ -457,6 +457,14 @@ export default function ChatbotBuilderForm({
               <button type="button" className={`${getTabClass('actions')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('actions')}>Actions</button>
               <button type="button" className={`${getTabClass('integrations')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('integrations')}>Integrations</button>
               <button type="button" className={`${getTabClass('analytics')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('analytics')}>Analytics</button>
+              {isEditMode && chatbotId && (
+                <a
+                  href={`/dashboard/chatbot/${chatbotId}/interrogation`}
+                  className="w-full text-left px-4 py-3 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-150 text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-white whitespace-nowrap mr-2 md:mr-0"
+                >
+                  Interrogation
+                </a>
+              )}
           </div>
         </div>
 

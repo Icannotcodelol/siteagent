@@ -25,6 +25,14 @@ interface ChatPreviewProps {
   headerText?: string | null;
   inputPlaceholder?: string | null;
   showBranding?: boolean | null;
+  /* Interrogation mode */
+  isInterrogation?: boolean;
+  /* Session persistence - if provided, will load existing messages */
+  sessionId?: string;
+  /* Optional callback to persist the user+assistant pair. Should return the assistantMessageId so we can later flag it */
+  onPersistMessages?: (userMessage: string, assistantMessage: string) => Promise<{ assistantMessageId?: string } | void>;
+  /* Optional callback for flag submissions */
+  onFlag?: (assistantMessageId: string, errorCategory: string, description: string, correctAnswer: string) => Promise<void>;
 }
 
 export default function ChatPreview(props: ChatPreviewProps) {
@@ -44,6 +52,14 @@ export default function ChatPreview(props: ChatPreviewProps) {
     headerText: pHeader,
     inputPlaceholder: pPlaceholder,
     showBranding: pBranding,
+    /* Interrogation mode */
+    isInterrogation = false,
+    /* Session persistence - if provided, will load existing messages */
+    sessionId,
+    /* Optional callback to persist the user+assistant pair. Should return the assistantMessageId so we can later flag it */
+    onPersistMessages,
+    /* Optional callback for flag submissions */
+    onFlag,
   } = props;
 
   const primaryColor = appearance.primaryColor ?? pPrimary;
@@ -60,25 +76,64 @@ export default function ChatPreview(props: ChatPreviewProps) {
   const showBranding = appearance.showBranding ?? pBranding;
 
   const [messages, setMessages] = useState<Message[]>([
-      { sender: 'bot', text: welcomeMessage || 'How can I help you today?' }
-  ]);
+      { sender: 'bot', text: welcomeMessage || 'How can I help you today?', id: crypto.randomUUID?.() ?? Math.random().toString(36) } as any
+  ] as (Message & { id?: string; flagged?: boolean })[]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [typingIndicatorDots, setTypingIndicatorDots] = useState('.');
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [internalSessionId, setInternalSessionId] = useState<string | null>(sessionId || null);
 
-  // Generate a sessionId once on mount if none exists
+  // For interrogation flag modal
+  const [flagTargetId, setFlagTargetId] = useState<string | null>(null);
+  const flagDescRef = useRef<HTMLTextAreaElement | null>(null);
+  const flagTypeRef = useRef<HTMLSelectElement | null>(null);
+  const correctAnswerRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Generate a sessionId once on mount if none exists and none provided via props
   useEffect(() => {
-    if (!sessionId) {
+    if (!internalSessionId) {
       try {
-        setSessionId(crypto.randomUUID());
+        setInternalSessionId(crypto.randomUUID());
       } catch {
         // Fallback for environments that might not support crypto.randomUUID
-        setSessionId(Math.random().toString(36).substring(2) + Date.now().toString(36));
+        setInternalSessionId(Math.random().toString(36).substring(2) + Date.now().toString(36));
       }
     }
-  }, [sessionId]);
+  }, [internalSessionId]);
+
+  // Load existing messages when sessionId is provided (for interrogation mode)
+  useEffect(() => {
+    if (sessionId && isInterrogation) {
+      const loadExistingMessages = async () => {
+        try {
+          const response = await fetch(`/api/chatbots/${chatbotId}/interrogation/sessions/${sessionId}/messages`);
+          if (!response.ok) {
+            console.error('Failed to load existing messages:', await response.text());
+            return;
+          }
+          
+          const data = await response.json();
+          if (data.messages && Array.isArray(data.messages) && data.messages.length > 0) {
+            // Convert interrogation messages to chat format
+            const loadedMessages = data.messages.map((msg: any) => ({
+              id: msg.id,
+              sender: msg.role === 'user' ? 'user' : 'bot',
+              text: msg.content,
+              flagged: msg.flagged || false
+            }));
+            
+            // Replace default welcome message with loaded history
+            setMessages(loadedMessages);
+          }
+        } catch (error) {
+          console.error('Error loading existing messages:', error);
+        }
+      };
+      
+      loadExistingMessages();
+    }
+  }, [sessionId, chatbotId, isInterrogation]);
 
   // Scroll to bottom when messages change without affecting parent page
   useEffect(() => {
@@ -112,14 +167,18 @@ export default function ChatPreview(props: ChatPreviewProps) {
     if (!userMessage || isLoading) return;
 
     // Add user message to chat
-    setMessages(prev => [...prev, { sender: 'user', text: userMessage }]);
+    const userBubbleId = crypto.randomUUID?.() ?? Math.random().toString(36);
+    setMessages(prev => [...prev, { id: userBubbleId, sender: 'user', text: userMessage } as any]);
     setInput('');
     setIsLoading(true);
     setError(null);
 
     try {
-      // Call the public API route
-      const response = await fetch('/api/chat/public', {
+      // Use authenticated endpoint for interrogation mode, public for regular preview
+      const chatEndpoint = isInterrogation ? '/api/chat' : '/api/chat/public';
+      const effectiveSessionId = sessionId || internalSessionId;
+      
+      const response = await fetch(chatEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -127,7 +186,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
         body: JSON.stringify({ 
             query: userMessage,
             chatbotId: chatbotId,
-            sessionId: sessionId,
+            sessionId: effectiveSessionId,
             history: messages.map(m => ({
               role: m.sender === 'user' ? 'user' : 'assistant',
               content: m.text,
@@ -143,8 +202,8 @@ export default function ChatPreview(props: ChatPreviewProps) {
       const result = await response.json();
 
       // Capture sessionId returned from server (public route returns it)
-      if (result.sessionId && !sessionId) {
-          setSessionId(result.sessionId);
+      if (result.sessionId && !internalSessionId) {
+          setInternalSessionId(result.sessionId);
       }
 
       // Add bot response to chat
@@ -152,6 +211,17 @@ export default function ChatPreview(props: ChatPreviewProps) {
           setMessages(prev => [...prev, { sender: 'bot', text: result.answer }]);
       } else {
           throw new Error("Received empty answer from bot.");
+      }
+
+      // Persist messages in interrogation mode
+      if (isInterrogation && onPersistMessages) {
+        try {
+          const res = await onPersistMessages(userMessage, result.answer);
+          if (res && res.assistantMessageId) {
+            // attach id to last assistant message
+            setMessages(prev => prev.map((m,i)=> i===prev.length-1 && m.sender==='bot'? { ...m, id: res.assistantMessageId}: m));
+          }
+        } catch(e){ console.error('Persist failed',e); }
       }
 
     } catch (err: any) {
@@ -211,7 +281,8 @@ export default function ChatPreview(props: ChatPreviewProps) {
                                    chatBubbleStyle === 'minimal' ? 'rounded-sm' : 'rounded-lg'
                 return (
                   <div
-                    className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${bubbleClass} bg-gray-700 text-white`}
+                    className={`relative text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${bubbleClass}`}
+                    style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}
                   >
                     {msg.text}
                   </div>
@@ -240,12 +311,12 @@ export default function ChatPreview(props: ChatPreviewProps) {
                 );
               }
 
-              // Default display
+              // Default display for bot messages
               const bubbleClass = chatBubbleStyle === 'square' ? 'rounded-md' : 
                                  chatBubbleStyle === 'pill' ? 'rounded-full' :
                                  chatBubbleStyle === 'minimal' ? 'rounded-sm' : 'rounded-lg'
               return (
-                <div className={`text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${bubbleClass}`} style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}>
+                <div className={`relative text-sm py-2 px-3 max-w-[80%] whitespace-pre-wrap ${bubbleClass}`} style={{ background: primaryColor || '#9333ea', color: textColor || '#fff' }}>
                   <ReactMarkdown
                     components={{
                       a: ({node, href, ...props}) => {
@@ -258,6 +329,16 @@ export default function ChatPreview(props: ChatPreviewProps) {
                   >
                     {msg.text}
                   </ReactMarkdown>
+                  {/* Flag link - only show on bot messages */}
+                  {isInterrogation && (
+                    <button
+                      onClick={() => setFlagTargetId((msg as any).id ?? '')}
+                      className="absolute -bottom-5 left-0 text-xs underline text-red-600"
+                      disabled={(msg as any).flagged}
+                    >
+                      {(msg as any).flagged ? 'Flagged' : 'Flag'}
+                    </button>
+                  )}
                 </div>
               );
             })()}
@@ -306,8 +387,43 @@ export default function ChatPreview(props: ChatPreviewProps) {
           </button>
         </div>
       </div>
+      {/* Flag modal */}
+      {isInterrogation && flagTargetId && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 className="text-lg font-semibold mb-4">Flag Incorrect Response</h2>
+            <label className="block text-sm font-medium mb-1">Error type</label>
+            <select ref={flagTypeRef} className="w-full border rounded px-2 py-1 mb-3">
+              <option value="factual">Factual error</option>
+              <option value="context">Context misunderstanding</option>
+              <option value="relevance">Irrelevant answer</option>
+            </select>
+            <label className="block text-sm font-medium mb-1">Description</label>
+            <textarea ref={flagDescRef} rows={3} className="w-full border rounded px-2 py-1 mb-3" />
+            <label className="block text-sm font-medium mb-1">Correct answer</label>
+            <textarea ref={correctAnswerRef} rows={3} className="w-full border rounded px-2 py-1 mb-3" />
+            <div className="flex justify-end space-x-2">
+              <button onClick={() => setFlagTargetId(null)} className="px-3 py-1 rounded border">Cancel</button>
+              <button
+                onClick={async () => {
+                  if (!onFlag) { setFlagTargetId(null); return; }
+                  const cat = flagTypeRef.current?.value || 'factual';
+                  const desc = flagDescRef.current?.value || '';
+                  const corr = correctAnswerRef.current?.value || '';
+                  try {
+                    await onFlag(flagTargetId!, cat, desc, corr);
+                    // mark flagged
+                    setMessages(prev => prev.map(m => (m as any).id===flagTargetId ? { ...m, flagged:true }: m));
+                  } catch(e){ console.error('Flag error',e);} finally { setFlagTargetId(null);}  
+                }}
+                className="px-3 py-1 rounded bg-red-600 text-white"
+              >Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Branding */}
-      {showBranding !== false && (
+      {showBranding !== false && !isInterrogation && (
         <div className="text-xs text-gray-400 text-center py-2">Powered by SiteAgent</div>
       )}
     </div>

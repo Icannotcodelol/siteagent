@@ -215,8 +215,24 @@ Deno.serve(async (req: Request) => {
     
     let textContent = '';
     if (rawContent) {
-        // NEW: Detect and handle CSV content that is supplied inline (via `content` column)
-        const looksLikeCsv = (fileName?.toLowerCase().endsWith('.csv') ?? false) || isValidCsv(rawContent);
+        // FIXED: Only detect CSV for files with explicit CSV indicators, not all content
+        // This prevents web content from being misidentified as CSV
+        const hasExplicitCsvIndicator = fileName?.toLowerCase().endsWith('.csv') ?? false;
+        const hasExplicitCsvContentType = contentType === 'text/csv' || contentType === 'application/csv';
+        const isExplicitCsv = hasExplicitCsvIndicator || hasExplicitCsvContentType;
+        
+        // DEBUG: Add logging to track CSV detection
+        console.log('[DEBUG CSV] fileName:', fileName);
+        console.log('[DEBUG CSV] contentType:', contentType);
+        console.log('[DEBUG CSV] hasExplicitCsvIndicator:', hasExplicitCsvIndicator);
+        console.log('[DEBUG CSV] hasExplicitCsvContentType:', hasExplicitCsvContentType);
+        console.log('[DEBUG CSV] isExplicitCsv:', isExplicitCsv);
+        
+        // Additional validation: only if explicitly marked as CSV AND passes validation
+        const looksLikeCsv = isExplicitCsv && isValidCsv(rawContent);
+        
+        console.log('[DEBUG CSV] looksLikeCsv:', looksLikeCsv);
+        
         if (looksLikeCsv) {
             console.log('Detected inline CSV content. Processing without embeddings...');
 
