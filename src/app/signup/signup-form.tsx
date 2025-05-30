@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
@@ -37,6 +37,22 @@ export default function SignupForm() {
   const [emailFocused, setEmailFocused] = useState(false)
   const [passwordFocused, setPasswordFocused] = useState(false)
 
+  // Check if user is already logged in and redirect if they are
+  useEffect(() => {
+    const checkUser = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (user && !error) {
+          router.push('/dashboard')
+        }
+      } catch (error) {
+        // Ignore auth errors on signup page - user is not logged in
+        console.debug('No active session on signup page, continuing with signup flow')
+      }
+    }
+    checkUser()
+  }, [router, supabase.auth])
+
   // Validation helpers
   const isEmailValid = email.includes('@') && email.includes('.')
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0
@@ -55,17 +71,40 @@ export default function SignupForm() {
     setLoading(true)
 
     try {
+      // Clear any existing session/auth state before signup
+      await supabase.auth.signOut({ scope: 'local' })
+      
+      // Also clear cookies via API to ensure clean state
+      try {
+        await fetch('/api/auth/clear-session', { method: 'POST' })
+      } catch (e) {
+        console.debug('Cookie clearing failed, continuing with signup')
+      }
+      
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${location.origin}/dashboard`,
+          emailRedirectTo: `${window.location.origin}/dashboard`,
         }
       })
 
       if (signUpError) {
-        console.error('Signup error:', signUpError.message)
-        setError(signUpError.message)
+        console.error('Signup error:', signUpError)
+        console.error('Signup error details:', {
+          message: signUpError.message,
+          status: signUpError.status,
+          code: signUpError.status ? 'AuthError' : 'UnknownError'
+        })
+        
+        // Provide more specific error messages for common issues
+        if (signUpError.message.includes('refresh_token_not_found')) {
+          setError('Authentication session error. Please try refreshing the page and signing up again.')
+        } else if (signUpError.message.includes('User already registered')) {
+          setError('An account with this email already exists. Please try logging in instead.')
+        } else {
+          setError(signUpError.message)
+        }
       } else {
         setSuccess(true)
         // Clear form
@@ -75,7 +114,7 @@ export default function SignupForm() {
       }
     } catch (error) {
       console.error('Unexpected error:', error)
-      setError('An unexpected error occurred. Please try again.')
+      setError('An unexpected error occurred. Please refresh the page and try again.')
     } finally {
       setLoading(false)
     }

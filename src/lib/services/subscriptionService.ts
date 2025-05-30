@@ -13,6 +13,8 @@ export interface Plan {
   max_data_mb: number;
   max_messages_per_month: number;
   message_overage_allowance: number;
+  max_websites_scraped: number; // New field for website scraping limits
+  is_active: boolean; // Whether this plan is active and visible to new customers
   created_at: string; // timestamp with time zone
   updated_at: string; // timestamp with time zone
 }

@@ -37,6 +37,16 @@ export default function LoginForm() {
     setLoading(true)
 
     try {
+      // Clear any existing session/auth state before login
+      await supabase.auth.signOut({ scope: 'local' })
+      
+      // Also clear cookies via API to ensure clean state
+      try {
+        await fetch('/api/auth/clear-session', { method: 'POST' })
+      } catch (e) {
+        console.debug('Cookie clearing failed, continuing with login')
+      }
+      
       const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,

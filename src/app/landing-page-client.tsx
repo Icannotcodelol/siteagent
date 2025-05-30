@@ -1401,50 +1401,77 @@ function PricingSection() {
         "1 Chatbot",
         "100 messages / month",
         "1 MB data storage",
+        "Manual data upload only",
         "Community support",
       ],
       highlight: false,
       cta: "Get Started Free",
       href: "/signup",
+      trial: false,
     },
     {
-      name: "Hobby",
-      price: "€150",
+      name: "SiteAgent Starter",
+      price: "€29.99",
       period: "month",
-      description: "Ideal for side-projects and small teams",
+      description: "Perfect for small startups",
+      features: [
+        "1 Chatbot",
+        "500 messages / month",
+        "5 MB data storage",
+        "Scrape 1 website",
+        "Essential integrations",
+        "Email support",
+      ],
+      highlight: false,
+      cta: "Start Free Trial",
+      href: "/signup",
+      trial: true,
+    },
+    {
+      name: "SiteAgent Growth",
+      price: "€149",
+      period: "month",
+      description: "Most popular for growing businesses",
       features: [
         "3 Chatbots",
-        "2 000 messages / month",
-        "20 MB data storage",
+        "3,000 messages / month",
+        "25 MB data storage",
+        "Scrape 5 websites",
+        "All integrations",
         "Priority support",
       ],
       highlight: true,
       cta: "Start Free Trial",
       href: "/signup",
+      trial: true,
     },
     {
-      name: "Pro",
-      price: "€450",
+      name: "SiteAgent Pro",
+      price: "€399",
       period: "month",
-      description: "For growing businesses that need scale",
+      description: "For scaling businesses",
       features: [
-        "5 Chatbots",
-        "8 000 messages / month",
-        "50 MB data storage",
-        "Premium support",
+        "10 Chatbots",
+        "10,000 messages / month",
+        "100 MB data storage",
+        "Scrape 20 websites",
+        "All integrations + Custom API",
+        "Dedicated & onboarding support",
       ],
       highlight: false,
       cta: "Start Free Trial",
       href: "/signup",
+      trial: true,
     },
     {
-      name: "Custom",
+      name: "Enterprise",
       price: "Let's talk",
       period: "",
       description: "Enterprise solutions tailored to your needs",
       features: [
         "Unlimited Chatbots",
         "Custom message limits",
+        "Unlimited website scraping",
         "Dedicated storage",
         "White-label solutions",
         "Priority support & SLA",
@@ -1453,6 +1480,7 @@ function PricingSection() {
       highlight: false,
       cta: "Contact Sales",
       href: "/contact",
+      trial: false,
     },
   ];
 
@@ -1508,6 +1536,13 @@ function PricingSection() {
                 </span>
               )}
               
+              {/* Trial badge */}
+              {plan.trial && (
+                <span className="absolute -top-4 right-4 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+                  14-day trial
+                </span>
+              )}
+              
               {/* Background gradient overlay */}
               <div className={`absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${
                 plan.highlight 
@@ -1534,6 +1569,11 @@ function PricingSection() {
                       <span className="text-gray-400 text-lg mb-1">/{plan.period}</span>
                     )}
                   </div>
+                  {plan.trial && (
+                    <p className="text-green-400 text-sm mt-2 font-medium">
+                      Then {plan.price}/{plan.period} - Cancel anytime
+                    </p>
+                  )}
                 </div>
                 
                 {/* Features */}

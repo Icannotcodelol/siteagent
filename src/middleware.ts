@@ -9,8 +9,13 @@ export async function middleware(request: NextRequest) {
     // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
     const { error } = await supabase.auth.getSession()
     
-    // If there's an auth error and we're not on a public page, clear the session
-    if (error && !isPublicPath(request.nextUrl.pathname)) {
+    // Don't clear cookies on auth pages (login/signup) as this can interfere with the auth flow
+    const isAuthPage = request.nextUrl.pathname.startsWith('/auth') || 
+                      request.nextUrl.pathname === '/login' || 
+                      request.nextUrl.pathname === '/signup'
+    
+    // If there's an auth error and we're not on a public page or auth page, clear the session
+    if (error && !isPublicPath(request.nextUrl.pathname) && !isAuthPage) {
       // Clear invalid auth cookies
       const response = NextResponse.next({
         request: {

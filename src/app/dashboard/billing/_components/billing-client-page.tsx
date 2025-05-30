@@ -229,7 +229,14 @@ export default function BillingClientPage({
         <CardContent>
           {initialSubscription && initialSubscription.plans ? (
             <div>
-              <p className="text-lg font-semibold text-gray-900">{initialSubscription.plans.name}</p>
+              <div className="flex items-center gap-2 mb-2">
+                <p className="text-lg font-semibold text-gray-900">{initialSubscription.plans.name}</p>
+                {!initialSubscription.plans.is_active && (
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    Legacy Plan
+                  </span>
+                )}
+              </div>
               <p className="text-gray-700">Status: <span className="font-medium capitalize text-gray-800">{initialSubscription.stripe_subscription_status || 'N/A'}</span></p>
               {initialSubscription.stripe_subscription_status === 'active' && initialSubscription.current_period_end && (
                 <p className="text-gray-700">Renews on: {formatDate(initialSubscription.current_period_end)}</p>
@@ -238,6 +245,13 @@ export default function BillingClientPage({
                  <p className="text-orange-600">Set to cancel on: {formatDate(initialSubscription.current_period_end)}</p>
               )}
                <p className="text-gray-700">Messages used this cycle: {initialSubscription.current_messages_used_in_cycle} / {initialSubscription.plans.max_messages_per_month + initialSubscription.plans.message_overage_allowance}</p>
+              {!initialSubscription.plans.is_active && (
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-blue-800 text-sm">
+                    You're on a legacy plan. Consider upgrading to our new plans with enhanced features and 14-day trials.
+                  </p>
+                </div>
+              )}
               {/* Add more details like chatbot count, data usage when that logic is available */}
             </div>
           ) : (
@@ -259,7 +273,9 @@ export default function BillingClientPage({
       <h2 className="text-2xl font-semibold mb-6 text-gray-900">Choose a Plan</h2>
       {errorFetchingPlans && <p className="text-red-500 mb-4">Error loading plans: {errorFetchingPlans}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {plans.map((plan) => {
+        {plans.filter(plan => 
+          plan.is_active || plan.id === initialSubscription?.plan_id
+        ).map((plan) => {
           const isCurrentPlan = initialSubscription?.plan_id === plan.id;
           const canSubscribe = plan.stripe_price_id && !isCurrentPlan && initialSubscription?.stripe_subscription_status !== 'active';
           const canSwitch = plan.stripe_price_id && !isCurrentPlan && initialSubscription?.stripe_subscription_status === 'active';
@@ -272,7 +288,21 @@ export default function BillingClientPage({
           return (
             <Card key={plan.id} className={`flex flex-col justify-between ${isCurrentPlan && initialSubscription?.stripe_subscription_status === 'active' ? 'border-2 border-blue-500' : ''}`}>
               <CardHeader>
-                <CardTitle>{plan.name}</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    {plan.name}
+                    {!plan.is_active && (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                        Legacy
+                      </span>
+                    )}
+                  </CardTitle>
+                  {plan.stripe_price_id && plan.is_active && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      14-day trial
+                    </span>
+                  )}
+                </div>
                 <CardDescription>
                   {formatCurrency(plan.price_monthly_eur)} / month
                 </CardDescription>
@@ -280,12 +310,42 @@ export default function BillingClientPage({
               <CardContent className="flex-grow">
                 <ul className="list-disc list-inside space-y-1 text-sm">
                   <li>{plan.max_chatbots} Chatbot{plan.max_chatbots !== 1 ? 's' : ''}</li>
-                  <li>{plan.max_messages_per_month} Messages/month</li>
+                  <li>{plan.max_messages_per_month.toLocaleString()} Messages/month</li>
                   <li>{plan.max_data_mb}MB Data Storage</li>
-                  {plan.message_overage_allowance > 0 && (
-                    <li>Up to {plan.message_overage_allowance} overage messages</li>
+                  {plan.max_websites_scraped > 0 && (
+                    <li>Scrape {plan.max_websites_scraped} website{plan.max_websites_scraped !== 1 ? 's' : ''}</li>
                   )}
-                  {/* Add more features as needed */}
+                  {plan.max_websites_scraped === 0 && plan.name !== 'Free' && (
+                    <li>No website scraping</li>
+                  )}
+                  {plan.name === 'Free' && (
+                    <li>Manual data upload only</li>
+                  )}
+                  {plan.message_overage_allowance > 0 && (
+                    <li>Up to {plan.message_overage_allowance.toLocaleString()} overage messages</li>
+                  )}
+                  {plan.name === 'SiteAgent Starter' && (
+                    <>
+                      <li>Essential integrations</li>
+                      <li>Email support</li>
+                    </>
+                  )}
+                  {plan.name === 'SiteAgent Growth' && (
+                    <>
+                      <li>All integrations</li>
+                      <li>Priority support</li>
+                      <li className="text-blue-600 font-medium">🌟 Most Popular</li>
+                    </>
+                  )}
+                  {plan.name === 'SiteAgent Pro' && (
+                    <>
+                      <li>All integrations + Custom API</li>
+                      <li>Dedicated & onboarding support</li>
+                    </>
+                  )}
+                  {plan.stripe_price_id && (
+                    <li className="text-green-600 font-medium">✨ 14-day free trial</li>
+                  )}
                 </ul>
               </CardContent>
               <CardFooter>

@@ -1,20 +1,7 @@
 import SignupForm from './signup-form'
-import { createClient } from '@/lib/supabase/server';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
 
-export default async function SignupPage() {
-  // Check if user is already logged in
-  const supabase = createClient();
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) {
-    console.error('Error checking user session on signup page:', error);
-  }
-  if (user) {
-    // User is logged in, redirect to dashboard
-    redirect('/dashboard');
-  }
-
+export default function SignupPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Branding/Hero */}

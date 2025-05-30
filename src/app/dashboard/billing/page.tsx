@@ -27,11 +27,11 @@ export default async function BillingPage() {
   }
 
   try {
-    // We could also fetch plans via the API route /api/plans, 
-    // but direct DB access is fine in a Server Component.
+    // Fetch active plans and user's current plan (if it's a legacy plan)
     const { data: fetchedPlans, error: plansError } = await supabase
       .from('plans')
       .select('*')
+      .or(`is_active.eq.true${userSubscription?.plan_id ? `,id.eq.${userSubscription.plan_id}` : ''}`)
       .order('price_monthly_eur', { ascending: true });
 
     if (plansError) {
