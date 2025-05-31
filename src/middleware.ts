@@ -3,6 +3,19 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
   try {
+    // ============= GEOLOCATION REDIRECTION =============
+    // Check if user should be redirected to Italian page
+    const shouldRedirectToItalian = checkForItalianRedirect(request)
+    if (shouldRedirectToItalian) {
+      return shouldRedirectToItalian
+    }
+
+    // Check if user should be redirected to German page
+    const shouldRedirectToGerman = checkForGermanRedirect(request)
+    if (shouldRedirectToGerman) {
+      return shouldRedirectToGerman
+    }
+
     const { supabase, response } = createClient(request)
 
     // Refresh session if expired - required for Server Components
@@ -44,10 +57,146 @@ export async function middleware(request: NextRequest) {
   }
 }
 
+// ============= GEOLOCATION FUNCTIONS =============
+function checkForItalianRedirect(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl
+  
+  // Don't redirect if already on Italian page or non-landing pages
+  if (pathname.startsWith('/it') || !isLandingPage(pathname)) {
+    return null
+  }
+  
+  // Check if user has manually chosen a language (via cookie)
+  const languagePreference = request.cookies.get('language-preference')?.value
+  if (languagePreference && languagePreference !== 'auto') {
+    return null // Respect user's manual choice
+  }
+  
+  const isItalianUser = detectItalianUser(request)
+  
+  if (isItalianUser && pathname === '/') {
+    // Redirect to Italian version
+    const url = request.nextUrl.clone()
+    url.pathname = '/it'
+    
+    const response = NextResponse.redirect(url)
+    
+    // Set a cookie to remember this is an auto-redirect
+    response.cookies.set('auto-redirected', 'it', {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+    
+    return response
+  }
+  
+  return null
+}
+
+function checkForGermanRedirect(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl
+  
+  // Don't redirect if already on German page or non-landing pages
+  if (pathname.startsWith('/de') || !isLandingPage(pathname)) {
+    return null
+  }
+  
+  // Check if user has manually chosen a language (via cookie)
+  const languagePreference = request.cookies.get('language-preference')?.value
+  if (languagePreference && languagePreference !== 'auto') {
+    return null // Respect user's manual choice
+  }
+  
+  const isGermanUser = detectGermanUser(request)
+  
+  if (isGermanUser && pathname === '/') {
+    // Redirect to German version
+    const url = request.nextUrl.clone()
+    url.pathname = '/de'
+    
+    const response = NextResponse.redirect(url)
+    
+    // Set a cookie to remember this is an auto-redirect
+    response.cookies.set('auto-redirected', 'de', {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+    
+    return response
+  }
+  
+  return null
+}
+
+function detectItalianUser(request: NextRequest): boolean {
+  // Method 1: Check Vercel's geolocation headers (available on Vercel Edge)
+  const country = request.headers.get('x-vercel-ip-country')
+  if (country === 'IT') {
+    return true
+  }
+  
+  // Method 2: Check Cloudflare geolocation headers (if using Cloudflare)
+  const cfCountry = request.headers.get('cf-ipcountry')
+  if (cfCountry === 'IT') {
+    return true
+  }
+  
+  // Method 3: Browser language detection as fallback
+  const acceptLanguage = request.headers.get('accept-language')
+  if (acceptLanguage) {
+    // Check if Italian is the primary language
+    const languages = acceptLanguage.split(',').map(lang => lang.trim().split(';')[0])
+    const primaryLanguage = languages[0]
+    if (primaryLanguage.startsWith('it')) {
+      return true
+    }
+  }
+  
+  return false
+}
+
+function detectGermanUser(request: NextRequest): boolean {
+  // Method 1: Check Vercel's geolocation headers (available on Vercel Edge)
+  const country = request.headers.get('x-vercel-ip-country')
+  if (country === 'DE' || country === 'AT' || country === 'CH') {
+    return true
+  }
+  
+  // Method 2: Check Cloudflare geolocation headers (if using Cloudflare)
+  const cfCountry = request.headers.get('cf-ipcountry')
+  if (cfCountry === 'DE' || cfCountry === 'AT' || cfCountry === 'CH') {
+    return true
+  }
+  
+  // Method 3: Browser language detection as fallback
+  const acceptLanguage = request.headers.get('accept-language')
+  if (acceptLanguage) {
+    // Check if German is the primary language
+    const languages = acceptLanguage.split(',').map(lang => lang.trim().split(';')[0])
+    const primaryLanguage = languages[0]
+    if (primaryLanguage.startsWith('de')) {
+      return true
+    }
+  }
+  
+  return false
+}
+
+function isLandingPage(pathname: string): boolean {
+  // Only redirect on the main landing page
+  return pathname === '/'
+}
+
 // Helper function to check if a path is public
 function isPublicPath(pathname: string): boolean {
   const publicPaths = [
     '/',
+    '/it', // Add Italian page to public paths
+    '/de', // Add German page to public paths
     '/login',
     '/signup',
     '/auth',

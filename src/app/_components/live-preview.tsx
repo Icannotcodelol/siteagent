@@ -41,7 +41,185 @@ interface PreviewSession {
 
 type ContentType = 'document' | 'website' | 'text';
 
-export default function LivePreview() {
+// Translation objects
+const translations = {
+  en: {
+    chooseContentSource: "Choose Your Content Source",
+    contentSourceDescription: "Start by uploading a document, entering a website URL, or pasting text content. Watch as we create an intelligent chatbot in seconds.",
+    uploadDocument: "Upload Document",
+    scrapeWebsite: "Scrape Website", 
+    pasteText: "Paste Text",
+    uploadYourDocument: "Upload Your Document",
+    dragDropDescription: "Drag and drop a PDF, TXT, or CSV file, or click to browse. We'll extract the content and create your chatbot instantly.",
+    processing: "Processing...",
+    chooseFile: "Choose File",
+    scrapeWebsiteContent: "Scrape Website Content",
+    websiteUrlDescription: "Enter any website URL and we'll extract the content to train your chatbot",
+    websiteUrl: "Website URL",
+    scrape: "Scrape",
+    pasteTextContent: "Paste Text Content",
+    pasteTextDescription: "Paste any text content and we'll create a chatbot that can answer questions about it",
+    textContent: "Text Content",
+    textPlaceholder: "Paste your text content here... This could be product descriptions, FAQs, documentation, or any other text you want your chatbot to understand.",
+    createChatbot: "Create Chatbot",
+    anyTextFormat: "Any text format",
+    instantTraining: "Instant training",
+    secureExtraction: "Secure extraction",
+    realTimeProcessing: "Real-time processing",
+    instantSetup: "Instant setup",
+    maxSize: "Max 5MB",
+    somethingWentWrong: "Something went wrong",
+    demoChatbotReady: "Demo Chatbot Ready!",
+    howChatbotAppears: "This is how your chatbot appears to visitors",
+    widgetDescription: "The widget below shows exactly what your customers will see and interact with on your website. Try asking questions about the content you just provided.",
+    yourBusinessWebsite: "Your Business Website",
+    poweredBySiteAgent: "Powered by SiteAgent AI",
+    aiAssistantOnline: "AI Assistant Online",
+    aboutOurService: "About Our Service",
+    serviceDescription: "Welcome to our support center. Our AI assistant can help you find answers instantly using the content you just uploaded. It's trained on your specific information and ready to assist your visitors 24/7.",
+    quickLinks: "Quick Links",
+    startFreeTrial: "Start Free Trial",
+    seeFeatures: "See Features", 
+    viewPricing: "View Pricing",
+    aiAssistant: "AI Assistant",
+    online: "Online",
+    trainingAssistant: "Training your AI assistant...",
+    trainingDescription: "This usually takes just a few seconds",
+    trainingProblem: "We ran into a problem while training your assistant.",
+    tryAgainLater: "Please try again with different content or come back later.",
+    aiTyping: "AI is typing...",
+    tryTheseQuestions: "Try these questions:",
+    askAnything: "Ask me anything...",
+    messagesRemaining: "messages remaining",
+    securePrivate: "Secure & Private",
+    demoCompleted: "Demo completed!",
+    readyToCreate: "Ready to create unlimited chatbots and embed them on your website?",
+    tryAnotherDemo: "Try Another Demo",
+    tryDifferentContent: "Want to try with different content?",
+    welcomeMessage: "Hello! I'm ready to help you with questions about your uploaded content. What would you like to know?"
+  },
+  it: {
+    chooseContentSource: "Scegli la Tua Fonte di Contenuti",
+    contentSourceDescription: "Inizia caricando un documento, inserendo l'URL di un sito web o incollando contenuto testuale. Guarda come creiamo un chatbot intelligente in pochi secondi.",
+    uploadDocument: "Carica Documento",
+    scrapeWebsite: "Estrai da Sito Web",
+    pasteText: "Incolla Testo",
+    uploadYourDocument: "Carica il Tuo Documento",
+    dragDropDescription: "Trascina e rilascia un file PDF, TXT o CSV, oppure clicca per sfogliare. Estrarremo il contenuto e creeremo il tuo chatbot istantaneamente.",
+    processing: "Elaborazione...",
+    chooseFile: "Scegli File",
+    scrapeWebsiteContent: "Estrai Contenuto dal Sito Web",
+    websiteUrlDescription: "Inserisci qualsiasi URL di un sito web e estrarremo il contenuto per addestrare il tuo chatbot",
+    websiteUrl: "URL del Sito Web",
+    scrape: "Estrai",
+    pasteTextContent: "Incolla Contenuto Testuale",
+    pasteTextDescription: "Incolla qualsiasi contenuto testuale e creeremo un chatbot che può rispondere a domande su di esso",
+    textContent: "Contenuto Testuale",
+    textPlaceholder: "Incolla qui il tuo contenuto testuale... Potrebbero essere descrizioni prodotti, FAQ, documentazione o qualsiasi altro testo di cui vuoi che il tuo chatbot abbia conoscenza.",
+    createChatbot: "Crea Chatbot",
+    anyTextFormat: "Qualsiasi formato testo",
+    instantTraining: "Addestramento istantaneo",
+    secureExtraction: "Estrazione sicura",
+    realTimeProcessing: "Elaborazione in tempo reale",
+    instantSetup: "Setup istantaneo",
+    maxSize: "Max 5MB",
+    somethingWentWrong: "Qualcosa è andato storto",
+    demoChatbotReady: "Demo Chatbot Pronto!",
+    howChatbotAppears: "Ecco come appare il tuo chatbot ai visitatori",
+    widgetDescription: "Il widget qui sotto mostra esattamente cosa vedranno e con cui interagiranno i tuoi clienti sul tuo sito web. Prova a fare domande sul contenuto che hai appena fornito.",
+    yourBusinessWebsite: "Il Sito Web della Tua Azienda",
+    poweredBySiteAgent: "Powered by SiteAgent AI",
+    aiAssistantOnline: "Assistente AI Online",
+    aboutOurService: "Chi Siamo",
+    serviceDescription: "Benvenuto nel nostro centro assistenza. Il nostro assistente AI può aiutarti a trovare risposte istantaneamente utilizzando il contenuto che hai appena caricato. È addestrato sulle tue informazioni specifiche e pronto ad assistere i tuoi visitatori 24/7.",
+    quickLinks: "Link Rapidi",
+    startFreeTrial: "Inizia Prova Gratuita",
+    seeFeatures: "Vedi Funzionalità",
+    viewPricing: "Vedi Prezzi",
+    aiAssistant: "Assistente AI",
+    online: "Online",
+    trainingAssistant: "Addestrando il tuo assistente AI...",
+    trainingDescription: "Di solito richiede solo pochi secondi",
+    trainingProblem: "Abbiamo riscontrato un problema durante l'addestramento del tuo assistente.",
+    tryAgainLater: "Prova di nuovo con contenuto diverso o torna più tardi.",
+    aiTyping: "AI sta scrivendo...",
+    tryTheseQuestions: "Prova queste domande:",
+    askAnything: "Chiedimi qualsiasi cosa...",
+    messagesRemaining: "messaggi rimanenti",
+    securePrivate: "Sicuro e Privato",
+    demoCompleted: "Demo completata!",
+    readyToCreate: "Pronto a creare chatbot illimitati e incorporarli nel tuo sito web?",
+    tryAnotherDemo: "Prova Un'Altra Demo",
+    tryDifferentContent: "Vuoi provare con contenuto diverso?",
+    welcomeMessage: "Ciao! Sono pronto ad aiutarti con domande sul contenuto che hai caricato. Cosa vorresti sapere?"
+  },
+  de: {
+    chooseContentSource: "Wählen Sie Ihre Inhaltsquelle",
+    contentSourceDescription: "Beginnen Sie mit dem Hochladen eines Dokuments, der Eingabe einer Website-URL oder dem Einfügen von Textinhalten. Schauen Sie zu, wie wir in Sekunden einen intelligenten Chatbot erstellen.",
+    uploadDocument: "Dokument hochladen",
+    scrapeWebsite: "Website extrahieren",
+    pasteText: "Text einfügen",
+    uploadYourDocument: "Laden Sie Ihr Dokument hoch",
+    dragDropDescription: "Ziehen Sie eine PDF-, TXT- oder CSV-Datei per Drag & Drop hierher oder klicken Sie zum Durchsuchen. Wir extrahieren den Inhalt und erstellen sofort Ihren Chatbot.",
+    processing: "Verarbeitung...",
+    chooseFile: "Datei wählen",
+    scrapeWebsiteContent: "Website-Inhalte extrahieren",
+    websiteUrlDescription: "Geben Sie eine beliebige Website-URL ein und wir extrahieren den Inhalt, um Ihren Chatbot zu trainieren",
+    websiteUrl: "Website-URL",
+    scrape: "Extrahieren",
+    pasteTextContent: "Textinhalt einfügen",
+    pasteTextDescription: "Fügen Sie beliebige Textinhalte ein und wir erstellen einen Chatbot, der Fragen dazu beantworten kann",
+    textContent: "Textinhalt",
+    textPlaceholder: "Fügen Sie hier Ihren Textinhalt ein... Das könnten Produktbeschreibungen, FAQs, Dokumentationen oder jeder andere Text sein, den Ihr Chatbot verstehen soll.",
+    createChatbot: "Chatbot erstellen",
+    anyTextFormat: "Jedes Textformat",
+    instantTraining: "Sofortiges Training",
+    secureExtraction: "Sichere Extraktion",
+    realTimeProcessing: "Echtzeitverarbeitung",
+    instantSetup: "Sofortiges Setup",
+    maxSize: "Max 5MB",
+    somethingWentWrong: "Etwas ist schiefgelaufen",
+    demoChatbotReady: "Demo-Chatbot bereit!",
+    howChatbotAppears: "So erscheint Ihr Chatbot für Besucher",
+    widgetDescription: "Das Widget unten zeigt genau, was Ihre Kunden auf Ihrer Website sehen und womit sie interagieren werden. Versuchen Sie, Fragen zum soeben bereitgestellten Inhalt zu stellen.",
+    yourBusinessWebsite: "Ihre Unternehmens-Website",
+    poweredBySiteAgent: "Powered by SiteAgent AI",
+    aiAssistantOnline: "KI-Assistent online",
+    aboutOurService: "Über unseren Service",
+    serviceDescription: "Willkommen in unserem Support-Center. Unser KI-Assistent kann Ihnen sofort Antworten geben, basierend auf dem Inhalt, den Sie gerade hochgeladen haben. Er ist auf Ihre spezifischen Informationen trainiert und bereit, Ihre Besucher 24/7 zu unterstützen.",
+    quickLinks: "Schnellzugriffe",
+    startFreeTrial: "Kostenlose Testversion starten",
+    seeFeatures: "Funktionen ansehen",
+    viewPricing: "Preise ansehen",
+    aiAssistant: "KI-Assistent",
+    online: "Online",
+    trainingAssistant: "Trainiere Ihren KI-Assistenten...",
+    trainingDescription: "Das dauert normalerweise nur wenige Sekunden",
+    trainingProblem: "Wir sind auf ein Problem beim Training Ihres Assistenten gestoßen.",
+    tryAgainLater: "Bitte versuchen Sie es mit anderem Inhalt erneut oder kommen Sie später zurück.",
+    aiTyping: "KI tippt...",
+    tryTheseQuestions: "Versuchen Sie diese Fragen:",
+    askAnything: "Fragen Sie mich alles...",
+    messagesRemaining: "verbleibende Nachrichten",
+    securePrivate: "Sicher & Privat",
+    demoCompleted: "Demo abgeschlossen!",
+    readyToCreate: "Bereit, unbegrenzte Chatbots zu erstellen und sie in Ihre Website einzubetten?",
+    tryAnotherDemo: "Andere Demo ausprobieren",
+    tryDifferentContent: "Möchten Sie es mit anderem Inhalt versuchen?",
+    welcomeMessage: "Hallo! Ich bin bereit, Ihnen bei Fragen zu Ihrem hochgeladenen Inhalt zu helfen. Was möchten Sie wissen?"
+  }
+};
+
+type Locale = 'en' | 'it' | 'de';
+
+interface LivePreviewProps {
+  locale?: Locale;
+}
+
+export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
+  const t = translations[locale];
+  const isBright = locale === 'it' || locale === 'de'; // Both Italian and German use bright theme
+  
   const [activeTab, setActiveTab] = useState<ContentType>('document');
   const [session, setSession] = useState<PreviewSession | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -111,7 +289,7 @@ export default function LivePreview() {
             setTimeout(() => {
               const welcomeMessage: Message = {
                 id: Date.now().toString(),
-                content: "Hello! I'm ready to help you with questions about your uploaded content. What would you like to know?",
+                content: t.welcomeMessage,
                 isUser: false,
                 timestamp: new Date()
               };
@@ -138,7 +316,7 @@ export default function LivePreview() {
       console.log('Cleaning up polling interval');
       clearInterval(interval);
     };
-  }, [session?.sessionToken, session?.status]); // Add sessionToken to dependencies
+  }, [session?.sessionToken, session?.status, t.welcomeMessage]); // Add t.welcomeMessage to dependencies
 
   useEffect(() => {
     if (session?.status === 'processing') {
@@ -384,30 +562,41 @@ export default function LivePreview() {
       <div className="w-full max-w-4xl mx-auto transition-all duration-500 ease-in-out">
         {/* Header */}
         <div className="text-center mb-10">
-          <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            Choose Your Content Source
+          <h3 className={`text-2xl md:text-3xl font-bold mb-4 ${
+            isBright ? 'text-gray-800' : 'text-white'
+          }`}>
+            {t.chooseContentSource}
           </h3>
-          <p className="text-gray-400 text-base md:text-lg max-w-xl mx-auto leading-relaxed">
-            Start by uploading a document, entering a website URL, or pasting text content. 
-            Watch as we create an intelligent chatbot in seconds.
+          <p className={`text-base md:text-lg max-w-xl mx-auto leading-relaxed ${
+            isBright ? 'text-gray-600' : 'text-gray-400'
+          }`}>
+            {t.contentSourceDescription}
           </p>
         </div>
 
         {/* Content Type Tabs */}
         <div className="flex justify-center mb-8">
-          <div className="bg-gray-800/60 backdrop-blur-sm p-1.5 rounded-xl border border-gray-700/50 shadow-xl">
+          <div className={`p-1.5 rounded-xl border shadow-xl ${
+            isBright 
+              ? 'bg-white/90 backdrop-blur-sm border-gray-200' 
+              : 'bg-gray-800/60 backdrop-blur-sm border-gray-700/50'
+          }`}>
             {[
-              { type: 'document' as ContentType, icon: FileText, label: 'Upload Document' },
-              { type: 'website' as ContentType, icon: Globe, label: 'Scrape Website' },
-              { type: 'text' as ContentType, icon: MessageCircle, label: 'Paste Text' }
+              { type: 'document' as ContentType, icon: FileText, label: t.uploadDocument },
+              { type: 'website' as ContentType, icon: Globe, label: t.scrapeWebsite },
+              { type: 'text' as ContentType, icon: MessageCircle, label: t.pasteText }
             ].map(({ type, icon: Icon, label }) => (
               <button
                 key={type}
                 onClick={() => setActiveTab(type)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeTab === type
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 scale-105'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                    ? isBright
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25 scale-105'
+                      : 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 scale-105'
+                    : isBright
+                      ? 'text-gray-600 hover:text-gray-800 hover:bg-blue-50'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -418,46 +607,63 @@ export default function LivePreview() {
         </div>
 
         {/* Content Input Area */}
-        <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 shadow-2xl">
+        <div className={`backdrop-blur-sm border rounded-2xl p-8 shadow-2xl ${
+          isBright 
+            ? 'bg-white/95 border-gray-200' 
+            : 'bg-gray-800/40 border-gray-700/50'
+        }`}>
           {activeTab === 'document' && (
             <div
               className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 ${
                 isDragOver
-                  ? 'border-blue-400 bg-blue-500/10 scale-[1.02]'
-                  : 'border-gray-600/60 hover:border-gray-500/80 hover:bg-gray-700/20'
+                  ? isBright
+                    ? 'border-blue-400 bg-blue-50/80 scale-[1.02]'
+                    : 'border-blue-400 bg-blue-500/10 scale-[1.02]'
+                  : isBright
+                    ? 'border-gray-300 hover:border-blue-300 hover:bg-blue-50/40'
+                    : 'border-gray-600/60 hover:border-gray-500/80 hover:bg-gray-700/20'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
               <div className={`transition-all duration-300 ${isDragOver ? 'scale-110' : ''}`}>
-                <Upload className="h-16 w-16 text-gray-400 mx-auto mb-6" />
-                <h3 className="text-xl font-semibold text-white mb-3">
-                  Upload Your Document
+                <Upload className={`h-16 w-16 mx-auto mb-6 ${
+                  isBright ? 'text-blue-500' : 'text-gray-400'
+                }`} />
+                <h3 className={`text-xl font-semibold mb-3 ${
+                  isBright ? 'text-gray-800' : 'text-white'
+                }`}>
+                  {t.uploadYourDocument}
                 </h3>
-                <p className="text-gray-400 mb-6 max-w-md mx-auto">
-                  Drag and drop a PDF, TXT, or CSV file, or click to browse. 
-                  We'll extract the content and create your chatbot instantly.
+                <p className={`mb-6 max-w-md mx-auto ${
+                  isBright ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  {t.dragDropDescription}
                 </p>
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-blue-600/20 transition-all duration-300"
+                  className={`shadow-lg transition-all duration-300 ${
+                    isBright
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:shadow-blue-500/20'
+                      : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-600/20'
+                  }`}
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Processing...
+                      {t.processing}
                     </>
                   ) : (
                     <>
                       <Upload className="h-5 w-5 mr-2" />
-                      Choose File
+                      {t.chooseFile}
                     </>
                   )}
                 </Button>
-                                  <input
+                <input
                   ref={fileInputRef}
                   type="file"
                   accept=".pdf,.txt,.csv"
@@ -467,18 +673,20 @@ export default function LivePreview() {
                   }}
                   className="hidden"
                 />
-                <div className="mt-6 flex items-center justify-center gap-6 text-xs text-gray-500">
+                <div className={`mt-6 flex items-center justify-center gap-6 text-xs ${
+                  isBright ? 'text-gray-500' : 'text-gray-500'
+                }`}>
                   <div className="flex items-center gap-1">
                     <FileText className="h-3 w-3" />
                     PDF, TXT & CSV
                   </div>
                   <div className="flex items-center gap-1">
                     <Shield className="h-3 w-3" />
-                    Max 5MB
+                    {t.maxSize}
                   </div>
                   <div className="flex items-center gap-1">
                     <Zap className="h-3 w-3" />
-                    Instant setup
+                    {t.instantSetup}
                   </div>
                 </div>
               </div>
@@ -488,17 +696,25 @@ export default function LivePreview() {
           {activeTab === 'website' && (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <Globe className="h-16 w-16 text-blue-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  Scrape Website Content
+                <Globe className={`h-16 w-16 mx-auto mb-4 ${
+                  isBright ? 'text-purple-500' : 'text-blue-400'
+                }`} />
+                <h3 className={`text-xl font-semibold mb-2 ${
+                  isBright ? 'text-gray-800' : 'text-white'
+                }`}>
+                  {t.scrapeWebsiteContent}
                 </h3>
-                <p className="text-gray-400 max-w-md mx-auto">
-                  Enter any website URL and we'll extract the content to train your chatbot
+                <p className={`max-w-md mx-auto ${
+                  isBright ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  {t.websiteUrlDescription}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-3">
-                  Website URL
+                <label className={`block text-sm font-medium mb-3 ${
+                  isBright ? 'text-gray-700' : 'text-white'
+                }`}>
+                  {t.websiteUrl}
                 </label>
                 <div className="flex gap-3">
                   <input
@@ -506,33 +722,43 @@ export default function LivePreview() {
                     value={websiteUrl}
                     onChange={(e) => setWebsiteUrl(e.target.value)}
                     placeholder="https://example.com"
-                    className="flex-1 px-4 py-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                    className={`flex-1 px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                      isBright
+                        ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                        : 'bg-gray-700/50 border-gray-600/50 text-white placeholder-gray-400'
+                    }`}
                   />
                   <Button
                     onClick={handleWebsiteSubmit}
                     disabled={!websiteUrl.trim() || isLoading}
                     size="lg"
-                    className="bg-blue-600 hover:bg-blue-700 px-8 shadow-lg hover:shadow-blue-600/20"
+                    className={`px-8 shadow-lg ${
+                      isBright
+                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 hover:shadow-purple-500/20'
+                        : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-600/20'
+                    }`}
                   >
                     {isLoading ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
                     ) : (
                       <>
                         <Globe className="h-5 w-5 mr-2" />
-                        Scrape
+                        {t.scrape}
                       </>
                     )}
                   </Button>
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
+              <div className={`flex items-center justify-center gap-6 text-xs ${
+                isBright ? 'text-gray-500' : 'text-gray-500'
+              }`}>
                 <div className="flex items-center gap-1">
                   <Shield className="h-3 w-3" />
-                  Secure extraction
+                  {t.secureExtraction}
                 </div>
                 <div className="flex items-center gap-1">
                   <Zap className="h-3 w-3" />
-                  Real-time processing
+                  {t.realTimeProcessing}
                 </div>
               </div>
             </div>
@@ -541,52 +767,70 @@ export default function LivePreview() {
           {activeTab === 'text' && (
             <div className="space-y-6">
               <div className="text-center mb-6">
-                <MessageCircle className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  Paste Text Content
+                <MessageCircle className={`h-16 w-16 mx-auto mb-4 ${
+                  isBright ? 'text-green-500' : 'text-purple-400'
+                }`} />
+                <h3 className={`text-xl font-semibold mb-2 ${
+                  isBright ? 'text-gray-800' : 'text-white'
+                }`}>
+                  {t.pasteTextContent}
                 </h3>
-                <p className="text-gray-400 max-w-md mx-auto">
-                  Paste any text content and we'll create a chatbot that can answer questions about it
+                <p className={`max-w-md mx-auto ${
+                  isBright ? 'text-gray-600' : 'text-gray-400'
+                }`}>
+                  {t.pasteTextDescription}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-white mb-3">
-                  Text Content
+                <label className={`block text-sm font-medium mb-3 ${
+                  isBright ? 'text-gray-700' : 'text-white'
+                }`}>
+                  {t.textContent}
                 </label>
                 <textarea
                   value={textContent}
                   onChange={(e) => setTextContent(e.target.value)}
-                  placeholder="Paste your text content here... This could be product descriptions, FAQs, documentation, or any other text you want your chatbot to understand."
+                  placeholder={t.textPlaceholder}
                   rows={8}
-                  className="w-full px-4 py-4 bg-gray-700/50 border border-gray-600/50 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
+                  className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200 ${
+                    isBright
+                      ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                      : 'bg-gray-700/50 border-gray-600/50 text-white placeholder-gray-400'
+                  }`}
                 />
               </div>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-6 text-xs text-gray-500">
+                <div className={`flex items-center gap-6 text-xs ${
+                  isBright ? 'text-gray-500' : 'text-gray-500'
+                }`}>
                   <div className="flex items-center gap-1">
                     <FileText className="h-3 w-3" />
-                    Any text format
+                    {t.anyTextFormat}
                   </div>
                   <div className="flex items-center gap-1">
                     <Zap className="h-3 w-3" />
-                    Instant training
+                    {t.instantTraining}
                   </div>
                 </div>
                 <Button
                   onClick={handleTextSubmit}
                   disabled={!textContent.trim() || isLoading}
                   size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-blue-600/20"
+                  className={`shadow-lg ${
+                    isBright
+                      ? 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 hover:shadow-green-500/20'
+                      : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-600/20'
+                  }`}
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Processing...
+                      {t.processing}
                     </>
                   ) : (
                     <>
                       <FileText className="h-5 w-5 mr-2" />
-                      Create Chatbot
+                      {t.createChatbot}
                     </>
                   )}
                 </Button>
@@ -595,12 +839,24 @@ export default function LivePreview() {
           )}
 
           {error && (
-            <div className="mt-6 bg-red-900/30 border border-red-700/50 rounded-xl p-6 backdrop-blur-sm animate-in slide-in-from-top duration-300">
+            <div className={`mt-6 border rounded-xl p-6 backdrop-blur-sm animate-in slide-in-from-top duration-300 ${
+              isBright
+                ? 'bg-red-50 border-red-200'
+                : 'bg-red-900/30 border-red-700/50'
+            }`}>
               <div className="flex items-start gap-3">
-                <XCircle className="h-6 w-6 text-red-400 mt-0.5 flex-shrink-0" />
+                <XCircle className={`h-6 w-6 mt-0.5 flex-shrink-0 ${
+                  isBright ? 'text-red-500' : 'text-red-400'
+                }`} />
                 <div>
-                  <h4 className="text-red-200 font-medium mb-2">Something went wrong</h4>
-                  <p className="text-red-300 text-sm leading-relaxed">{error}</p>
+                  <h4 className={`font-medium mb-2 ${
+                    isBright ? 'text-red-800' : 'text-red-200'
+                  }`}>
+                    {t.somethingWentWrong}
+                  </h4>
+                  <p className={`text-sm leading-relaxed ${
+                    isBright ? 'text-red-700' : 'text-red-300'
+                  }`}>{error}</p>
                 </div>
               </div>
             </div>
@@ -618,62 +874,106 @@ export default function LivePreview() {
       <div className="w-full max-w-6xl mx-auto animate-in fade-in duration-700 slide-in-from-bottom-4">
         {/* Demo Status Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-full px-6 py-3 mb-6 shadow-lg backdrop-blur-sm">
-            <CheckCircle className="h-5 w-5 text-green-400" />
-            <span className="text-green-400 font-medium">Demo Chatbot Ready!</span>
+          <div className={`inline-flex items-center gap-2 rounded-full px-6 py-3 mb-6 shadow-lg backdrop-blur-sm ${
+            isBright 
+              ? 'bg-green-100 border border-green-300' 
+              : 'bg-green-500/10 border border-green-500/20'
+          }`}>
+            <CheckCircle className={`h-5 w-5 ${isBright ? 'text-green-600' : 'text-green-400'}`} />
+            <span className={`font-medium ${isBright ? 'text-green-700' : 'text-green-400'}`}>
+              {t.demoChatbotReady}
+            </span>
           </div>
-          <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">
-            This is how your chatbot appears to visitors
+          <h3 className={`text-2xl md:text-3xl font-bold mb-3 ${
+            isBright ? 'text-gray-800' : 'text-white'
+          }`}>
+            {t.howChatbotAppears}
           </h3>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            The widget below shows exactly what your customers will see and interact with on your website.
-            Try asking questions about the content you just provided.
+          <p className={`text-lg max-w-2xl mx-auto ${
+            isBright ? 'text-gray-600' : 'text-gray-400'
+          }`}>
+            {t.widgetDescription}
           </p>
         </div>
 
         {/* Mock Website Context */}
-        <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl border border-gray-700/50 p-8 mb-8 shadow-2xl backdrop-blur-sm">
+        <div className={`rounded-2xl border p-8 mb-8 shadow-2xl backdrop-blur-sm ${
+          isBright 
+            ? 'bg-white border-gray-200' 
+            : 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700/50'
+        }`}>
           {/* Mock website content */}
           <div className="bg-white rounded-xl p-8 relative overflow-hidden shadow-xl">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50"></div>
+            <div className={`absolute inset-0 ${
+              isBright 
+                ? 'bg-gradient-to-br from-blue-50 to-purple-50' 
+                : 'bg-gradient-to-br from-blue-50 to-purple-50'
+            }`}></div>
             <div className="relative">
               <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200">
-                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
+                  isBright 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                    : 'bg-blue-600'
+                }`}>
                   <Bot className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-gray-900 text-lg">Your Business Website</h4>
-                  <p className="text-sm text-gray-600">Powered by SiteAgent AI</p>
+                  <h4 className="font-bold text-gray-900 text-lg">
+                    {t.yourBusinessWebsite}
+                  </h4>
+                  <p className="text-sm text-gray-600">
+                    {t.poweredBySiteAgent}
+                  </p>
                 </div>
                 <div className="ml-auto">
-                  <div className="flex items-center gap-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                  <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+                    isBright 
+                      ? 'bg-green-100 text-green-700 border border-green-200' 
+                      : 'bg-green-100 text-green-800'
+                  }`}>
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    AI Assistant Online
+                    {t.aiAssistantOnline}
                   </div>
                 </div>
               </div>
               <div className="grid md:grid-cols-2 gap-8 text-gray-800">
                 <div>
-                  <h5 className="font-semibold mb-3 text-gray-900">About Our Service</h5>
+                  <h5 className="font-semibold mb-3 text-gray-900">
+                    {t.aboutOurService}
+                  </h5>
                   <p className="text-sm leading-relaxed text-gray-700">
-                    Welcome to our support center. Our AI assistant can help you find answers instantly using the content you just uploaded.
-                    It's trained on your specific information and ready to assist your visitors 24/7.
+                    {t.serviceDescription}
                   </p>
                 </div>
                 <div>
-                  <h5 className="font-semibold mb-3 text-gray-900">Quick Links</h5>
+                  <h5 className="font-semibold mb-3 text-gray-900">
+                    {t.quickLinks}
+                  </h5>
                   <div className="space-y-2 text-sm">
-                    <a href="/signup" className="flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+                    <a href="/signup" className={`flex items-center transition-colors ${
+                      isBright 
+                        ? 'text-purple-600 hover:text-purple-800' 
+                        : 'text-blue-600 hover:text-blue-800'
+                    }`}>
                       <ArrowRight className="h-3 w-3 mr-2" />
-                      Start Free Trial
+                      {t.startFreeTrial}
                     </a>
-                    <a href="/#features" className="flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+                    <a href="/#features" className={`flex items-center transition-colors ${
+                      isBright 
+                        ? 'text-purple-600 hover:text-purple-800' 
+                        : 'text-blue-600 hover:text-blue-800'
+                    }`}>
                       <ArrowRight className="h-3 w-3 mr-2" />
-                      See Features
+                      {t.seeFeatures}
                     </a>
-                    <a href="/#pricing" className="flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+                    <a href="/#pricing" className={`flex items-center transition-colors ${
+                      isBright 
+                        ? 'text-purple-600 hover:text-purple-800' 
+                        : 'text-blue-600 hover:text-blue-800'
+                    }`}>
                       <ArrowRight className="h-3 w-3 mr-2" />
-                      View Pricing
+                      {t.viewPricing}
                     </a>
                   </div>
                 </div>
@@ -695,7 +995,11 @@ export default function LivePreview() {
             // Minimized widget launcher
             <button
               onClick={() => setIsMinimized(false)}
-              className="group bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-blue-500/50"
+              className={`group text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-2 ${
+                isBright 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-blue-400/50' 
+                  : 'bg-blue-600 hover:bg-blue-700 border-blue-500/50'
+              }`}
             >
               <MessageCircle className="h-7 w-7" />
               <div className="absolute -top-2 -right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-white animate-pulse shadow-lg"></div>
@@ -705,17 +1009,25 @@ export default function LivePreview() {
             // Expanded widget
             <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-80 h-96 flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
               {/* Widget Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white">
+              <div className={`p-4 text-white ${
+                isBright 
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
+                  : 'bg-gradient-to-r from-blue-600 to-blue-700'
+              }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
                       <Bot className="h-5 w-5" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-sm">AI Assistant</h4>
-                      <div className="flex items-center gap-1 text-xs text-blue-100">
+                      <h4 className="font-semibold text-sm">
+                        {t.aiAssistant}
+                      </h4>
+                      <div className={`flex items-center gap-1 text-xs ${
+                        isBright ? 'text-blue-100' : 'text-blue-100'
+                      }`}>
                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        Online
+                        {t.online}
                       </div>
                     </div>
                   </div>
@@ -737,26 +1049,38 @@ export default function LivePreview() {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+              <div className={`flex-1 overflow-y-auto p-4 ${
+                isBright ? 'bg-blue-50/30' : 'bg-gray-50'
+              }`}>
                 {session?.status === 'processing' && (
                   <div className="text-center py-12 animate-in fade-in duration-500">
                     <div className="relative">
-                      <Loader2 className="h-10 w-10 animate-spin text-blue-600 mx-auto mb-4" />
+                      <Loader2 className={`h-10 w-10 animate-spin mx-auto mb-4 ${
+                        isBright ? 'text-purple-500' : 'text-blue-600'
+                      }`} />
                       <div className="absolute inset-0 animate-ping">
-                        <Loader2 className="h-10 w-10 text-blue-400 mx-auto opacity-20" />
+                        <Loader2 className={`h-10 w-10 mx-auto opacity-20 ${
+                          isBright ? 'text-purple-400' : 'text-blue-400'
+                        }`} />
                       </div>
                     </div>
-                    <p className="text-gray-600 text-sm font-medium">Training your AI assistant...</p>
-                    <p className="text-gray-500 text-xs mt-1">This usually takes just a few seconds</p>
+                    <p className="text-gray-600 text-sm font-medium">
+                      {t.trainingAssistant}
+                    </p>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {t.trainingDescription}
+                    </p>
                   </div>
                 )}
 
                 {session?.status === 'failed' && (
                   <div className="text-center py-12 animate-in fade-in duration-500">
                     <XCircle className="h-10 w-10 text-red-500 mx-auto mb-4" />
-                    <p className="text-gray-600 text-sm font-medium mb-1">We ran into a problem while training your assistant.</p>
+                    <p className="text-gray-600 text-sm font-medium mb-1">
+                      {t.trainingProblem}
+                    </p>
                     <p className="text-gray-500 text-xs max-w-xs mx-auto whitespace-pre-wrap">
-                      {error || 'Please try again with different content or come back later.'}
+                      {error || t.tryAgainLater}
                     </p>
                   </div>
                 )}
@@ -771,13 +1095,17 @@ export default function LivePreview() {
                       <div
                         className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
                           message.isUser
-                            ? 'bg-blue-600 text-white'
+                            ? isBright
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                              : 'bg-blue-600 text-white'
                             : 'bg-white text-gray-800 border border-gray-200'
                         }`}
                       >
                         <p className="whitespace-pre-wrap text-left leading-relaxed">{message.content}</p>
                         <div className={`text-xs mt-2 ${
-                          message.isUser ? 'text-blue-100' : 'text-gray-500'
+                          message.isUser 
+                            ? isBright ? 'text-blue-100' : 'text-blue-100'
+                            : 'text-gray-500'
                         }`}>
                           {message.timestamp.toLocaleTimeString([], { 
                             hour: '2-digit', 
@@ -793,11 +1121,19 @@ export default function LivePreview() {
                       <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-200">
                         <div className="flex items-center gap-2">
                           <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            <div className={`w-2 h-2 rounded-full animate-bounce ${
+                              isBright ? 'bg-purple-400' : 'bg-gray-400'
+                            }`}></div>
+                            <div className={`w-2 h-2 rounded-full animate-bounce ${
+                              isBright ? 'bg-purple-400' : 'bg-gray-400'
+                            }`} style={{ animationDelay: '0.1s' }}></div>
+                            <div className={`w-2 h-2 rounded-full animate-bounce ${
+                              isBright ? 'bg-purple-400' : 'bg-gray-400'
+                            }`} style={{ animationDelay: '0.2s' }}></div>
                           </div>
-                          <span className="text-xs text-gray-500 ml-1">AI is typing...</span>
+                          <span className="text-xs text-gray-500 ml-1">
+                            {t.aiTyping}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -809,16 +1145,24 @@ export default function LivePreview() {
 
               {/* Suggested Questions */}
               {session?.status === 'completed' && session.suggestedQuestions.length > 0 && messages.length <= 1 && (
-                <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 animate-in slide-in-from-bottom duration-300 delay-200">
-                  <p className="text-xs text-gray-500 mb-3 font-medium">Try these questions:</p>
+                <div className={`px-4 py-3 border-t border-gray-200 animate-in slide-in-from-bottom duration-300 delay-200 ${
+                  isBright ? 'bg-blue-50/50' : 'bg-gray-50'
+                }`}>
+                  <p className="text-xs text-gray-500 mb-3 font-medium">
+                    {t.tryTheseQuestions}
+                  </p>
                   <div className="space-y-2">
                     {session.suggestedQuestions.slice(0, 2).map((question, index) => (
                       <button
                         key={index}
                         onClick={() => handleSuggestedQuestion(question)}
-                        className="w-full text-left p-3 bg-white hover:bg-blue-50 rounded-xl text-xs text-gray-700 border border-gray-200 transition-all duration-200 hover:border-blue-200 hover:shadow-sm"
+                        className={`w-full text-left p-3 bg-white rounded-xl text-xs text-gray-700 border transition-all duration-200 hover:shadow-sm ${
+                          isBright 
+                            ? 'border-blue-200 hover:bg-blue-50 hover:border-blue-300' 
+                            : 'border-gray-200 hover:bg-blue-50 hover:border-blue-200'
+                        }`}
                       >
-                        <span className="text-blue-600 mr-1">💬</span>
+                        <span className={`mr-1 ${isBright ? 'text-purple-600' : 'text-blue-600'}`}>💬</span>
                         {question}
                       </button>
                     ))}
@@ -835,14 +1179,18 @@ export default function LivePreview() {
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputMessage)}
-                      placeholder="Ask me anything..."
+                      placeholder={t.askAnything}
                       className="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                       disabled={isSending}
                     />
                     <button
                       onClick={() => sendMessage(inputMessage)}
                       disabled={!inputMessage.trim() || isSending}
-                      className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white p-3 rounded-xl transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed"
+                      className={`disabled:opacity-50 text-white p-3 rounded-xl transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed ${
+                        isBright 
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' 
+                          : 'bg-blue-600 hover:bg-blue-700'
+                      }`}
                     >
                       <Send className="h-4 w-4" />
                     </button>
@@ -850,11 +1198,11 @@ export default function LivePreview() {
                   <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {session.remainingMessages} messages remaining
+                      {session.remainingMessages} {t.messagesRemaining}
                     </span>
                     <span className="flex items-center gap-1">
                       <Shield className="h-3 w-3" />
-                      Secure & Private
+                      {t.securePrivate}
                     </span>
                   </div>
                 </div>
@@ -862,18 +1210,26 @@ export default function LivePreview() {
 
               {/* Upgrade Prompt */}
               {session?.remainingMessages === 0 && (
-                <div className="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-center animate-in slide-in-from-bottom duration-300">
+                <div className={`p-6 text-white text-center animate-in slide-in-from-bottom duration-300 ${
+                  isBright 
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
+                    : 'bg-gradient-to-r from-blue-600 to-purple-600'
+                }`}>
                   <Sparkles className="h-6 w-6 mx-auto mb-3 animate-pulse" />
-                  <p className="font-semibold text-base mb-2">Demo completed!</p>
-                  <p className="text-xs text-blue-100 mb-4 leading-relaxed">
-                    Ready to create unlimited chatbots and embed them on your website?
+                  <p className="font-semibold text-base mb-2">
+                    {t.demoCompleted}
+                  </p>
+                  <p className={`text-xs mb-4 leading-relaxed ${
+                    isBright ? 'text-blue-100' : 'text-blue-100'
+                  }`}>
+                    {t.readyToCreate}
                   </p>
                   <Button
                     onClick={() => window.location.href = '/signup'}
                     size="sm"
                     className="bg-white text-blue-600 hover:bg-gray-100 text-sm font-medium shadow-lg hover:shadow-xl transition-all duration-200"
                   >
-                    Start Free Trial
+                    {t.startFreeTrial}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
@@ -884,15 +1240,27 @@ export default function LivePreview() {
 
         {/* Demo Controls */}
         <div className="text-center mt-12 animate-in fade-in duration-500 delay-500">
-          <div className="inline-flex items-center gap-4 bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
-            <p className="text-gray-400 text-sm">Want to try with different content?</p>
+          <div className={`inline-flex items-center gap-4 backdrop-blur-sm border rounded-xl p-4 ${
+            isBright 
+              ? 'bg-white/80 border-gray-200' 
+              : 'bg-gray-800/50 border-gray-700/50'
+          }`}>
+            <p className={`text-sm ${
+              isBright ? 'text-gray-600' : 'text-gray-400'
+            }`}>
+              {t.tryDifferentContent}
+            </p>
             <Button
               onClick={resetPreview}
               variant="outline"
               size="sm"
-              className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white transition-all duration-200"
+              className={`transition-all duration-200 ${
+                isBright 
+                  ? 'border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300' 
+                  : 'border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white'
+              }`}
             >
-              Try Another Demo
+              {t.tryAnotherDemo}
             </Button>
           </div>
         </div>

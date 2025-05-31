@@ -307,7 +307,7 @@ export default function Page() {
     <>
       {/* Modern redesigned landing page */}
       <div className="relative overflow-hidden bg-gray-900 text-gray-100">
-        <ModernNavbar authButtonSlot={<AuthButton />} />
+        <ModernNavbar authButtonSlot={<AuthButton />} locale="en" />
         <RevolutionaryHero />
       </div>
       
