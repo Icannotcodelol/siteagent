@@ -1519,11 +1519,11 @@ function PricingSection() {
         </div>
         
         {/* Enhanced pricing grid */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 pt-16">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`group relative flex flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 p-8 shadow-2xl backdrop-blur-sm border transition-all duration-500 hover:scale-105 hover:shadow-3xl ${
+              className={`group relative flex flex-col rounded-3xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 p-6 shadow-2xl backdrop-blur-sm border transition-all duration-500 hover:scale-105 hover:shadow-3xl ${
                 plan.highlight 
                   ? "border-blue-500/50 ring-2 ring-blue-500/20 hover:ring-blue-400/30" 
                   : "border-gray-700/50 hover:border-gray-600/50"
@@ -1531,14 +1531,14 @@ function PricingSection() {
             >
               {/* Popular badge */}
               {plan.highlight && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-lg uppercase tracking-wider">
+                <span className="absolute -top-3 left-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg uppercase tracking-wider whitespace-nowrap">
                   Most Popular
                 </span>
               )}
               
               {/* Trial badge */}
               {plan.trial && (
-                <span className="absolute -top-4 right-4 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-3 py-1 text-xs font-semibold text-white shadow-lg">
+                <span className="absolute -top-3 right-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 text-xs font-semibold text-white shadow-lg whitespace-nowrap">
                   14-day trial
                 </span>
               )}
@@ -1553,41 +1553,41 @@ function PricingSection() {
               <div className="relative flex flex-col h-full">
                 {/* Plan header */}
                 <div className="mb-6">
-                  <h3 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${
+                  <h3 className={`text-xl font-bold mb-3 transition-colors duration-300 ${
                     plan.highlight 
                       ? "text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text"
                       : "text-white group-hover:text-gray-200"
                   }`}>{plan.name}</h3>
-                  <p className="text-gray-400 leading-relaxed">{plan.description}</p>
+                  <p className="text-gray-400 leading-relaxed text-sm">{plan.description}</p>
                 </div>
                 
                 {/* Pricing */}
                 <div className="mb-8">
                   <div className="flex items-end gap-1">
-                    <span className="text-5xl font-extrabold text-white">{plan.price}</span>
+                    <span className="text-4xl font-extrabold text-white">{plan.price}</span>
                     {plan.period && (
-                      <span className="text-gray-400 text-lg mb-1">/{plan.period}</span>
+                      <span className="text-gray-400 text-base mb-1">/{plan.period}</span>
                     )}
                   </div>
                   {plan.trial && (
-                    <p className="text-green-400 text-sm mt-2 font-medium">
-                      Then {plan.price}/{plan.period} - Cancel anytime
+                    <p className="text-green-400 text-xs mt-2 font-medium">
+                      14 days free, then cancel anytime
                     </p>
                   )}
                 </div>
                 
                 {/* Features */}
-                <ul className="mb-10 space-y-4 flex-grow">
+                <ul className="mb-8 space-y-3 flex-grow">
                   {plan.features.map((feature, fIdx) => (
                     <li key={fIdx} className="flex items-start">
-                      <div className={`mr-3 mt-0.5 rounded-full p-1 ${
+                      <div className={`mr-2 mt-0.5 rounded-full p-1 ${
                         plan.highlight 
                           ? "bg-gradient-to-r from-blue-500 to-purple-600"
                           : "bg-gradient-to-r from-green-500 to-green-600"
                       }`}>
                         <Check className="h-3 w-3 text-white" />
                       </div>
-                      <span className="text-gray-300 leading-relaxed">{feature}</span>
+                      <span className="text-gray-300 leading-relaxed text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -1596,7 +1596,7 @@ function PricingSection() {
                 <Link href={plan.href} className="mt-auto inline-flex">
                   <Button
                     size="lg"
-                    className={`group w-full h-12 text-lg font-semibold transition-all duration-300 hover:scale-105 ${
+                    className={`group w-full h-11 text-sm font-semibold transition-all duration-300 hover:scale-105 ${
                       plan.highlight
                         ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40"
                         : "border-2 border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700 hover:text-white"
@@ -1604,7 +1604,7 @@ function PricingSection() {
                   >
                     <span className="flex items-center justify-center">
                       {plan.cta}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                      <ArrowRight className="ml-2 h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                   </Button>
                 </Link>

@@ -776,7 +776,7 @@ function TestimonialsSection() {
   );
 }
 
-// Pricing Section - BRIGHT VERSION (1:1 translation of English)
+// Pricing Section - Updated to match English version layout and styling
 function PricingSection() {
   const plans = [
     {
@@ -810,7 +810,7 @@ function PricingSection() {
         "E-Mail-Support",
       ],
       highlight: false,
-      cta: "Kostenlose Testversion starten",
+      cta: "Testversion starten",
       href: "/signup",
       trial: true,
     },
@@ -828,7 +828,7 @@ function PricingSection() {
         "Prioritäts-Support",
       ],
       highlight: true,
-      cta: "Kostenlose Testversion starten",
+      cta: "Testversion starten",
       href: "/signup",
       trial: true,
     },
@@ -846,7 +846,7 @@ function PricingSection() {
         "Dedicated & Onboarding-Support",
       ],
       highlight: false,
-      cta: "Kostenlose Testversion starten",
+      cta: "Testversion starten",
       href: "/signup",
       trial: true,
     },
@@ -865,7 +865,7 @@ function PricingSection() {
         "Benutzerdefinierte Integrationen",
       ],
       highlight: false,
-      cta: "Vertrieb kontaktieren",
+      cta: "Kontakt",
       href: "/contact",
       trial: false,
     },
@@ -874,109 +874,109 @@ function PricingSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
   return (
-    <section id="pricing" ref={sectionRef} className="relative py-24 bg-gradient-to-b from-blue-50 to-white overflow-hidden">
-      {/* Enhanced background with subtle pattern - bright version */}
+    <section id="pricing" ref={sectionRef} className="relative bg-gray-900 py-24 md:py-32 overflow-hidden">
+      {/* Enhanced background with subtle pattern */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800"></div>
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(59, 130, 246, 0.05) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
       </div>
       
-      {/* Background orbs - bright version */}
-      <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-200/20 to-purple-200/20 rounded-full filter blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-200/20 to-pink-200/20 rounded-full filter blur-3xl"></div>
+      {/* Background orbs */}
+      <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full filter blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-500/10 to-pink-500/10 rounded-full filter blur-3xl"></div>
       
-      <div className="container relative mx-auto px-6">
+      <div className="container relative mx-auto px-4 md:px-6">
         {/* Enhanced header */}
         <div className="mx-auto mb-20 max-w-3xl text-center">
-          <div className="inline-flex items-center rounded-full border border-green-300 bg-gradient-to-r from-green-100 to-blue-100 backdrop-blur-xl px-6 py-3 mb-8">
-            <span className="text-green-600 text-sm font-semibold tracking-wide">Transparente Preise</span>
+          <div className="inline-flex items-center rounded-full border border-green-500/30 bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-xl px-6 py-3 mb-8">
+            <span className="text-green-400 text-sm font-semibold tracking-wide">Transparente Preise</span>
           </div>
           <h2 className="mb-6 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
               Einfache, transparente
             </span>
-            <span className="block bg-gradient-to-r from-green-500 via-blue-600 to-purple-600 bg-clip-text text-transparent mt-2">
+            <span className="block bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mt-2">
               Preise
             </span>
           </h2>
-          <p className="text-xl text-gray-600 leading-relaxed">
+          <p className="text-xl text-gray-400 leading-relaxed">
             Kostenlos starten – upgraden Sie, wenn Sie mehr Power brauchen. Keine versteckten Gebühren.
           </p>
         </div>
         
-        {/* Enhanced pricing grid */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+        {/* Enhanced pricing grid - Fixed layout to accommodate all 5 plans */}
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 pt-16">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`group relative flex flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-white to-blue-50 p-8 shadow-xl backdrop-blur-sm border transition-all duration-500 hover:scale-105 hover:shadow-2xl ${
+              className={`group relative flex flex-col rounded-3xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 p-6 shadow-2xl backdrop-blur-sm border transition-all duration-500 hover:scale-105 hover:shadow-3xl ${
                 plan.highlight 
-                  ? "border-blue-300 ring-2 ring-blue-200 hover:ring-blue-300" 
-                  : "border-gray-200 hover:border-gray-300"
+                  ? "border-blue-500/50 ring-2 ring-blue-500/20 hover:ring-blue-400/30" 
+                  : "border-gray-700/50 hover:border-gray-600/50"
               }`}
             >
               {/* Popular badge */}
               {plan.highlight && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-lg uppercase tracking-wider">
-                  Beliebtester Plan
+                <span className="absolute -top-3 left-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg uppercase tracking-wider whitespace-nowrap">
+                  Beliebtester
                 </span>
               )}
               
               {/* Trial badge */}
               {plan.trial && (
-                <span className="absolute -top-4 right-4 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-3 py-1 text-xs font-semibold text-white shadow-lg">
-                  14-Tage-Test
+                <span className="absolute -top-3 right-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 text-xs font-semibold text-white shadow-lg whitespace-nowrap">
+                  14 Tage frei
                 </span>
               )}
               
               {/* Background gradient overlay */}
               <div className={`absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${
                 plan.highlight 
-                  ? "bg-gradient-to-br from-blue-100/30 via-transparent to-purple-100/30"
-                  : "bg-gradient-to-br from-gray-100/20 via-transparent to-blue-100/20"
+                  ? "bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/10"
+                  : "bg-gradient-to-br from-gray-600/5 via-transparent to-gray-700/5"
               }`}></div>
               
               <div className="relative flex flex-col h-full">
                 {/* Plan header */}
                 <div className="mb-6">
-                  <h3 className={`text-2xl font-bold mb-3 transition-colors duration-300 ${
+                  <h3 className={`text-xl font-bold mb-3 transition-colors duration-300 ${
                     plan.highlight 
-                      ? "text-gray-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text"
-                      : "text-gray-800 group-hover:text-gray-900"
+                      ? "text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text"
+                      : "text-white group-hover:text-gray-200"
                   }`}>{plan.name}</h3>
-                  <p className="text-gray-600 leading-relaxed">{plan.description}</p>
+                  <p className="text-gray-400 leading-relaxed text-sm">{plan.description}</p>
                 </div>
                 
                 {/* Pricing */}
                 <div className="mb-8">
                   <div className="flex items-end gap-1">
-                    <span className="text-5xl font-extrabold text-gray-800">{plan.price}</span>
+                    <span className="text-4xl font-extrabold text-white">{plan.price}</span>
                     {plan.period && (
-                      <span className="text-gray-600 text-lg mb-1">/{plan.period}</span>
+                      <span className="text-gray-400 text-base mb-1">/{plan.period}</span>
                     )}
                   </div>
                   {plan.trial && (
-                    <p className="text-green-600 text-sm mt-2 font-medium">
-                      Dann {plan.price}/{plan.period} - Jederzeit kündbar
+                    <p className="text-green-400 text-xs mt-2 font-medium">
+                      14 Tage kostenlos, dann jederzeit kündbar
                     </p>
                   )}
                 </div>
                 
                 {/* Features */}
-                <ul className="mb-10 space-y-4 flex-grow">
+                <ul className="mb-8 space-y-3 flex-grow">
                   {plan.features.map((feature, fIdx) => (
                     <li key={fIdx} className="flex items-start">
-                      <div className={`mr-3 mt-0.5 rounded-full p-1 ${
+                      <div className={`mr-2 mt-0.5 rounded-full p-1 ${
                         plan.highlight 
                           ? "bg-gradient-to-r from-blue-500 to-purple-600"
                           : "bg-gradient-to-r from-green-500 to-green-600"
                       }`}>
                         <Check className="h-3 w-3 text-white" />
                       </div>
-                      <span className="text-gray-700 leading-relaxed">{feature}</span>
+                      <span className="text-gray-300 leading-relaxed text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -985,15 +985,15 @@ function PricingSection() {
                 <Link href={plan.href} className="mt-auto inline-flex">
                   <Button
                     size="lg"
-                    className={`group w-full h-12 text-lg font-semibold transition-all duration-300 hover:scale-105 ${
+                    className={`group w-full h-11 text-sm font-semibold transition-all duration-300 hover:scale-105 ${
                       plan.highlight
-                        ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/40"
-                        : "border-2 border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-800"
+                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40"
+                        : "border-2 border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700 hover:text-white"
                     }`}
                   >
                     <span className="flex items-center justify-center">
                       {plan.cta}
-                      <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                      <ArrowRight className="ml-2 h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                   </Button>
                 </Link>
@@ -1003,7 +1003,7 @@ function PricingSection() {
               <div className={`absolute bottom-0 left-0 h-1 w-0 transition-all duration-500 group-hover:w-full ${
                 plan.highlight 
                   ? "bg-gradient-to-r from-blue-500 to-purple-600"
-                  : "bg-gradient-to-r from-green-500 to-blue-500"
+                  : "bg-gradient-to-r from-gray-600 to-gray-500"
               }`}></div>
             </div>
           ))}
