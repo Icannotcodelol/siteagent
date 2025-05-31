@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProcessingStats, getDocumentProcessingInfo } from '@/lib/test-utils/document-processing-monitor'
 
+// This route uses request.headers so it needs to be dynamic
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   try {
     // Simple auth check - you should implement proper admin authentication

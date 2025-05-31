@@ -1,3 +1,5 @@
+'use client';
+
 import { Suspense } from 'react';
 
 // Test component for verifying checkout with new trial prices

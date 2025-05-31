@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+// This route uses request.url so it needs to be dynamic
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 // Initialize client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

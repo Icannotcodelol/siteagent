@@ -6,6 +6,10 @@ const supabaseAdmin = createClient(
     process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// This route uses request.headers so it needs to be dynamic
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
     // Verify admin access (you might want to add proper admin authentication here)
     const authHeader = request.headers.get('Authorization');
