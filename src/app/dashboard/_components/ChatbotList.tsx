@@ -75,72 +75,123 @@ function ChatbotListItem({ chatbot, index }: ChatbotListItemProps) {
     }
   };
 
-  // Color accent for the top border – rotate through a small palette for visual variety
-  const accentColors = [
-    'border-blue-500',
-    'border-green-500',
-    'border-purple-500',
-    'border-yellow-500',
-    'border-pink-500',
+  // Gradient accent colors for variety
+  const gradientColors = [
+    'from-blue-500 to-purple-500',
+    'from-purple-500 to-pink-500',
+    'from-green-500 to-blue-500',
+    'from-yellow-500 to-orange-500',
+    'from-pink-500 to-red-500',
   ]
-  const accent = accentColors[index % accentColors.length]
+  const gradient = gradientColors[index % gradientColors.length]
+
+  // Activity level indicator
+  const activityLevel = () => {
+    if (chatbot.messageCount > 100) return { text: 'High Activity', color: 'text-green-400' }
+    if (chatbot.messageCount > 50) return { text: 'Moderate Activity', color: 'text-yellow-400' }
+    return { text: 'Low Activity', color: 'text-gray-400' }
+  }
+
+  const activity = activityLevel()
 
   return (
-    <li className={`flex flex-col overflow-hidden rounded-lg border border-slate-700 bg-slate-800 shadow-lg ${accent} border-t-4`}>
-      {/* Clickable body */}
+    <li className="group relative">
       <Link
         href={`/dashboard/chatbot/${chatbot.id}`}
-        className="flex flex-grow flex-col gap-2 p-4 hover:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
-        aria-label={`Manage chatbot ${chatbot.name}`}
+        className="block h-full"
       >
-        {/* Name & updated date */}
-        <div className="flex items-start justify-between gap-2">
-          <p className="truncate text-base font-semibold text-slate-100">
-            {chatbot.name}
-          </p>
-          <p className="whitespace-nowrap text-xs text-slate-400">Updated {formattedDate}</p>
-        </div>
-
-        {/* Description */}
-        {chatbot.description && (
-          <p className="truncate text-sm text-slate-300">
-            {chatbot.description}
-          </p>
-        )}
-
-        {/* Stats */}
-        <div className="mt-auto flex items-center justify-between pt-2 text-xs text-slate-400">
-          <div className="flex space-x-4">
-            {chatbot.conversationCount !== undefined && (
-              <span>
-                <span className="font-medium text-slate-100">{chatbot.conversationCount}</span>{' '}
-                Conversations
-              </span>
-            )}
-            <span>
-              <span className="font-medium text-slate-100">{chatbot.messageCount}</span>{' '}
-              Messages
-            </span>
+        <div className="card-base card-hover h-full flex flex-col overflow-hidden relative">
+          {/* Gradient accent bar */}
+          <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient}`} />
+          
+          {/* Status indicator */}
+          <div className="absolute top-4 right-4">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <span className="text-xs text-green-400">Online</span>
+            </div>
           </div>
-          <span className="font-medium text-blue-400 hover:text-blue-300">Manage</span>
+          
+          {/* Main content */}
+          <div className="flex-1 pt-2">
+            {/* Header */}
+            <div className="mb-4">
+              <h3 className="text-xl font-bold text-white mb-1 group-hover:gradient-text transition-all duration-300">
+                {chatbot.name}
+              </h3>
+              {chatbot.description && (
+                <p className="text-sm text-gray-400 line-clamp-2">
+                  {chatbot.description}
+                </p>
+              )}
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="glass rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400">Conversations</span>
+                  <span className="text-lg font-bold text-white">
+                    {chatbot.conversationCount?.toLocaleString() || '0'}
+                  </span>
+                </div>
+              </div>
+              <div className="glass rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-gray-400">Messages</span>
+                  <span className="text-lg font-bold text-white">
+                    {chatbot.messageCount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Activity & Date */}
+            <div className="flex items-center justify-between text-xs">
+              <span className={activity.color}>{activity.text}</span>
+              <span className="text-gray-500">Updated {formattedDate}</span>
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-700/50">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+              onClick={(e) => {
+                e.preventDefault()
+                router.push(`/dashboard/chatbot/${chatbot.id}`)
+              }}
+            >
+              <span className="mr-2">⚙️</span>
+              Manage
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDelete}
+              disabled={deletingId === chatbot.id}
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+            >
+              {deletingId === chatbot.id ? (
+                <span>Deleting...</span>
+              ) : (
+                <>
+                  <span className="mr-2">🗑️</span>
+                  Delete
+                </>
+              )}
+            </Button>
+          </div>
+
+          {error && (
+            <div className="absolute bottom-0 left-0 right-0 bg-red-500/10 border-t border-red-500/30 p-2">
+              <p className="text-xs text-red-400 text-center">{error}</p>
+            </div>
+          )}
         </div>
       </Link>
-
-      {/* Delete action */}
-      <div className="flex items-center justify-end border-t border-slate-700 bg-slate-800/50 px-4 py-2">
-        {error && <p className="mr-auto text-xs text-red-400">Error: {error}</p>}
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={handleDelete}
-          disabled={deletingId === chatbot.id}
-          className="text-xs"
-          title="Delete chatbot"
-          aria-label={`Delete chatbot ${chatbot.name}`}
-        >
-          {deletingId === chatbot.id ? 'Deleting...' : 'Delete'}
-        </Button>
-      </div>
     </li>
   )
 }
@@ -148,15 +199,26 @@ function ChatbotListItem({ chatbot, index }: ChatbotListItemProps) {
 export default function ChatbotList({ chatbots }: ChatbotListProps) {
   if (!chatbots || chatbots.length === 0) {
     return (
-      <div className="rounded-lg border border-slate-700 bg-slate-800 p-6 text-center shadow-md">
-        <p className="text-slate-400">You haven't created any chatbots yet.</p>
-        <p className="mt-1 text-sm text-slate-500">Use the button above to create your first one!</p>
+      <div className="card-base text-center py-12">
+        <div className="mb-6">
+          <div className="w-20 h-20 mx-auto bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mb-4">
+            <span className="text-3xl">🤖</span>
+          </div>
+          <h3 className="text-xl font-bold text-white mb-2">No chatbots yet</h3>
+          <p className="text-gray-400 mb-6">Create your first AI assistant to get started!</p>
+          <Link href="/dashboard/chatbot/new">
+            <Button className="gradient-primary text-white btn-scale glow">
+              <span className="mr-2">✨</span>
+              Create Your First Chatbot
+            </Button>
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
-    <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-6">
+    <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {chatbots.map((chatbot, index) => (
         <ChatbotListItem key={chatbot.id} chatbot={chatbot} index={index} />
       ))}

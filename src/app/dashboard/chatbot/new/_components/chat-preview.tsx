@@ -245,18 +245,29 @@ export default function ChatPreview(props: ChatPreviewProps) {
 
   return (
     <div
-      className="flex flex-col h-full rounded-lg overflow-hidden border border-gray-700 shadow"
+      className="flex flex-col h-full rounded-2xl overflow-hidden glass shadow-2xl"
       style={{
-        background: backgroundColor || '#1a1a1a',
+        background: backgroundColor || 'rgba(17, 17, 17, 0.8)',
         color: textColor || '#fff',
         fontFamily: fontFamily || 'inherit',
       }}
     >
-      {/* Header - Slightly darker */}
-      <div className="p-3 border-b border-gray-700" style={{ background: secondaryColor || '#23232b' }}>
-        <p className="text-sm font-medium text-white text-center">
-          {headerText || 'Chatbot Preview'}
-        </p>
+      {/* Header - Modern gradient */}
+      <div 
+        className="p-4 backdrop-blur-md border-b border-gray-700/50" 
+        style={{ 
+          background: secondaryColor ? secondaryColor : 'linear-gradient(to right, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))'
+        }}
+      >
+        <div className="flex items-center justify-between">
+          <p className="text-sm font-semibold text-white">
+            {headerText || '💬 Chat Preview'}
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+            <span className="text-xs text-gray-400">Live Preview</span>
+          </div>
+        </div>
       </div>
       {/* Message Area */}
       <div

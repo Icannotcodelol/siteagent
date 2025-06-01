@@ -115,43 +115,53 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
       inputPlaceholder: chatbot.input_placeholder,
       showBranding: chatbot.show_branding,
     }}>
-    <div className="min-h-screen bg-gray-950 text-gray-200 p-6">
-      {/* Pass chatbot name as title to header */}
-      <BuilderHeader title={chatbot.name} /> 
+    <div className="min-h-screen bg-gray-950">
+      <div className="container mx-auto px-4 py-8 max-w-[1600px]">
+        {/* Pass chatbot name as title to header */}
+        <BuilderHeader title={chatbot.name} /> 
 
-      {/* Three-column layout: Vertical Tabs (within Form) | Form Content (within Form) | Chat Preview */}
-      <div className="flex flex-col lg:flex-row gap-6 md:gap-8 mt-6">
-        {/* Left & Middle Columns: ChatbotBuilderForm handles its internal two-column (tabs | content) */}
-        {/* This div will take up roughly 2/3 of the space on larger screens */}
-        <div className="lg:w-2/3 flex-shrink-0 space-y-6"> {/* <-- ADDED space-y-6 for spacing */}
-           <ChatbotBuilderForm 
-             initialName={chatbot.name} 
-             initialSystemPrompt={chatbot.system_prompt ?? ''} 
-             chatbotId={chatbot.id} 
-             documents={documents ?? []} // Pass documents
-             documentsError={documentsError} // Pass error
-             initialPrimaryColor={chatbot.primary_color ?? ''}
-             initialSecondaryColor={chatbot.secondary_color ?? ''}
-             initialBackgroundColor={chatbot.background_color ?? ''}
-             initialTextColor={chatbot.text_color ?? ''}
-             initialFontFamily={chatbot.font_family ?? ''}
-             initialWelcomeMessage={chatbot.welcome_message ?? ''}
-             initialBotAvatarUrl={chatbot.bot_avatar_url ?? ''}
-             initialUserAvatarUrl={chatbot.user_avatar_url ?? ''}
-             initialChatBubbleStyle={chatbot.chat_bubble_style ?? 'rounded'}
-             initialHeaderText={chatbot.header_text ?? ''}
-             initialInputPlaceholder={chatbot.input_placeholder ?? ''}
-             initialShowBranding={chatbot.show_branding ?? true}
-           />
-        </div>
+        {/* Three-column layout: Vertical Tabs (within Form) | Form Content (within Form) | Chat Preview */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Left & Middle Columns: ChatbotBuilderForm handles its internal two-column (tabs | content) */}
+          <div className="xl:col-span-2">
+            <ChatbotBuilderForm 
+              initialName={chatbot.name} 
+              initialSystemPrompt={chatbot.system_prompt ?? ''} 
+              chatbotId={chatbot.id} 
+              documents={documents ?? []} // Pass documents
+              documentsError={documentsError} // Pass error
+              initialPrimaryColor={chatbot.primary_color ?? ''}
+              initialSecondaryColor={chatbot.secondary_color ?? ''}
+              initialBackgroundColor={chatbot.background_color ?? ''}
+              initialTextColor={chatbot.text_color ?? ''}
+              initialFontFamily={chatbot.font_family ?? ''}
+              initialWelcomeMessage={chatbot.welcome_message ?? ''}
+              initialBotAvatarUrl={chatbot.bot_avatar_url ?? ''}
+              initialUserAvatarUrl={chatbot.user_avatar_url ?? ''}
+              initialChatBubbleStyle={chatbot.chat_bubble_style ?? 'rounded'}
+              initialHeaderText={chatbot.header_text ?? ''}
+              initialInputPlaceholder={chatbot.input_placeholder ?? ''}
+              initialShowBranding={chatbot.show_branding ?? true}
+            />
+          </div>
 
-        {/* Right Column: Chat Preview */}
-        {/* This div will take up roughly 1/3 of the space on larger screens and have a fixed height */}
-        {/* Added card styling for consistency */}
-        <div className="lg:w-1/3 flex-shrink-0 h-[calc(100vh-200px)] md:sticky md:top-24 bg-gray-900 p-4 rounded-lg shadow-xl border border-gray-700">
-          <h2 className="text-lg font-semibold text-white mb-3">Chatbot Preview</h2>
-          <div className="h-[calc(100%-40px)]"> {/* Adjust height to account for title */}
-            <ChatPreview chatbotId={chatbotId} />
+          {/* Right Column: Chat Preview */}
+          <div className="xl:col-span-1">
+            <div className="glass rounded-2xl p-6 sticky top-8 h-[calc(100vh-8rem)]">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <span className="text-2xl">👁️</span>
+                  Live Preview
+                </h2>
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+                  <span>Real-time updates</span>
+                </div>
+              </div>
+              <div className="h-[calc(100%-60px)] rounded-xl overflow-hidden">
+                <ChatPreview chatbotId={chatbotId} />
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -203,11 +203,18 @@ export function LoadingButton({
   variant = 'primary',
   className = ''
 }: LoadingButtonProps) {
-  const baseClasses = "px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 transition-colors flex items-center space-x-2"
+  const baseClasses = "relative px-6 py-3 text-sm font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
   
   const variantClasses = variant === 'primary' 
-    ? "text-white bg-purple-600 hover:bg-purple-700 focus:ring-purple-500"
-    : "text-gray-300 bg-gray-700 hover:bg-gray-600 focus:ring-gray-500"
+    ? "text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-lg hover:shadow-purple-500/25 transform hover:scale-105 active:scale-95 focus:ring-purple-500"
+    : "text-gray-300 bg-gray-800/50 border border-gray-700/50 hover:bg-gray-700/50 hover:text-white hover:border-gray-600/50 focus:ring-gray-500"
+
+  const getLoadingIcon = () => {
+    if (variant === 'primary') {
+      return <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+    }
+    return <div className="w-4 h-4 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+  }
 
   return (
     <button
@@ -216,10 +223,11 @@ export function LoadingButton({
       disabled={disabled || isLoading}
       className={`${baseClasses} ${variantClasses} ${className}`}
     >
-      {isLoading && (
-        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-      )}
+      {isLoading && getLoadingIcon()}
       <span>{isLoading ? loadingText : children}</span>
+      {variant === 'primary' && !isLoading && (
+        <span className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-xl rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+      )}
     </button>
   )
 }

@@ -246,7 +246,24 @@ export default function ChatbotBuilderForm({
     }
   }
 
-  const handleSave = async (silent = false) => {
+  // Helper function to get the next tab in the sequence
+  const getNextTab = (currentTab: ActiveTab): ActiveTab | null => {
+    const tabSequence: ActiveTab[] = ['settings', 'dataSources', 'appearance', 'embed', 'actions', 'integrations', 'analytics']
+    const currentIndex = tabSequence.indexOf(currentTab)
+    
+    if (currentIndex >= 0 && currentIndex < tabSequence.length - 1) {
+      return tabSequence[currentIndex + 1]
+    }
+    
+    return null // No next tab (we're on the last tab)
+  }
+
+  // Helper function to check if current tab is the last tab
+  const isLastTab = (currentTab: ActiveTab): boolean => {
+    return currentTab === 'analytics'
+  }
+
+  const handleSave = async (silent = false, autoAdvance = false) => {
     if (!validateForm()) {
       if (!silent) {
         setError(createError('validation', 'Please fix the validation errors before saving'))
@@ -344,7 +361,16 @@ export default function ChatbotBuilderForm({
         } else if (isEditMode) {
           if (!silent) {
             console.log('Update successful');
-            router.refresh();
+            
+            // Auto-advance to next tab if requested and we're in edit mode
+            if (autoAdvance) {
+              const nextTab = getNextTab(activeTab)
+              if (nextTab) {
+                setActiveTab(nextTab)
+              }
+            } else {
+              router.refresh();
+            }
           }
         } else {
           throw new Error('Chatbot created but failed to get ID.');
@@ -369,7 +395,7 @@ export default function ChatbotBuilderForm({
     if (!canRetry) return
     
     try {
-      await retry(() => handleSave())
+      await retry(() => handleSave(false, isEditMode))
       setError(null)
     } catch (error) {
       const errorMessage = getErrorMessage(error)
@@ -398,9 +424,27 @@ export default function ChatbotBuilderForm({
 
   // Helper function for tab button classes
   const getTabClass = (tabName: ActiveTab) => {
-    return `w-full text-left px-4 py-3 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-150 ${activeTab === tabName 
-        ? 'bg-purple-600 text-white shadow-md' 
-        : 'text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-white'}`;
+    const isActive = activeTab === tabName;
+    return `
+      relative w-full text-left px-5 py-3 text-sm font-medium rounded-xl 
+      transition-all duration-200 
+      ${isActive 
+        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105' 
+        : 'text-gray-400 bg-gray-800/50 hover:bg-gray-700/50 hover:text-white border border-gray-700/50 hover:border-gray-600/50'
+      }
+      ${isActive ? 'before:absolute before:inset-0 before:bg-gradient-to-r before:from-blue-600/20 before:to-purple-600/20 before:blur-xl before:rounded-xl' : ''}
+    `;
+  };
+
+  // Tab icon mapping
+  const tabIcons: Record<ActiveTab, string> = {
+    settings: '⚙️',
+    dataSources: '📚',
+    appearance: '🎨',
+    embed: '🔗',
+    actions: '⚡',
+    integrations: '🔌',
+    analytics: '📊'
   };
 
   // Show loading skeleton while form is initializing
@@ -446,215 +490,97 @@ export default function ChatbotBuilderForm({
       </div> */}
 
       {/* Main container: flex row, form card styling */}
-      <div className="flex flex-col md:flex-row gap-6 md:gap-8 bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-700">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Column: Vertical Tab Navigation */}
-        <div className="md:w-1/4 lg:w-1/5 border-b md:border-b-0 md:border-r border-gray-700 pb-4 md:pb-0 md:pr-6">
-          <div className="flex flex-row md:flex-col md:space-y-2 overflow-x-auto md:overflow-x-visible">
-              <button type="button" className={`${getTabClass('settings')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('settings')}>Settings</button>
-              <button type="button" className={`${getTabClass('dataSources')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('dataSources')}>Data Sources</button>
-              <button type="button" className={`${getTabClass('appearance')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('appearance')}>Appearance</button>
-              <button type="button" className={`${getTabClass('embed')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('embed')}>Embed Code</button>
-              <button type="button" className={`${getTabClass('actions')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('actions')}>Actions</button>
-              <button type="button" className={`${getTabClass('integrations')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('integrations')}>Integrations</button>
-              <button type="button" className={`${getTabClass('analytics')} md:w-full whitespace-nowrap mr-2 md:mr-0`} onClick={() => setActiveTab('analytics')}>Analytics</button>
+        <div className="lg:w-64 flex-shrink-0">
+          <div className="glass rounded-xl p-4 sticky top-24">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Configuration</h3>
+            <div className="space-y-2">
+              {Object.entries(tabIcons).map(([tab, icon]) => (
+                <button 
+                  key={tab}
+                  type="button" 
+                  className={getTabClass(tab as ActiveTab)} 
+                  onClick={() => setActiveTab(tab as ActiveTab)}
+                >
+                  <span className="relative z-10 flex items-center gap-3">
+                    <span className="text-lg">{icon}</span>
+                    <span className="capitalize">{tab === 'dataSources' ? 'Data Sources' : tab}</span>
+                  </span>
+                </button>
+              ))}
               {isEditMode && chatbotId && (
                 <a
                   href={`/dashboard/chatbot/${chatbotId}/interrogation`}
-                  className="w-full text-left px-4 py-3 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-colors duration-150 text-gray-300 bg-gray-800 hover:bg-gray-700 hover:text-white whitespace-nowrap mr-2 md:mr-0"
+                  className="relative w-full text-left px-5 py-3 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 bg-gray-800/50 hover:bg-gray-700/50 hover:text-white border border-gray-700/50 hover:border-gray-600/50 flex items-center gap-3"
                 >
-                  Interrogation
+                  <span className="text-lg">🔍</span>
+                  <span>Interrogation</span>
                 </a>
               )}
+            </div>
           </div>
         </div>
 
         {/* Right Column: Tab Content Area */}
-        <div className="flex-1 min-h-[400px]">
-
-          {/* Settings Tab Content */}
-          {activeTab === 'settings' && (
-            <div className="space-y-6">
-              {/* Name Input */}
-              <div>
-                <label htmlFor="chatbot-name" className="block text-sm font-medium text-gray-300 mb-1">
-                  Chatbot Name *
-                </label>
-                <input
-                  type="text"
-                  id="chatbot-name"
-                  name="name"
-                  value={name}
-                  onChange={(e) => { 
-                    const v = e.target.value; 
-                    setName(v);
-                    // Clear validation error when user starts typing
-                    if (validationErrors.name) {
-                      setValidationErrors(prev => ({ ...prev, name: '' }))
-                    }
-                  }}
-                  placeholder="e.g., Product Support Assistant"
-                  required
-                  className={`block w-full px-3 py-2 bg-gray-800 border rounded-md shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm ${
-                    validationErrors.name ? 'border-red-500' : 'border-gray-700'
-                  }`}
-                  disabled={isPending}
-                />
-                <FieldError error={validationErrors.name} />
-              </div>
-
-              {/* System Prompt Input */}
-              <div>
-                <PromptInput
-                  value={systemPrompt}
-                  onChange={(v) => { setSystemPrompt(v); }}
-                  disabled={isPending}
-                />
-              </div>
-              
-              {/* Action Buttons for this tab */}
-              <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                <LoadingButton
-                  isLoading={false}
-                  loadingText="Canceling..."
-                  onClick={handleCancel}
-                  disabled={isPending}
-                  variant="secondary"
-                >
-                  Cancel
-                </LoadingButton>
-                <LoadingButton
-                  isLoading={isPending || isRetrying}
-                  loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                  onClick={() => handleSave()}
-                  disabled={isPending || !isOnline}
-                >
-                  {isEditMode ? 'Update Chatbot' : 'Save Chatbot'}
-                </LoadingButton>
-              </div>
+        <div className="flex-1">
+          <div className="glass rounded-xl p-8">
+            {/* Tab Header */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">{tabIcons[activeTab]}</span>
+                <span className="capitalize">{activeTab === 'dataSources' ? 'Data Sources' : activeTab}</span>
+              </h2>
+              <p className="text-gray-400 mt-2">
+                {activeTab === 'settings' && 'Configure basic chatbot settings and behavior'}
+                {activeTab === 'dataSources' && 'Add documents, websites, and text to train your chatbot'}
+                {activeTab === 'appearance' && 'Customize the look and feel of your chatbot'}
+                {activeTab === 'embed' && 'Get the code to add your chatbot to any website'}
+                {activeTab === 'actions' && 'Set up automated actions and workflows'}
+                {activeTab === 'integrations' && 'Connect your chatbot to external services'}
+                {activeTab === 'analytics' && 'View chatbot performance and usage metrics'}
+              </p>
             </div>
-          )}
 
-           {/* Data Sources Tab Content */}
-           {activeTab === 'dataSources' && (
-               <div className="space-y-6">
-                   {/* Text Input Section */}
-                   <div>
-                      <label htmlFor="pasted-text" className="block text-sm font-medium text-gray-300 mb-1">
-                          Paste Text
-                      </label>
-                      <p className="text-xs text-gray-500 mb-2">Paste any text content you want the chatbot to know about.</p>
-                      <textarea
-                          id="pasted-text"
-                          rows={8}
-                          value={pastedText}
-                          onChange={(e) => { const v=e.target.value; setPastedText(v); }}
-                          placeholder="Paste text here..."
-                          className="block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                          disabled={isPending}
-                      />
-                   </div>
+            {/* Settings Tab Content */}
+            {activeTab === 'settings' && (
+              <div className="space-y-8">
+                {/* Name Input */}
+                <div>
+                  <label htmlFor="chatbot-name" className="block text-sm font-medium text-gray-300 mb-2">
+                    Chatbot Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="chatbot-name"
+                    name="name"
+                    value={name}
+                    onChange={(e) => { 
+                      const v = e.target.value; 
+                      setName(v);
+                      // Clear validation error when user starts typing
+                      if (validationErrors.name) {
+                        setValidationErrors(prev => ({ ...prev, name: '' }))
+                      }
+                    }}
+                    placeholder="e.g., Product Support Assistant"
+                    required
+                    className={`block w-full px-4 py-3 bg-gray-800/50 border rounded-xl shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${
+                      validationErrors.name ? 'border-red-500' : 'border-gray-700/50'
+                    }`}
+                    disabled={isPending}
+                  />
+                  <FieldError error={validationErrors.name} />
+                </div>
 
-                   {/* Website Scrape Section */}
-                   <div>
-                      <label htmlFor="website-url" className="block text-sm font-medium text-gray-300 mb-1">
-                          Scrape Website
-                      </label>
-                      <p className="text-xs text-gray-500 mb-2">Enter URLs to scrape text content from websites.</p>
-                      <MultipleDomainInput
-                          domains={websiteUrls}
-                          onChange={setWebsiteUrls}
-                          disabled={isPending}
-                      />
-                      {/* Show URL validation errors */}
-                      {Object.entries(validationErrors).filter(([key]) => key.startsWith('url_')).map(([key, error]) => (
-                        <FieldError key={key} error={error} />
-                      ))}
-                   </div>
-
-                  {/* File Upload Section (Conditional based on mode) */}
-                  <div className="border-t border-gray-700 pt-6">
-                       <h3 className="text-sm font-medium text-gray-300 mb-1">Upload Files</h3>
-                       <p className="text-xs text-gray-500 mb-3">Upload documents like PDF, TXT, MD, or CSV.</p>
-                       {isEditMode && chatbotId ? (
-                         <>
-                           {/* Processing Status Component */}
-                           <ProcessingStatus chatbotId={chatbotId} />
-                           
-                           <DocumentUploadForm chatbotId={chatbotId} />
-                           {documentsError && (
-                              <div className="mt-4 bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded relative" role="alert">
-                                  <strong className="font-bold">Error loading documents:</strong>
-                                  <span className="block sm:inline"> {documentsError.message}</span>
-                              </div>
-                           )}
-                           <DocumentList documents={documents ?? []} /> 
-                         </>
-                       ) : (
-                          <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center">
-                              <svg className="mx-auto h-10 w-10 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>
-                              <h3 className="mt-2 text-sm font-medium text-white">Upload Files</h3>
-                              <p className="mt-1 text-sm text-gray-500">Save the chatbot first to enable file uploads.</p>
-                          </div>
-                       )}
-                  </div>
-                  
-                  {/* Action Buttons for this tab */}
-                  <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                    <LoadingButton
-                      isLoading={false}
-                      loadingText="Canceling..."
-                      onClick={handleCancel}
-                      disabled={isPending}
-                      variant="secondary"
-                    >
-                      Cancel
-                    </LoadingButton>
-                    <LoadingButton
-                      isLoading={isPending || isRetrying}
-                      loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                      onClick={() => handleSave()}
-                      disabled={isPending || !isOnline}
-                    >
-                      {isEditMode ? 'Update Chatbot' : 'Save Chatbot'}
-                    </LoadingButton>
-                  </div>
-               </div>
-           )}
-
-           {/* Appearance Tab Content */}
-           {activeTab === 'appearance' && (
-              <div>
-                <EnhancedAppearanceTab
-                  chatbotId={chatbotId}
-                  isEditMode={isEditMode}
-                  primaryColor={primaryColor}
-                  setPrimaryColor={setPrimaryColor}
-                  secondaryColor={secondaryColor}
-                  setSecondaryColor={setSecondaryColor}
-                  backgroundColor={backgroundColor}
-                  setBackgroundColor={setBackgroundColor}
-                  textColor={textColor}
-                  setTextColor={setTextColor}
-                  fontFamily={fontFamily}
-                  setFontFamily={setFontFamily}
-                  welcomeMessage={welcomeMessage}
-                  setWelcomeMessage={setWelcomeMessage}
-                  botAvatarUrl={botAvatarUrl}
-                  setBotAvatarUrl={setBotAvatarUrl}
-                  userAvatarUrl={userAvatarUrl}
-                  setUserAvatarUrl={setUserAvatarUrl}
-                  chatBubbleStyle={chatBubbleStyle}
-                  setChatBubbleStyle={setChatBubbleStyle}
-                  headerText={headerText}
-                  setHeaderText={setHeaderText}
-                  inputPlaceholder={inputPlaceholder}
-                  setInputPlaceholder={setInputPlaceholder}
-                  showBranding={showBranding}
-                  setShowBranding={setShowBranding}
-                  supabase={supabase}
-                  setError={setError}
-                  createError={createError}
-                />
+                {/* System Prompt Input */}
+                <div>
+                  <PromptInput
+                    value={systemPrompt}
+                    onChange={(v) => { setSystemPrompt(v); }}
+                    disabled={isPending}
+                  />
+                </div>
                 
                 {/* Action Buttons for this tab */}
                 <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
@@ -670,125 +596,290 @@ export default function ChatbotBuilderForm({
                   <LoadingButton
                     isLoading={isPending || isRetrying}
                     loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                    onClick={() => handleSave()}
+                    onClick={() => handleSave(false, isEditMode)}
                     disabled={isPending || !isOnline}
                   >
-                    {isEditMode ? 'Update Chatbot' : 'Save Chatbot'}
+                    {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
                   </LoadingButton>
                 </div>
               </div>
-           )}
+            )}
 
-           {/* Embed Tab Content */}
-           {activeTab === 'embed' && (
-              <div>
+             {/* Data Sources Tab Content */}
+             {activeTab === 'dataSources' && (
+                 <div className="space-y-8">
+                     {/* Text Input Section */}
+                     <div className="glass rounded-xl p-6">
+                         <label htmlFor="pasted-text" className="block text-sm font-medium text-gray-300 mb-2">
+                             <span className="flex items-center gap-2">
+                               <span className="text-lg">📝</span>
+                               Paste Text Content
+                             </span>
+                         </label>
+                         <p className="text-xs text-gray-500 mb-4">Add any text content you want your chatbot to learn from.</p>
+                         <textarea
+                             id="pasted-text"
+                             rows={8}
+                             value={pastedText}
+                             onChange={(e) => { const v=e.target.value; setPastedText(v); }}
+                             placeholder="Paste your content here..."
+                             className="block w-full px-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-xl shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                             disabled={isPending}
+                         />
+                         <div className="mt-2 flex justify-between text-xs text-gray-500">
+                           <span>{pastedText.length} characters</span>
+                           <span>Tip: Include FAQs, product info, or documentation</span>
+                         </div>
+                     </div>
+
+                     {/* Website Scrape Section */}
+                     <div className="glass rounded-xl p-6">
+                         <label htmlFor="website-url" className="block text-sm font-medium text-gray-300 mb-2">
+                             <span className="flex items-center gap-2">
+                               <span className="text-lg">🌐</span>
+                               Website Scraping
+                             </span>
+                         </label>
+                         <p className="text-xs text-gray-500 mb-4">Enter URLs to automatically extract content from websites.</p>
+                         <MultipleDomainInput
+                             domains={websiteUrls}
+                             onChange={setWebsiteUrls}
+                             disabled={isPending}
+                         />
+                         {/* Show URL validation errors */}
+                         {Object.entries(validationErrors).filter(([key]) => key.startsWith('url_')).map(([key, error]) => (
+                           <FieldError key={key} error={error} />
+                         ))}
+                     </div>
+
+                    {/* File Upload Section (Conditional based on mode) */}
+                    <div className="glass rounded-xl p-6">
+                         <h3 className="text-sm font-medium text-gray-300 mb-2">
+                           <span className="flex items-center gap-2">
+                             <span className="text-lg">📁</span>
+                             Document Upload
+                           </span>
+                         </h3>
+                         <p className="text-xs text-gray-500 mb-4">Upload PDFs, text files, Markdown, or CSV documents.</p>
+                         {isEditMode && chatbotId ? (
+                           <>
+                             {/* Processing Status Component */}
+                             <ProcessingStatus chatbotId={chatbotId} />
+                             
+                             <DocumentUploadForm chatbotId={chatbotId} />
+                             {documentsError && (
+                                <div className="mt-4 bg-red-900/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl" role="alert">
+                                    <strong className="font-bold">Error loading documents:</strong>
+                                    <span className="block sm:inline"> {documentsError.message}</span>
+                                </div>
+                             )}
+                             <DocumentList documents={documents ?? []} /> 
+                           </>
+                         ) : (
+                            <div className="border-2 border-dashed border-gray-700/50 rounded-xl p-8 text-center hover:border-gray-600/50 transition-colors">
+                                <div className="w-16 h-16 mx-auto bg-gray-800/50 rounded-xl flex items-center justify-center mb-4">
+                                  <svg className="w-8 h-8 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+                                  </svg>
+                                </div>
+                                <h3 className="text-sm font-medium text-white mb-1">File Upload Available After Save</h3>
+                                <p className="text-xs text-gray-500">Save your chatbot to enable document uploads</p>
+                            </div>
+                         )}
+                    </div>
+                    
+                    {/* Action Buttons for this tab */}
+                    <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                      <LoadingButton
+                        isLoading={false}
+                        loadingText="Canceling..."
+                        onClick={handleCancel}
+                        disabled={isPending}
+                        variant="secondary"
+                      >
+                        Cancel
+                      </LoadingButton>
+                      <LoadingButton
+                        isLoading={isPending || isRetrying}
+                        loadingText={isEditMode ? 'Updating...' : 'Saving...'}
+                        onClick={() => handleSave(false, isEditMode)}
+                        disabled={isPending || !isOnline}
+                      >
+                        {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
+                      </LoadingButton>
+                    </div>
+                 </div>
+             )}
+
+             {/* Appearance Tab Content */}
+             {activeTab === 'appearance' && (
+                <div>
+                  <EnhancedAppearanceTab
+                    chatbotId={chatbotId}
+                    isEditMode={isEditMode}
+                    primaryColor={primaryColor}
+                    setPrimaryColor={setPrimaryColor}
+                    secondaryColor={secondaryColor}
+                    setSecondaryColor={setSecondaryColor}
+                    backgroundColor={backgroundColor}
+                    setBackgroundColor={setBackgroundColor}
+                    textColor={textColor}
+                    setTextColor={setTextColor}
+                    fontFamily={fontFamily}
+                    setFontFamily={setFontFamily}
+                    welcomeMessage={welcomeMessage}
+                    setWelcomeMessage={setWelcomeMessage}
+                    botAvatarUrl={botAvatarUrl}
+                    setBotAvatarUrl={setBotAvatarUrl}
+                    userAvatarUrl={userAvatarUrl}
+                    setUserAvatarUrl={setUserAvatarUrl}
+                    chatBubbleStyle={chatBubbleStyle}
+                    setChatBubbleStyle={setChatBubbleStyle}
+                    headerText={headerText}
+                    setHeaderText={setHeaderText}
+                    inputPlaceholder={inputPlaceholder}
+                    setInputPlaceholder={setInputPlaceholder}
+                    showBranding={showBranding}
+                    setShowBranding={setShowBranding}
+                    supabase={supabase}
+                    setError={setError}
+                    createError={createError}
+                  />
+                  
+                  {/* Action Buttons for this tab */}
+                  <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                    <LoadingButton
+                      isLoading={false}
+                      loadingText="Canceling..."
+                      onClick={handleCancel}
+                      disabled={isPending}
+                      variant="secondary"
+                    >
+                      Cancel
+                    </LoadingButton>
+                    <LoadingButton
+                      isLoading={isPending || isRetrying}
+                      loadingText={isEditMode ? 'Updating...' : 'Saving...'}
+                      onClick={() => handleSave(false, isEditMode)}
+                      disabled={isPending || !isOnline}
+                    >
+                      {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
+                    </LoadingButton>
+                  </div>
+                </div>
+             )}
+
+             {/* Embed Tab Content */}
+             {activeTab === 'embed' && (
+                <div>
+                    {isEditMode && chatbotId ? (
+                        <EmbedCodeDisplay chatbotId={chatbotId} launcherIconUrl={botAvatarUrl} />
+                     ) : (
+                        <p className="text-gray-400">Embed code will be available after the chatbot is saved.</p>
+                     )}
+                     {/* Action Buttons for this tab (conditional for edit mode) */}
+                     {isEditMode && chatbotId && (
+                        <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                          <LoadingButton
+                            isLoading={false}
+                            loadingText="Canceling..."
+                            onClick={handleCancel}
+                            disabled={isPending}
+                            variant="secondary"
+                          >
+                            Cancel
+                          </LoadingButton>
+                          <LoadingButton
+                            isLoading={isPending || isRetrying}
+                            loadingText={isEditMode ? 'Updating...' : 'Saving...'}
+                            onClick={() => handleSave(false, isEditMode)}
+                            disabled={isPending || !isOnline}
+                          >
+                            {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
+                          </LoadingButton>
+                        </div>
+                     )}
+                </div>
+             )}
+
+             {/* Actions Tab Content */}
+             {activeTab === 'actions' && (
+                <div>
+                    {isEditMode && chatbotId ? (
+                        <ActionManager chatbotId={chatbotId} />
+                     ) : (
+                        <p className="text-gray-400">Actions can be configured after the chatbot is saved.</p>
+                     )}
+                     {/* Action Buttons for this tab (conditional for edit mode) */}
+                     {isEditMode && chatbotId && (
+                        <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                          <LoadingButton
+                            isLoading={false}
+                            loadingText="Canceling..."
+                            onClick={handleCancel}
+                            disabled={isPending}
+                            variant="secondary"
+                          >
+                            Cancel
+                          </LoadingButton>
+                          <LoadingButton
+                            isLoading={isPending || isRetrying}
+                            loadingText={isEditMode ? 'Updating...' : 'Saving...'}
+                            onClick={() => handleSave(false, isEditMode)}
+                            disabled={isPending || !isOnline}
+                          >
+                            {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
+                          </LoadingButton>
+                        </div>
+                     )}
+                </div>
+             )}
+
+             {/* Integrations Tab Content */}
+             {activeTab === 'integrations' && (
+                <div>
+                    {isEditMode && chatbotId ? (
+                        <IntegrationsPanel chatbotId={chatbotId} />
+                     ) : (
+                        <p className="text-gray-400">Integrations can be configured after the chatbot is saved.</p>
+                     )}
+                     {/* Action Buttons for this tab (conditional for edit mode) */}
+                     {isEditMode && chatbotId && (
+                        <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
+                          <LoadingButton
+                            isLoading={false}
+                            loadingText="Canceling..."
+                            onClick={handleCancel}
+                            disabled={isPending}
+                            variant="secondary"
+                          >
+                            Cancel
+                          </LoadingButton>
+                          <LoadingButton
+                            isLoading={isPending || isRetrying}
+                            loadingText={isEditMode ? 'Updating...' : 'Saving...'}
+                            onClick={() => handleSave(false, isEditMode)}
+                            disabled={isPending || !isOnline}
+                          >
+                            {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
+                          </LoadingButton>
+                        </div>
+                     )}
+                </div>
+             )}
+
+             {/* Analytics Tab Content */}
+             {activeTab === 'analytics' && (
+                <div>
                   {isEditMode && chatbotId ? (
-                      <EmbedCodeDisplay chatbotId={chatbotId} launcherIconUrl={botAvatarUrl} />
-                   ) : (
-                      <p className="text-gray-400">Embed code will be available after the chatbot is saved.</p>
-                   )}
-                   {/* Action Buttons for this tab (conditional for edit mode) */}
-                   {isEditMode && chatbotId && (
-                      <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                        <LoadingButton
-                          isLoading={false}
-                          loadingText="Canceling..."
-                          onClick={handleCancel}
-                          disabled={isPending}
-                          variant="secondary"
-                        >
-                          Cancel
-                        </LoadingButton>
-                        <LoadingButton
-                          isLoading={isPending || isRetrying}
-                          loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                          onClick={() => handleSave()}
-                          disabled={isPending || !isOnline}
-                        >
-                          {isEditMode ? 'Update Chatbot' : 'Save Chatbot'}
-                        </LoadingButton>
-                      </div>
-                   )}
-              </div>
-           )}
-
-           {/* Actions Tab Content */}
-           {activeTab === 'actions' && (
-              <div>
-                  {isEditMode && chatbotId ? (
-                      <ActionManager chatbotId={chatbotId} />
-                   ) : (
-                      <p className="text-gray-400">Actions can be configured after the chatbot is saved.</p>
-                   )}
-                   {/* Action Buttons for this tab (conditional for edit mode) */}
-                   {isEditMode && chatbotId && (
-                      <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                        <LoadingButton
-                          isLoading={false}
-                          loadingText="Canceling..."
-                          onClick={handleCancel}
-                          disabled={isPending}
-                          variant="secondary"
-                        >
-                          Cancel
-                        </LoadingButton>
-                        <LoadingButton
-                          isLoading={isPending || isRetrying}
-                          loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                          onClick={() => handleSave()}
-                          disabled={isPending || !isOnline}
-                        >
-                          {isEditMode ? 'Update Chatbot' : 'Save Chatbot'}
-                        </LoadingButton>
-                      </div>
-                   )}
-              </div>
-           )}
-
-           {/* Integrations Tab Content */}
-           {activeTab === 'integrations' && (
-              <div>
-                  {isEditMode && chatbotId ? (
-                      <IntegrationsPanel chatbotId={chatbotId} />
-                   ) : (
-                      <p className="text-gray-400">Integrations can be configured after the chatbot is saved.</p>
-                   )}
-                   {/* Action Buttons for this tab (conditional for edit mode) */}
-                   {isEditMode && chatbotId && (
-                      <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                        <LoadingButton
-                          isLoading={false}
-                          loadingText="Canceling..."
-                          onClick={handleCancel}
-                          disabled={isPending}
-                          variant="secondary"
-                        >
-                          Cancel
-                        </LoadingButton>
-                        <LoadingButton
-                          isLoading={isPending || isRetrying}
-                          loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                          onClick={() => handleSave()}
-                          disabled={isPending || !isOnline}
-                        >
-                          {isEditMode ? 'Update Chatbot' : 'Save Chatbot'}
-                        </LoadingButton>
-                      </div>
-                   )}
-              </div>
-           )}
-
-           {/* Analytics Tab Content */}
-           {activeTab === 'analytics' && (
-              <div>
-                {isEditMode && chatbotId ? (
-                  <AnalyticsPanel chatbotId={chatbotId} />
-                ) : (
-                  <p className="text-gray-400">Analytics are available after the chatbot is saved and has activity.</p>
-                )}
-              </div>
-           )}
-         </div>
+                    <AnalyticsPanel chatbotId={chatbotId} />
+                  ) : (
+                    <p className="text-gray-400">Analytics are available after the chatbot is saved and has activity.</p>
+                  )}
+                </div>
+             )}
+           </div>
+        </div>
       </div>
     </>
   )

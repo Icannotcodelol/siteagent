@@ -1,59 +1,71 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
 
 interface BuilderHeaderProps {
-  // Add title prop if needed for edit page
-  title?: string; 
+  title?: string; // Optional title, defaults to "Create New Chatbot"
 }
 
 // Basic header component for the builder layout
 export default function BuilderHeader({ title = "Create New Chatbot" }: BuilderHeaderProps) {
-  const router = useRouter()
-
-  // Use router.back() for a potentially better UX than always going to dashboard
-  // const handleBack = () => router.back(); 
-  
   return (
-    <header className="mb-6 flex items-center gap-4 pb-4 border-b border-gray-200">
-       {/* Back Button/Link */}
-       <button 
-          onClick={() => router.back()} 
-          className="text-gray-500 hover:text-gray-700"
-          aria-label="Go back"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-          </svg>
-       </button>
-       
-       {/* Title */}
-       <h1 className="text-xl font-semibold text-gray-900 whitespace-nowrap">
-           {title} {/* Use prop for title */} 
-       </h1>
-       
-       {/* Spacer */}
-       <div className="flex-grow"></div>
-       
-       {/* Placeholder Links - Use NavLink component if active styling needed */} 
-       <div className="hidden md:flex items-center space-x-4">
-          <Link href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">Dashboard</Link>
-          <Link href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">Templates</Link>
-          <Link href="#" className="text-sm font-medium text-gray-600 hover:text-gray-900">Documentation</Link>
-       </div>
-
-       {/* Placeholder Icons */}
-       <div className="flex items-center space-x-3">
-         <button className="text-gray-500 hover:text-gray-700">
-            {/* Bell Icon */} 
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg>
-         </button>
-         <button className="text-gray-500 hover:text-gray-700">
-           {/* User Icon - replace with avatar later */} 
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 rounded-full"><path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
-         </button>
-       </div>
+    <header className="relative mb-8">
+      {/* Background gradient effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 rounded-2xl blur-3xl" />
+      
+      <div className="relative glass rounded-2xl p-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            {/* Back button */}
+            <Link
+              href="/dashboard"
+              className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <div className="w-10 h-10 rounded-lg bg-gray-800/50 group-hover:bg-gray-700/50 flex items-center justify-center transition-all">
+                <ArrowLeft className="w-5 h-5" />
+              </div>
+              <span className="text-sm font-medium hidden sm:inline">Back to Dashboard</span>
+            </Link>
+            
+            {/* Title and breadcrumb */}
+            <div className="border-l border-gray-700 pl-6">
+              <nav className="flex items-center gap-2 text-xs text-gray-500 mb-2">
+                <Link href="/dashboard" className="hover:text-gray-300 transition-colors">
+                  Dashboard
+                </Link>
+                <span>/</span>
+                <span className="text-gray-400">Chatbots</span>
+                <span>/</span>
+                <span className="text-gray-300 font-medium">
+                  {title === "Create New Chatbot" ? "New" : "Edit"}
+                </span>
+              </nav>
+              <h1 className="text-3xl font-bold">
+                <span className="gradient-text">{title}</span>
+              </h1>
+            </div>
+          </div>
+          
+          {/* Status indicator */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800/50">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <span className="text-sm text-gray-400">Auto-saving</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Progress indicator for new chatbots */}
+        {title === "Create New Chatbot" && (
+          <div className="mt-6 flex items-center gap-4">
+            <div className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+              <div className="h-full w-1/3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-shimmer" />
+            </div>
+            <span className="text-xs text-gray-400">Step 1 of 3</span>
+          </div>
+        )}
+      </div>
     </header>
   );
 } 
