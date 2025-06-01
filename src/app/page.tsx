@@ -9,8 +9,8 @@ import type { Metadata } from "next";
 
 // Metadata for this page
 export const metadata: Metadata = {
-  title: "SiteAgent - AI Automation Revolution | Upload Content, Get Instant AI Automation",
-  description: "Transform your content into intelligent automation systems in minutes. Upload documents or paste website URLs to create AI assistants that schedule meetings, update CRM, and handle customer inquiries automatically.",
+  title: "SiteAgent - Smarter Chatbots. Faster | Turn Documents Into Custom Chatbots in Under 5 Minutes",
+  description: "Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes. Create intelligent AI assistants that schedule meetings, update CRM, and handle customer inquiries automatically.",
   keywords: "AI automation, chatbot, customer service automation, AI assistant, business automation, CRM integration, meeting scheduling, AI customer support",
   authors: [{ name: "SiteAgent" }],
   creator: "SiteAgent",
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://www.siteagent.eu/',
-    title: 'SiteAgent - AI Automation Revolution',
-    description: 'Transform your content into intelligent automation systems. Upload documents or paste URLs to create AI assistants that automate real business tasks.',
+    title: 'SiteAgent - Smarter Chatbots. Faster',
+    description: 'Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes. Create AI assistants that automate real business tasks.',
     siteName: 'SiteAgent',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SiteAgent - AI Automation Revolution',
-    description: 'Transform your content into intelligent automation systems in minutes.',
+    title: 'SiteAgent - Smarter Chatbots. Faster',
+    description: 'Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes.',
     creator: '@SiteAgent',
   },
   alternates: {
@@ -94,22 +94,19 @@ function RevolutionaryHero() {
             <div className="space-y-6">
               <h1 className="text-5xl md:text-7xl font-black leading-none tracking-tight">
                 <div className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-                  Your AI
+                  Smarter Chatbots.
                 </div>
                 <div className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent relative">
-                  Automation
+                  Faster
                   <div className="absolute -right-4 top-0">
                     <div className="w-3 h-3 bg-yellow-400 rounded-full animate-bounce"></div>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
-                  Revolution
-                </div>
               </h1>
               
               <p className="text-xl md:text-2xl text-gray-400 leading-relaxed max-w-2xl">
-                Upload your content and watch SiteAgent transform it into an intelligent automation powerhouse. 
-                <span className="text-blue-400 font-semibold"> See it work in real-time.</span>
+                Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes.
+                <Link href="#live-demo" className="text-blue-400 font-semibold hover:text-blue-300 transition-colors cursor-pointer"> See it work in real-time.</Link>
               </p>
             </div>
             

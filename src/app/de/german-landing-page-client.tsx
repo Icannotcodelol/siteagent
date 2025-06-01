@@ -210,23 +210,23 @@ function LiveDemoSection() {
               <span className="text-green-600 text-sm font-bold tracking-wide">LIVE DEMO</span>
             </div>
             <div className="w-px h-4 bg-gray-400"></div>
-            <span className="text-gray-700 text-sm">Kostenlos ausprobieren - Keine Registrierung erforderlich</span>
+            <span className="text-gray-700 text-sm">Kostenlos testen - Ohne Anmeldung</span>
           </div>
           
           <h2 className="text-4xl md:text-6xl font-black mb-6">
             <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-              Sehen Sie 
+              Erleben Sie{" "}
             </span>
             <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-              KI-Magie
+              KI-Power
             </span>
             <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-              {" "}in Aktion
+              {" "}live
             </span>
           </h2>
           
           <p className="text-xl md:text-2xl text-gray-600 leading-relaxed max-w-4xl mx-auto">
-            Laden Sie Ihre eigenen Inhalte hoch und erleben Sie, wie sie sich in Sekunden in einen intelligenten Automatisierungsassistenten verwandeln. Sehen Sie die Zukunft des Kundenservice in Echtzeit.
+            Laden Sie Ihre eigenen Inhalte hoch und sehen Sie, wie sie sich in Sekundenschnelle in einen intelligenten Assistenten verwandeln. Erleben Sie die Zukunft des Kundenservice hautnah.
           </p>
         </div>
 
@@ -244,39 +244,39 @@ function FeaturesSection() {
   const primaryFeatures = [
     { 
       img: "/icons/AI CHATBOT ICON.svg", 
-      title: "Sparen Sie 70% der Support-Kosten", 
-      description: "Bearbeiten Sie Routine-Anfragen automatisch und lassen Sie Ihr Team sich auf komplexe Probleme konzentrieren, die menschliche Expertise erfordern.",
+      title: "70% weniger Support-Kosten", 
+      description: "Routine-Anfragen werden automatisch bearbeitet, sodass sich Ihr Team auf komplexe Probleme konzentrieren kann, die menschliche Expertise erfordern.",
       stat: "70% Kostensenkung"
     },
     { 
       img: "/icons/Website Embedding.svg", 
-      title: "Einfach Website-URL einfügen", 
-      description: "Keine organisierten Dokumente? Kein Problem! Fügen Sie einfach Ihre Website-URL ein und wir erstellen sofort einen Experten-Chatbot aus all Ihren vorhandenen Inhalten - perfekt für vielbeschäftigte Teams.",
-      stat: "0 Setup-Zeit"
+      title: "Website-URL reicht völlig aus", 
+      description: "Keine aufwendige Dokumentenvorbereitung nötig! Einfach Website-URL eingeben und sofort einen Experten-Chatbot aus allen vorhandenen Inhalten erstellen - ideal für eilige Teams.",
+      stat: "0 Aufwand"
     },
     { 
       img: "/icons/External API Actions.svg", 
-      title: "Verwandeln Sie Besucher in Kunden", 
-      description: "Termine planen, CRM-Datensätze aktualisieren und Support-Tickets automatisch erstellen - verwandeln Sie jede Unterhaltung in eine Aktion.",
-      stat: "3x Conversion-Rate"
+      title: "Aus Besuchern werden Kunden", 
+      description: "Termine vereinbaren, CRM aktualisieren, Support-Tickets erstellen - jede Unterhaltung wird zur Geschäftschance.",
+      stat: "3x mehr Conversions"
     }
   ];
 
   const secondaryFeatures = [
     { 
       img: "/icons/Document Knowledge Base.svg", 
-      title: "Sofortiges Expertenwissen", 
-      description: "Laden Sie Ihre Dokumente einmal hoch und erhalten Sie sofort präzise, kontextuelle Antworten - wie Ihren besten Experten 24/7 verfügbar zu haben."
+      title: "Expertenwissen sofort verfügbar", 
+      description: "Dokumente einmal hochladen und sofort präzise, passende Antworten erhalten - als hätten Sie Ihren besten Experten rund um die Uhr im Einsatz."
     },
     { 
       img: "/icons/Powerful Analytics.svg", 
-      title: "Messen Sie echte Geschäftsauswirkungen", 
-      description: "Verfolgen Sie Lead-Generierung, Kundenzufriedenheit und Kosteneinsparungen mit detaillierten Analysen, die ROI beweisen."
+      title: "Geschäftserfolg messbar machen", 
+      description: "Lead-Generierung, Kundenzufriedenheit und Kosteneinsparungen im Detail verfolgen - mit Analysen, die den ROI schwarz auf weiß belegen."
     },
     { 
       img: "/icons/Enterprise Security.svg", 
-      title: "Enterprise-taugliche Sicherheit", 
-      description: "Implementieren Sie vertrauensvoll mit Verschlüsselung auf Bankniveau, Compliance-Features und rollenbasierter Zugriffskontrolle."
+      title: "Sicherheit auf Bankniveau", 
+      description: "Setzen Sie vertrauensvoll auf Verschlüsselung nach Bankstandard, Compliance-Features und rollenbasierte Zugriffskontrolle."
     }
   ];
 
@@ -306,11 +306,11 @@ function FeaturesSection() {
               
               <h2 className="text-4xl md:text-6xl font-black leading-none">
                 <span className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
-                  Hören Sie auf zu reden.
+                  Schluss mit Gerede.
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-green-500 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Fangen Sie an zu liefern.
+                  Zeit für Ergebnisse.
                 </span>
               </h2>
             </div>
@@ -439,30 +439,30 @@ function HowItWorksSection() {
   const steps = [
     { 
       number: "01", 
-      title: "Erstellen Sie Ihren Chatbot", 
-      description: "Richten Sie Ihren Chatbot in Minuten mit unserem intuitiven Dashboard ein. Definieren Sie seinen Zweck und seine Persönlichkeit.", 
-      features: ["Keine Programmierung erforderlich", "Anpassbares Erscheinungsbild", "Mehrere Chatbot-Vorlagen"],
+      title: "Chatbot einrichten", 
+      description: "Richten Sie Ihren Chatbot in wenigen Minuten über unser intuitives Dashboard ein. Bestimmen Sie Zweck und Persönlichkeit.", 
+      features: ["Keine Programmierung nötig", "Individuelles Design", "Verschiedene Chatbot-Vorlagen"],
       visual: "🤖"
     },
     { 
       number: "02", 
-      title: "Verbinden Sie Ihre Daten", 
-      description: "Fügen Sie einfach Ihre Website-URL für sofortiges Setup ein oder laden Sie Dokumente hoch, um Ihrem Chatbot die benötigten Informationen zu geben. Keine Organisation erforderlich!", 
-      features: ["Beliebige Website-URL einfügen (am einfachsten!)", "Dokumente hochladen (PDF, DOCX, etc.)", "Datenbanken & APIs verbinden"],
+      title: "Daten verknüpfen", 
+      description: "Einfach Website-URL eingeben für sofortiges Setup oder Dokumente hochladen - Ihr Chatbot erhält automatisch alle nötigen Informationen. Keine Aufbereitung erforderlich!", 
+      features: ["Beliebige Website-URL (am einfachsten!)", "Dokumente hochladen (PDF, DOCX, etc.)", "Datenbanken & APIs anbinden"],
       visual: "📚"
     },
     { 
       number: "03", 
       title: "Aktionen konfigurieren", 
-      description: "Richten Sie Integrationen mit Drittanbieter-Services ein, damit Ihr Chatbot echte Aktionen durchführen kann.", 
-      features: ["OAuth-Verbindungen", "Webhook-Trigger", "Benutzerdefinierte API-Integrationen"],
+      description: "Verbinden Sie Drittanbieter-Services, damit Ihr Chatbot echte Aufgaben erledigen kann.", 
+      features: ["OAuth-Verbindungen", "Webhook-Auslöser", "Individuelle API-Integrationen"],
       visual: "⚡"
     },
     { 
       number: "04", 
-      title: "Bereitstellen & Analysieren", 
-      description: "Betten Sie Ihren Chatbot in Ihre Website ein und verfolgen Sie seine Leistung mit detaillierten Analysen.", 
-      features: ["Einfacher Embed-Code", "Unterhaltungsanalysen", "Kontinuierliche Verbesserung"],
+      title: "Live schalten & auswerten", 
+      description: "Chatbot in Website einbetten und Leistung mit detaillierten Analysen verfolgen.", 
+      features: ["Einfacher Einbettungscode", "Gesprächsanalysen", "Kontinuierliche Optimierung"],
       visual: "📊"
     }
   ];
@@ -692,27 +692,15 @@ function TestimonialsSection() {
   const testimonials = [
     {
       content: "SiteAgent hat unsere Kundenbetreuung revolutioniert. Wir haben unsere Antwortzeiten um 90% reduziert und die Kundenzufriedenheit ist durch die Decke gegangen.",
-      author: "Sarah Mueller",
-      role: "Leiterin Kundenservice",
-      company: "TechFlow GmbH",
-      rating: 5,
-      avatar: "/avatars/sarah.jpg"
+      rating: 5
     },
     {
       content: "Was mich am meisten beeindruckt, ist, wie schnell es funktioniert. Innerhalb von 5 Minuten hatte ich einen voll funktionsfähigen KI-Assistenten auf meiner Website laufen.",
-      author: "Michael Schmidt",
-      role: "Gründer",
-      company: "Digital Solutions AG",
-      rating: 5,
-      avatar: "/avatars/michael.jpg"
+      rating: 5
     },
     {
       content: "Unser Sales-Team liebt es. Der KI-Assistent qualifiziert Leads automatisch und plant Termine - das hat unsere Conversion-Rate um 150% gesteigert.",
-      author: "Anna Weber",
-      role: "Vertriebsleiterin",
-      company: "InnovateTech",
-      rating: 5,
-      avatar: "/avatars/anna.jpg"
+      rating: 5
     }
   ];
 
@@ -727,7 +715,7 @@ function TestimonialsSection() {
           
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-              Geliebt von 
+              Geliebt von{" "}
             </span>
             <span className="bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
               Tausenden von Unternehmen
@@ -757,15 +745,13 @@ function TestimonialsSection() {
                 "{testimonial.content}"
               </blockquote>
 
-              {/* Author info */}
+              {/* Anonymous attribution */}
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold">
-                  {testimonial.author.split(' ').map(name => name[0]).join('')}
+                  <span className="text-sm">★</span>
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-800">{testimonial.author}</div>
-                  <div className="text-gray-600 text-sm">{testimonial.role}</div>
-                  <div className="text-blue-600 text-sm font-medium">{testimonial.company}</div>
+                  <div className="text-gray-600 text-sm font-medium">Verifizierter Kunde</div>
                 </div>
               </div>
             </div>
@@ -860,6 +846,7 @@ function PricingSection() {
         "Benutzerdefinierte Nachrichtenlimits",
         "Unbegrenztes Website-Crawling",
         "Dedicated Storage",
+        "On-Premise-Deployment",
         "White-Label-Lösungen",
         "Prioritäts-Support & SLA",
         "Benutzerdefinierte Integrationen",
@@ -1099,14 +1086,14 @@ function CtaSection() {
           </div>
           
           <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
-            Verwandeln Sie Ihre Inhalte in 
+            Machen Sie aus Ihren Inhalten
             <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-              {" "}KI-Superkräfte
+              {" "}echte KI-Power
             </span>
           </h2>
           
           <p className="text-xl md:text-2xl text-blue-100 mb-12 leading-relaxed max-w-3xl mx-auto">
-            Schließen Sie sich Tausenden von Unternehmen an, die bereits 70% ihrer Support-Kosten sparen und gleichzeitig die Kundenzufriedenheit steigern.
+            Schließen Sie sich Tausenden von Unternehmen an, die bereits 70% ihrer Support-Kosten sparen und gleichzeitig zufriedenere Kunden haben.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">

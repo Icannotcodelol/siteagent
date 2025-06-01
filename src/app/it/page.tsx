@@ -9,8 +9,8 @@ import type { Metadata } from "next";
 
 // Metadata for this page
 export const metadata: Metadata = {
-  title: "SiteAgent - Rivoluzione dell'Automazione AI | Carica Contenuti, Ottieni Automazione AI Istantanea",
-  description: "Trasforma i tuoi contenuti in sistemi di automazione intelligenti in pochi minuti. Carica documenti o incolla URL di siti web per creare assistenti AI che programmano riunioni, aggiornano CRM e gestiscono le richieste dei clienti automaticamente.",
+  title: "SiteAgent - Chatbot Intelligenti. Velocissimi | Trasforma Documenti in Chatbot in 5 Minuti",
+  description: "Trasforma i tuoi documenti in chatbot intelligenti e integrarli nel tuo sito. Tutto in meno di 5 minuti. Crea assistenti AI che programmano riunioni, aggiornano CRM e gestiscono automaticamente le richieste dei clienti.",
   keywords: "automazione AI, chatbot, automazione servizio clienti, assistente AI, automazione aziendale, integrazione CRM, programmazione riunioni, supporto clienti AI",
   authors: [{ name: "SiteAgent" }],
   creator: "SiteAgent",
@@ -30,14 +30,14 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'it_IT',
     url: 'https://www.siteagent.eu/it/',
-    title: 'SiteAgent - Rivoluzione dell\'Automazione AI',
-    description: 'Trasforma i tuoi contenuti in sistemi di automazione intelligenti. Carica documenti o incolla URL per creare assistenti AI che automatizzano vere attività aziendali.',
+    title: 'SiteAgent - Chatbot Intelligenti. Velocissimi',
+    description: 'Trasforma i tuoi documenti in chatbot intelligenti e integrarli nel tuo sito. Tutto in meno di 5 minuti.',
     siteName: 'SiteAgent',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SiteAgent - Rivoluzione dell\'Automazione AI',
-    description: 'Trasforma i tuoi contenuti in sistemi di automazione intelligenti in pochi minuti.',
+    title: 'SiteAgent - Chatbot Intelligenti. Velocissimi',
+    description: 'Trasforma i tuoi documenti in chatbot intelligenti e integrarli nel tuo sito. Tutto in meno di 5 minuti.',
     creator: '@SiteAgent',
   },
   alternates: {
@@ -91,24 +91,21 @@ function RevolutionaryHero() {
             </div>
             
             <div className="space-y-6">
-              <h1 className="text-5xl md:text-7xl font-black leading-none tracking-tight">
+              <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tight">
                 <div className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
-                  La Tua AI
+                  Chatbot Intelligenti.
                 </div>
                 <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent relative">
-                  Automazione
+                  Velocissimi
                   <div className="absolute -right-4 top-0">
                     <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce"></div>
                   </div>
                 </div>
-                <div className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
-                  Rivoluzione
-                </div>
               </h1>
               
               <p className="text-xl md:text-2xl text-gray-600 leading-relaxed max-w-2xl">
-                Carica i tuoi contenuti e guarda SiteAgent trasformarli in una potente automazione intelligente. 
-                <span className="text-blue-600 font-semibold"> Vedi come funziona in tempo reale.</span>
+                Trasforma i tuoi documenti in chatbot intelligenti e integrarli nel tuo sito. Tutto in meno di 5 minuti.
+                <Link href="#live-demo" className="text-blue-600 font-semibold hover:text-blue-500 transition-colors cursor-pointer"> Vedi come funziona in tempo reale.</Link>
               </p>
             </div>
             

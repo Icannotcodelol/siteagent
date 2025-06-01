@@ -578,19 +578,6 @@ function LiveDemoSection() {
           <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-6">
             Competitors show generic examples; we show your actual content. Instantly experience how SiteAgent automates real tasks like scheduling meetings, updating CRM, and more.
           </p>
-          
-          {/* Social proof about demo */}
-          <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 max-w-2xl mx-auto mb-8">
-            <div className="flex items-center justify-center mb-3">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="h-5 w-5 fill-current text-yellow-500 mx-0.5" />
-              ))}
-            </div>
-            <blockquote className="text-gray-300 text-lg italic mb-3">
-              "The demo sold us instantly. Seeing SiteAgent actually automate our customer interactions in real-time was unbelievable."
-            </blockquote>
-            <p className="text-gray-500 text-sm">— Beta user at TechCorp</p>
-          </div>
         </div>
 
         {/* Demo container with enhanced styling */}
@@ -1473,6 +1460,7 @@ function PricingSection() {
         "Custom message limits",
         "Unlimited website scraping",
         "Dedicated storage",
+        "On-premise deployment",
         "White-label solutions",
         "Priority support & SLA",
         "Custom integrations",

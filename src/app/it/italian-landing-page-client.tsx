@@ -209,11 +209,11 @@ function LiveDemoSection() {
             <span className="text-purple-600 text-sm font-medium">🥇 Esperienza Interattiva Unica</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Non l'Ennesima Demo di Chatbot—
-            <span className="block text-purple-600">L'Unica Che Agisce</span>
+            Niente Solita Demo di Chatbot—
+            <span className="block text-purple-600">L'Unica Che Funziona Davvero</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
-            I competitor mostrano esempi generici; noi mostriamo i tuoi contenuti reali. Sperimenta istantaneamente come SiteAgent automatizza attività reali come programmare riunioni, aggiornare CRM e altro.
+            I competitor mostrano esempi finti; noi mostriamo i tuoi veri contenuti. Scopri subito come SiteAgent automatizza task reali come prenotare appuntamenti, aggiornare il CRM e molto altro.
           </p>
           
           {/* Social proof about demo */}
@@ -224,9 +224,9 @@ function LiveDemoSection() {
               ))}
             </div>
             <blockquote className="text-gray-700 text-lg italic mb-3">
-              "La demo ci ha convinto istantaneamente. Vedere SiteAgent automatizzare realmente le nostre interazioni con i clienti in tempo reale è stato incredibile."
+              "La demo ci ha conquistati all'istante. Vedere SiteAgent automatizzare realmente le nostre interazioni con i clienti in tempo reale è stato straordinario."
             </blockquote>
-            <p className="text-gray-500 text-sm">— Utente beta di TechCorp</p>
+            <p className="text-gray-500 text-sm">— Beta tester verificato</p>
           </div>
         </div>
 
@@ -274,39 +274,39 @@ function FeaturesSection() {
   const primaryFeatures = [
     { 
       img: "/icons/AI CHATBOT ICON.svg", 
-      title: "Risparmia il 70% sui Costi di Supporto", 
-      description: "Gestisci automaticamente le richieste di routine, permettendo al tuo team di concentrarsi su problemi complessi che richiedono competenza umana.",
+      title: "70% in meno di costi assistenza", 
+      description: "Le richieste di routine vengono gestite automaticamente, permettendo al tuo team di concentrarsi su problemi complessi che richiedono competenza umana.",
       stat: "70% riduzione costi"
     },
     { 
       img: "/icons/Website Embedding.svg", 
-      title: "Basta Incollare l'URL del Tuo Sito", 
-      description: "Non hai documenti organizzati? Nessun problema! Incolla semplicemente l'URL del tuo sito web e creeremo istantaneamente un chatbot esperto da tutti i tuoi contenuti esistenti - perfetto per team impegnati.",
-      stat: "0 tempo di setup"
+      title: "Basta l'URL del tuo sito", 
+      description: "Niente documenti da preparare! Inserisci semplicemente l'URL del tuo sito e creiamo subito un chatbot esperto da tutti i tuoi contenuti esistenti - perfetto per team sempre di corsa.",
+      stat: "0 tempo setup"
     },
     { 
       img: "/icons/External API Actions.svg", 
-      title: "Converti Visitatori in Clienti", 
-      description: "Programma riunioni, aggiorna record CRM e crea ticket di supporto automaticamente - trasformando ogni conversazione in azione.",
-      stat: "3x tasso di conversione"
+      title: "Da visitatori a clienti", 
+      description: "Prenota appuntamenti, aggiorna CRM, crea ticket di supporto - ogni conversazione diventa un'opportunità di business.",
+      stat: "3x più conversioni"
     }
   ];
 
   const secondaryFeatures = [
     { 
       img: "/icons/Document Knowledge Base.svg", 
-      title: "Conoscenza Esperta Istantanea", 
-      description: "Carica i tuoi documenti una volta e ottieni risposte accurate e contestuali istantaneamente - come avere il tuo miglior esperto disponibile 24/7."
+      title: "Competenza esperta sempre disponibile", 
+      description: "Carica i documenti una volta e ottieni subito risposte precise e pertinenti - come avere il tuo miglior esperto a disposizione 24/7."
     },
     { 
       img: "/icons/Powerful Analytics.svg", 
-      title: "Misura l'Impatto Aziendale Reale", 
-      description: "Traccia generazione di lead, soddisfazione clienti e risparmi sui costi con analitiche dettagliate che dimostrano il ROI."
+      title: "Successo aziendale misurabile", 
+      description: "Monitora generazione lead, soddisfazione clienti e risparmio sui costi con analisi dettagliate che dimostrano il ROI nero su bianco."
     },
     { 
       img: "/icons/Enterprise Security.svg", 
-      title: "Sicurezza Enterprise-Ready", 
-      description: "Deploy con fiducia con crittografia di livello bancario, funzionalità di compliance e controlli di accesso basati sui ruoli."
+      title: "Sicurezza da settore bancario", 
+      description: "Implementa con fiducia grazie a crittografia di livello bancario, funzionalità di compliance e controllo accessi basato sui ruoli."
     }
   ];
 
@@ -336,11 +336,11 @@ function FeaturesSection() {
               
               <h2 className="text-4xl md:text-6xl font-black leading-none">
                 <span className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
-                  Smetti di Parlare.
+                  Basta chiacchiere.
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                  Inizia a Consegnare.
+                <span className="bg-gradient-to-r from-green-500 via-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Iniziamo a fare sul serio.
                 </span>
               </h2>
             </div>
@@ -469,30 +469,30 @@ function HowItWorksSection() {
   const steps = [
     { 
       number: "01", 
-      title: "Crea il Tuo Chatbot", 
-      description: "Imposta il tuo chatbot in pochi minuti con la nostra dashboard intuitiva. Definisci il suo scopo e personalità.", 
-      features: ["Nessuna programmazione richiesta", "Aspetto personalizzabile", "Template chatbot multipli"],
+      title: "Configura il chatbot", 
+      description: "Imposta il tuo chatbot in pochi minuti con la nostra dashboard intuitiva. Definisci scopo e personalità.", 
+      features: ["Nessuna programmazione necessaria", "Design personalizzabile", "Template chatbot multipli"],
       visual: "🤖"
     },
     { 
       number: "02", 
-      title: "Connetti i Tuoi Dati", 
-      description: "Incolla semplicemente l'URL del tuo sito web per un setup istantaneo, o carica documenti per dare al tuo chatbot le informazioni di cui ha bisogno. Nessuna organizzazione richiesta!", 
-      features: ["Incolla qualsiasi URL del sito web (più facile!)", "Carica documenti (PDF, DOCX, ecc.)", "Connetti database e API"],
+      title: "Collega i tuoi dati", 
+      description: "Inserisci semplicemente l'URL del tuo sito per un setup immediato o carica documenti - il chatbot ottiene automaticamente tutte le informazioni necessarie. Nessuna organizzazione richiesta!", 
+      features: ["Qualsiasi URL del sito (più facile!)", "Carica documenti (PDF, DOCX, ecc.)", "Collega database e API"],
       visual: "📚"
     },
     { 
       number: "03", 
-      title: "Configura Azioni", 
-      description: "Imposta integrazioni con servizi di terze parti per permettere al tuo chatbot di eseguire azioni reali.", 
+      title: "Configura le azioni", 
+      description: "Configura integrazioni con servizi di terze parti perché il tuo chatbot possa eseguire azioni concrete.", 
       features: ["Connessioni OAuth", "Trigger webhook", "Integrazioni API personalizzate"],
       visual: "⚡"
     },
     { 
       number: "04", 
-      title: "Deploy e Analizza", 
-      description: "Incorpora il tuo chatbot sul tuo sito web e traccia le sue performance con analitiche dettagliate.", 
-      features: ["Codice embed semplice", "Analitiche conversazioni", "Miglioramento continuo"],
+      title: "Pubblica e analizza", 
+      description: "Integra il chatbot nel tuo sito e monitora le performance con analisi dettagliate.", 
+      features: ["Codice embed semplice", "Analisi conversazioni", "Miglioramento continuo"],
       visual: "📊"
     }
   ];
@@ -890,6 +890,7 @@ function PricingSection() {
         "Limiti di messaggi personalizzati",
         "Scraping illimitato di siti web",
         "Archiviazione dedicata",
+        "Deployment on-premise",
         "Soluzioni white-label",
         "Supporto prioritario e SLA",
         "Integrazioni personalizzate",
@@ -1120,16 +1121,16 @@ function CtaSection() {
           
           <div className="relative z-10">
             {/* Enhanced heading with better typography */}
-            <h2 className="mb-6 text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl leading-tight">
-              Pronto a Trasformare il Tuo Sito Web
-              <span className="block bg-gradient-to-r from-yellow-300 via-orange-300 to-pink-300 bg-clip-text text-transparent mt-2">
-                con l'AI?
+            <h2 className="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">
+              Trasforma i tuoi contenuti in
+              <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                {" "}vera potenza AI
               </span>
             </h2>
             
             {/* Enhanced description */}
-            <p className="mb-10 text-xl text-blue-100 leading-relaxed max-w-3xl mx-auto">
-              Inizia la tua prova gratuita di 14 giorni oggi. Nessuna carta di credito richiesta.
+            <p className="text-xl md:text-2xl text-blue-100 mb-12 leading-relaxed max-w-3xl mx-auto">
+              Unisciti a migliaia di aziende che stanno già risparmiando il 70% sui costi di assistenza e aumentando la soddisfazione dei clienti.
             </p>
             
             {/* Enhanced button group */}
