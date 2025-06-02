@@ -22,6 +22,12 @@ export async function middleware(request: NextRequest) {
       return shouldRedirectToPolish
     }
 
+    // Check if user should be redirected to Spanish page
+    const shouldRedirectToSpanish = checkForSpanishRedirect(request)
+    if (shouldRedirectToSpanish) {
+      return shouldRedirectToSpanish
+    }
+
     const { supabase, response } = createClient(request)
 
     // Refresh session if expired - required for Server Components
@@ -256,6 +262,70 @@ function detectPolishUser(request: NextRequest): boolean {
   return false
 }
 
+function checkForSpanishRedirect(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl
+  
+  // Don't redirect if already on Spanish page or non-landing pages
+  if (pathname.startsWith('/es') || !isLandingPage(pathname)) {
+    return null
+  }
+  
+  // Check if user has manually chosen a language (via cookie)
+  const languagePreference = request.cookies.get('language-preference')?.value
+  if (languagePreference && languagePreference !== 'auto') {
+    return null // Respect user's manual choice
+  }
+  
+  const isSpanishUser = detectSpanishUser(request)
+  
+  if (isSpanishUser && pathname === '/') {
+    // Redirect to Spanish version
+    const url = request.nextUrl.clone()
+    url.pathname = '/es'
+    
+    const response = NextResponse.redirect(url)
+    
+    // Set a cookie to remember this is an auto-redirect
+    response.cookies.set('auto-redirected', 'es', {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+    
+    return response
+  }
+  
+  return null
+}
+
+function detectSpanishUser(request: NextRequest): boolean {
+  // Method 1: Check Vercel's geolocation headers (available on Vercel Edge)
+  const country = request.headers.get('x-vercel-ip-country')
+  if (country === 'ES') {
+    return true
+  }
+  
+  // Method 2: Check Cloudflare geolocation headers (if using Cloudflare)
+  const cfCountry = request.headers.get('cf-ipcountry')
+  if (cfCountry === 'ES') {
+    return true
+  }
+  
+  // Method 3: Browser language detection as fallback
+  const acceptLanguage = request.headers.get('accept-language')
+  if (acceptLanguage) {
+    // Check if Spanish is the primary language
+    const languages = acceptLanguage.split(',').map(lang => lang.trim().split(';')[0])
+    const primaryLanguage = languages[0]
+    if (primaryLanguage.startsWith('es')) {
+      return true
+    }
+  }
+  
+  return false
+}
+
 function isLandingPage(pathname: string): boolean {
   // Only redirect on the main landing page
   return pathname === '/'
@@ -268,6 +338,7 @@ function isPublicPath(pathname: string): boolean {
     '/it', // Add Italian page to public paths
     '/de', // Add German page to public paths
     '/pl', // Add Polish page to public paths
+    '/es', // Add Spanish page to public paths
     '/login',
     '/signup',
     '/auth',
