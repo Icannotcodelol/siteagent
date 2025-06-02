@@ -12,6 +12,10 @@ import MultipleDomainInput from './multiple-domain-input'
 import DocumentUploadForm from '../../[id]/_components/document-upload-form' 
 import DocumentList from '../../[id]/_components/document-list'
 import ProcessingStatus from '../../[id]/_components/processing-status'
+// Import enhanced components
+import EnhancedDocumentUpload from '../../[id]/_components/enhanced-document-upload'
+import EnhancedDocumentList from '../../[id]/_components/enhanced-document-list'
+import EnhancedProcessingStatus from '../../[id]/_components/enhanced-processing-status'
 import EmbedCodeDisplay from '../../[id]/_components/embed-code-display'
 // Import the new (placeholder) Actions component
 import ActionManager from '../../[id]/_components/action-manager'
@@ -48,8 +52,6 @@ interface ChatbotBuilderFormProps {
   initialName?: string;
   initialSystemPrompt?: string;
   chatbotId?: string; // ID indicates edit mode
-  documents?: any[]; // Add documents prop (use specific type if available)
-  documentsError?: Error | null; // Add documents error prop
   initialPrimaryColor?: string;
   initialSecondaryColor?: string;
   initialBackgroundColor?: string;
@@ -68,8 +70,6 @@ export default function ChatbotBuilderForm({
   initialName = '',
   initialSystemPrompt = '',
   chatbotId,
-  documents = [],
-  documentsError = null,
   initialPrimaryColor = '',
   initialSecondaryColor = '',
   initialBackgroundColor = '',
@@ -683,17 +683,14 @@ export default function ChatbotBuilderForm({
                 <p className="text-xs text-gray-500 mb-4">Upload PDFs, text files, Markdown, or CSV documents.</p>
                 {isEditMode && chatbotId ? (
                   <>
-                    {/* Processing Status Component */}
-                    <ProcessingStatus chatbotId={chatbotId} />
+                    {/* Enhanced Processing Status Component */}
+                    <EnhancedProcessingStatus chatbotId={chatbotId} />
                     
-                    <DocumentUploadForm chatbotId={chatbotId} />
-                    {documentsError && (
-                      <div className="mt-4 bg-red-900/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl" role="alert">
-                        <strong className="font-bold">Error loading documents:</strong>
-                        <span className="block sm:inline"> {documentsError.message}</span>
-                      </div>
-                    )}
-                    <DocumentList documents={documents ?? []} /> 
+                    {/* Enhanced Document Upload Component */}
+                    <EnhancedDocumentUpload chatbotId={chatbotId} disabled={isPending} />
+                    
+                    {/* Enhanced Document List Component */}
+                    <EnhancedDocumentList chatbotId={chatbotId} />
                   </>
                 ) : (
                   <div className="border-2 border-dashed border-gray-700/50 rounded-xl p-8 text-center hover:border-gray-600/50 transition-colors">

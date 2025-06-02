@@ -6,6 +6,8 @@ import "./globals.css";
 import { PostHogProvider } from './providers'
 import { WebVitals } from '@/app/_components/web-vitals'
 import { Analytics } from '@/app/_components/analytics'
+import { QueryProvider } from '@/lib/providers/query-provider'
+import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.siteagent.eu'),
@@ -72,8 +74,30 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-gray-950`}
       >
         <PostHogProvider>
-          <WebVitals />
-          {children}
+          <QueryProvider>
+            <WebVitals />
+            {children}
+            <Toaster 
+              position="top-right"
+              toastOptions={{
+                style: {
+                  background: '#1f2937',
+                  color: '#f9fafb',
+                  border: '1px solid #374151'
+                },
+                success: {
+                  style: {
+                    background: '#059669',
+                  },
+                },
+                error: {
+                  style: {
+                    background: '#dc2626',
+                  },
+                },
+              }}
+            />
+          </QueryProvider>
         </PostHogProvider>
         
         {/* Analytics scripts moved to client component */}

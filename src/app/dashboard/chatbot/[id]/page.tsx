@@ -88,17 +88,7 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
   }
 
 
-  // Fetch associated documents for this chatbot
-  const { data: documents, error: documentsError } = await supabase
-    .from('documents')
-    .select('id, file_name, created_at, embedding_status')
-    .eq('chatbot_id', chatbotId)
-    .order('created_at', { ascending: false })
-
-  if (documentsError) {
-    console.error(`Error fetching documents for chatbot ${chatbotId}:`, documentsError)
-    // Show an error message for documents, but still render the page
-  }
+  // Documents are now fetched client-side with React Query for real-time updates
 
   return (
     <ChatbotAppearanceProvider initialAppearance={{
@@ -127,9 +117,7 @@ export default async function ChatbotDetailPage({ params }: ChatbotDetailPagePro
             <ChatbotBuilderForm 
               initialName={chatbot.name} 
               initialSystemPrompt={chatbot.system_prompt ?? ''} 
-              chatbotId={chatbot.id} 
-              documents={documents ?? []} // Pass documents
-              documentsError={documentsError} // Pass error
+              chatbotId={chatbot.id}
               initialPrimaryColor={chatbot.primary_color ?? ''}
               initialSecondaryColor={chatbot.secondary_color ?? ''}
               initialBackgroundColor={chatbot.background_color ?? ''}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface EmbedCodeDisplayProps {
   chatbotId: string;
@@ -9,15 +9,34 @@ interface EmbedCodeDisplayProps {
 
 export default function EmbedCodeDisplay({ chatbotId, launcherIconUrl }: EmbedCodeDisplayProps) {
   const [copied, setCopied] = useState(false);
+  const [origin, setOrigin] = useState('');
+
+  // Get window.location.origin safely on client side
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   // Construct the embed code for the JavaScript widget
-  const scriptSrc = `${window.location.origin}/chatbot-widget.js`;
+  const scriptSrc = `${origin}/chatbot-widget.js`;
   const iconAttr = launcherIconUrl && launcherIconUrl.length < 400 ? `\n    data-launcher-icon=\"${launcherIconUrl}\"` : '';
   const embedCode = `<script
     src="${scriptSrc}"
     data-chatbot-id="${chatbotId}"${iconAttr}
     async
   ></script>`;
+
+  // Don't render anything until we have the origin
+  if (!origin) {
+    return (
+      <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+          <div className="h-20 bg-gray-300 rounded mb-3"></div>
+          <div className="h-8 bg-gray-300 rounded w-24"></div>
+        </div>
+      </div>
+    );
+  }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(embedCode).then(() => {
