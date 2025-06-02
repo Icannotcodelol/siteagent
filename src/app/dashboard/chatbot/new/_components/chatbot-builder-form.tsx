@@ -40,8 +40,8 @@ import {
 } from './error-handling'
 import EnhancedAppearanceTab from './enhanced-appearance-tab'
 
-// Define possible tab values
-type ActiveTab = 'settings' | 'dataSources' | 'appearance' | 'embed' | 'actions' | 'integrations' | 'analytics';
+// Define possible section values
+type Section = 'settings' | 'dataSources' | 'appearance' | 'embed' | 'actions' | 'integrations' | 'analytics';
 
 // Define props for the component
 interface ChatbotBuilderFormProps {
@@ -87,7 +87,7 @@ export default function ChatbotBuilderForm({
   const [systemPrompt, setSystemPrompt] = useState(initialSystemPrompt)
   const [pastedText, setPastedText] = useState('');
   const [websiteUrls, setWebsiteUrls] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<ActiveTab>('settings');
+  const [activeSection, setActiveSection] = useState<Section>('settings');
   const [isPending, setIsPending] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<AppError | null>(null)
@@ -118,28 +118,36 @@ export default function ChatbotBuilderForm({
   const [headerText, setHeaderText] = useState<string>(initialHeaderText);
   const [inputPlaceholder, setInputPlaceholder] = useState<string>(initialInputPlaceholder);
   const [showBranding, setShowBranding] = useState<boolean>(initialShowBranding);
-  const { setAppearance } = useChatbotAppearance();
-  const supabase = createSupabaseBrowserClient();
-  const { retry, retryCount, isRetrying, canRetry } = useRetry();
-  
-  // Auto-save timer ref
-  const autoSaveTimer = useRef<NodeJS.Timeout>()
 
-  const popularFontFamilies = [
-    { name: "Inter (Modern Sans-Serif)", value: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif" },
-    { name: "Roboto (Google Sans-Serif)", value: "'Roboto', sans-serif" },
-    { name: "Open Sans (Google Sans-Serif)", value: "'Open Sans', sans-serif" },
-    { name: "Lato (Google Sans-Serif)", value: "'Lato', sans-serif" },
-    { name: "Montserrat (Google Sans-Serif)", value: "'Montserrat', sans-serif" },
-    { name: "Nunito (Google Sans-Serif)", value: "'Nunito', sans-serif" },
-    { name: "Arial (Classic Sans-Serif)", value: "Arial, Helvetica, sans-serif" },
-    { name: "Verdana (Readable Sans-Serif)", value: "Verdana, Geneva, sans-serif" },
-    { name: "Georgia (Classic Serif)", value: "Georgia, serif" },
-    { name: "Times New Roman (Classic Serif)", value: "'Times New Roman', Times, serif" },
-    { name: "Courier New (Monospace)", value: "'Courier New', Courier, monospace" },
-  ];
+  // Create a supabase instance
+  const supabase = createSupabaseBrowserClient()
 
-  // Network status monitoring
+  // Initialize the appearance context
+  const { appearance, setAppearance } = useChatbotAppearance()
+
+  // Effect to sync props with appearance context when component mounts
+  useEffect(() => {
+    setAppearance({
+      primaryColor,
+      secondaryColor,
+      backgroundColor,
+      textColor,
+      fontFamily,
+      welcomeMessage,
+      botAvatarUrl,
+      userAvatarUrl,
+      chatBubbleStyle,
+      headerText,
+      inputPlaceholder,
+      showBranding
+    })
+  }, [
+    primaryColor, secondaryColor, backgroundColor, textColor, fontFamily,
+    welcomeMessage, botAvatarUrl, userAvatarUrl, chatBubbleStyle,
+    headerText, inputPlaceholder, showBranding, setAppearance
+  ])
+
+  // Detect online status
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
     const handleOffline = () => setIsOnline(false)
@@ -153,32 +161,52 @@ export default function ChatbotBuilderForm({
     }
   }, [])
 
-  // Update state if props change (e.g., navigating between chatbots)
+  // Scroll spy to update active section
   useEffect(() => {
-    setName(initialName);
-    setSystemPrompt(initialSystemPrompt);
-    setPastedText('');
-    setWebsiteUrls([]);
-    setValidationErrors({});
-    setError(null);
-  }, [initialName, initialSystemPrompt, chatbotId]);
+    const handleScroll = () => {
+      const sections = ['settings', 'dataSources', 'appearance', 'embed', 'actions', 'integrations', 'analytics'];
+      const scrollPosition = window.scrollY + 200; // Offset for better UX
 
-  // Validation function
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const offsetTop = element.offsetTop;
+          const offsetBottom = offsetTop + element.offsetHeight;
+          
+          if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
+            setActiveSection(section as Section);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Auto-retry with exponential backoff
+  const { isRetrying, retry: handleRetry } = useRetry()
+
   const validateForm = () => {
     const errors: Record<string, string> = {}
     
     if (!name.trim()) {
       errors.name = 'Chatbot name is required'
-    }
-    
-    if (name.trim().length > 100) {
+    } else if (name.trim().length < 2) {
+      errors.name = 'Chatbot name must be at least 2 characters'
+    } else if (name.trim().length > 100) {
       errors.name = 'Chatbot name must be less than 100 characters'
     }
     
-    // Validate URLs
+    // Basic URL validation for website URLs
     websiteUrls.forEach((url, index) => {
-      if (url.trim() && !url.match(/^https?:\/\/.+/)) {
-        errors[`url_${index}`] = `Invalid URL format: ${url}`
+      if (url.trim()) {
+        try {
+          new URL(url.trim())
+        } catch {
+          errors[`url_${index}`] = `Invalid URL format for website ${index + 1}`
+        }
       }
     })
     
@@ -186,50 +214,40 @@ export default function ChatbotBuilderForm({
     return Object.keys(errors).length === 0
   }
 
-  // Auto-save functionality - DISABLED
+  // Auto-save functionality (if needed)
   const triggerAutoSave = () => {
-    // Auto-save disabled - manual save only
-    return
+    // Implementation for auto-save
+    // This could be debounced and called on form changes
   }
-
-  // Auto-save trigger - DISABLED
-  // useEffect(() => {
-  //   triggerAutoSave()
-  //   return () => {
-  //     if (autoSaveTimer.current) {
-  //       clearTimeout(autoSaveTimer.current)
-  //     }
-  //   }
-  // }, [name, systemPrompt, pastedText, websiteUrls, primaryColor, secondaryColor, backgroundColor, textColor, fontFamily, welcomeMessage, botAvatarUrl, userAvatarUrl, chatBubbleStyle, headerText, inputPlaceholder, showBranding])
 
   const initializeProgressSteps = (hasWebsiteUrls: boolean, hasPastedText: boolean) => {
     const steps = [
       {
-        title: 'Creating chatbot',
-        description: 'Setting up basic configuration',
+        title: 'Creating Chatbot',
+        description: 'Setting up your chatbot configuration',
         status: 'pending' as const
       }
     ]
     
     if (hasPastedText) {
       steps.push({
-        title: 'Processing text content',
-        description: 'Adding pasted text to knowledge base',
+        title: 'Processing Text Content',
+        description: 'Analyzing and indexing your text content',
         status: 'pending' as const
       })
     }
     
     if (hasWebsiteUrls) {
       steps.push({
-        title: 'Scraping websites',
+        title: 'Scraping Websites',
         description: 'Extracting content from provided URLs',
         status: 'pending' as const
       })
     }
     
     steps.push({
-      title: 'Finalizing setup',
-      description: 'Completing chatbot configuration',
+      title: 'Finalizing Setup',
+      description: 'Completing chatbot initialization',
       status: 'pending' as const
     })
     
@@ -241,26 +259,24 @@ export default function ChatbotBuilderForm({
     setProgressSteps(prev => prev.map((step, index) => 
       index === stepIndex ? { ...step, status, error } : step
     ))
-    if (status === 'completed' || status === 'failed') {
-      setCurrentStep(prev => prev + 1)
-    }
+    setCurrentStep(stepIndex)
   }
 
   // Helper function to get the next tab in the sequence
-  const getNextTab = (currentTab: ActiveTab): ActiveTab | null => {
-    const tabSequence: ActiveTab[] = ['settings', 'dataSources', 'appearance', 'embed', 'actions', 'integrations', 'analytics']
-    const currentIndex = tabSequence.indexOf(currentTab)
+  const getNextSection = (currentSection: Section): Section | null => {
+    const sectionSequence: Section[] = ['settings', 'dataSources', 'appearance', 'embed', 'actions', 'integrations', 'analytics']
+    const currentIndex = sectionSequence.indexOf(currentSection)
     
-    if (currentIndex >= 0 && currentIndex < tabSequence.length - 1) {
-      return tabSequence[currentIndex + 1]
+    if (currentIndex >= 0 && currentIndex < sectionSequence.length - 1) {
+      return sectionSequence[currentIndex + 1]
     }
     
-    return null // No next tab (we're on the last tab)
+    return null // No next section (we're on the last section)
   }
 
-  // Helper function to check if current tab is the last tab
-  const isLastTab = (currentTab: ActiveTab): boolean => {
-    return currentTab === 'analytics'
+  // Helper function to check if current section is the last section
+  const isLastSection = (currentSection: Section): boolean => {
+    return currentSection === 'analytics'
   }
 
   const handleSave = async (silent = false, autoAdvance = false) => {
@@ -350,83 +366,68 @@ export default function ChatbotBuilderForm({
         }
       }
 
-      if (result?.success) {
-        if (!isEditMode && result.chatbotId) {
-          if (!silent) {
-            setTimeout(() => {
-              setShowProgress(false)
+      if (result.success) {
+        setAutoSaveStatus('saved')
+        setLastSaved(new Date())
+        
+        if (!silent) {
+          if (isEditMode) {
+            // Show success message (you could implement a success toast component)
+            console.log('Chatbot updated successfully!')
+            router.refresh()
+          } else {
+            console.log('Chatbot created successfully!')
+            if (result.chatbotId) {
               router.push(`/dashboard/chatbot/${result.chatbotId}`)
-            }, 1000)
-          }
-        } else if (isEditMode) {
-          if (!silent) {
-            console.log('Update successful');
-            
-            // Auto-advance to next tab if requested and we're in edit mode
-            if (autoAdvance) {
-              const nextTab = getNextTab(activeTab)
-              if (nextTab) {
-                setActiveTab(nextTab)
-              }
-            } else {
-              router.refresh();
             }
           }
-        } else {
-          throw new Error('Chatbot created but failed to get ID.');
         }
       } else {
-        throw new Error(result?.error || 'An unexpected error occurred. Please try again.');
+        throw new Error(result.error || 'Unknown error occurred')
       }
-    } catch (error) {
-      const errorMessage = getErrorMessage(error)
-      const appError = createError('server', errorMessage, { retryable: true })
-      setError(appError)
+    } catch (err: any) {
+      console.error('Save error:', err)
+      const errorMessage = getErrorMessage(err)
+      setError(createError('server', errorMessage, { retryable: true }))
+      setAutoSaveStatus('error')
       
       if (!silent && !isEditMode && progressSteps.length > 0) {
         updateProgressStep(currentStep, 'failed', errorMessage)
       }
     } finally {
       setIsPending(false)
-    }
-  }
-
-  const handleRetry = async () => {
-    if (!canRetry) return
-    
-    try {
-      await retry(() => handleSave(false, isEditMode))
-      setError(null)
-    } catch (error) {
-      const errorMessage = getErrorMessage(error)
-      setError(createError('server', errorMessage, { retryable: canRetry }))
-    }
-  }
-
-  const handleCancel = () => {
-    if (isEditMode) {
-        router.back();
-    } else {
-        router.push('/dashboard');
-    }
-  }
-
-  const handleFieldFocus = (field: string) => {
-    // Focus on the field with validation error
-    const element = document.getElementById(field) || document.querySelector(`[name="${field}"]`)
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      if (element instanceof HTMLElement) {
-        element.focus()
+      if (!silent) {
+        setShowProgress(false)
       }
     }
   }
 
-  // Helper function for tab button classes
-  const getTabClass = (tabName: ActiveTab) => {
-    const isActive = activeTab === tabName;
+  const handleCancel = () => {
+    router.push('/dashboard')
+  }
+
+  const handleFieldFocus = (field: string) => {
+    // Clear validation error when field is focused
+    if (validationErrors[field]) {
+      setValidationErrors(prev => ({ ...prev, [field]: '' }))
+    }
+  }
+
+  const scrollToSection = (sectionId: Section) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start',
+        inline: 'nearest'
+      });
+    }
+  };
+
+  const getSectionClass = (sectionName: Section) => {
+    const isActive = activeSection === sectionName;
     return `
-      relative w-full text-left px-5 py-3 text-sm font-medium rounded-xl 
+      relative w-full text-left px-5 py-3 text-sm font-medium rounded-xl cursor-pointer
       transition-all duration-200 
       ${isActive 
         ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg transform scale-105' 
@@ -436,8 +437,8 @@ export default function ChatbotBuilderForm({
     `;
   };
 
-  // Tab icon mapping
-  const tabIcons: Record<ActiveTab, string> = {
+  // Section icon mapping
+  const sectionIcons: Record<Section, string> = {
     settings: '⚙️',
     dataSources: '📚',
     appearance: '🎨',
@@ -466,7 +467,7 @@ export default function ChatbotBuilderForm({
         <ErrorToast
           error={error}
           onDismiss={() => setError(null)}
-          onRetry={error.retryable ? handleRetry : undefined}
+          onRetry={error.retryable ? () => handleRetry(() => handleSave(false, false)) : undefined}
         />
       )}
       
@@ -479,33 +480,23 @@ export default function ChatbotBuilderForm({
         onFieldFocus={handleFieldFocus}
       />
 
-      {/* Auto-save Indicator - DISABLED */}
-      {/* <div className="flex justify-between items-center mb-4">
-        <div></div>
-        <AutoSaveIndicator 
-          status={autoSaveStatus}
-          lastSaved={lastSaved}
-          error={error?.message}
-        />
-      </div> */}
-
       {/* Main container: flex row, form card styling */}
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Left Column: Vertical Tab Navigation */}
+        {/* Left Column: Vertical Section Navigation */}
         <div className="lg:w-64 flex-shrink-0">
           <div className="glass rounded-xl p-4 sticky top-24">
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">Configuration</h3>
             <div className="space-y-2">
-              {Object.entries(tabIcons).map(([tab, icon]) => (
+              {Object.entries(sectionIcons).map(([section, icon]) => (
                 <button 
-                  key={tab}
+                  key={section}
                   type="button" 
-                  className={getTabClass(tab as ActiveTab)} 
-                  onClick={() => setActiveTab(tab as ActiveTab)}
+                  className={getSectionClass(section as Section)} 
+                  onClick={() => scrollToSection(section as Section)}
                 >
                   <span className="relative z-10 flex items-center gap-3">
                     <span className="text-lg">{icon}</span>
-                    <span className="capitalize">{tab === 'dataSources' ? 'Data Sources' : tab}</span>
+                    <span className="capitalize">{section === 'dataSources' ? 'Data Sources' : section}</span>
                   </span>
                 </button>
               ))}
@@ -522,363 +513,298 @@ export default function ChatbotBuilderForm({
           </div>
         </div>
 
-        {/* Right Column: Tab Content Area */}
-        <div className="flex-1">
-          <div className="glass rounded-xl p-8">
-            {/* Tab Header */}
+        {/* Right Column: All Sections */}
+        <div className="flex-1 space-y-8">
+          {/* Settings Section */}
+          <section id="settings" className="glass rounded-xl p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                <span className="text-3xl">{tabIcons[activeTab]}</span>
-                <span className="capitalize">{activeTab === 'dataSources' ? 'Data Sources' : activeTab}</span>
+                <span className="text-3xl">{sectionIcons.settings}</span>
+                <span>Settings</span>
               </h2>
               <p className="text-gray-400 mt-2">
-                {activeTab === 'settings' && 'Configure basic chatbot settings and behavior'}
-                {activeTab === 'dataSources' && 'Add documents, websites, and text to train your chatbot'}
-                {activeTab === 'appearance' && 'Customize the look and feel of your chatbot'}
-                {activeTab === 'embed' && 'Get the code to add your chatbot to any website'}
-                {activeTab === 'actions' && 'Set up automated actions and workflows'}
-                {activeTab === 'integrations' && 'Connect your chatbot to external services'}
-                {activeTab === 'analytics' && 'View chatbot performance and usage metrics'}
+                Configure basic chatbot settings and behavior
               </p>
             </div>
 
-            {/* Settings Tab Content */}
-            {activeTab === 'settings' && (
-              <div className="space-y-8">
-                {/* Name Input */}
-                <div>
-                  <label htmlFor="chatbot-name" className="block text-sm font-medium text-gray-300 mb-2">
-                    Chatbot Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="chatbot-name"
-                    name="name"
-                    value={name}
-                    onChange={(e) => { 
-                      const v = e.target.value; 
-                      setName(v);
-                      // Clear validation error when user starts typing
-                      if (validationErrors.name) {
-                        setValidationErrors(prev => ({ ...prev, name: '' }))
-                      }
-                    }}
-                    placeholder="e.g., Product Support Assistant"
-                    required
-                    className={`block w-full px-4 py-3 bg-gray-800/50 border rounded-xl shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${
-                      validationErrors.name ? 'border-red-500' : 'border-gray-700/50'
-                    }`}
-                    disabled={isPending}
-                  />
-                  <FieldError error={validationErrors.name} />
-                </div>
+            <div className="space-y-8">
+              {/* Name Input */}
+              <div>
+                <label htmlFor="chatbot-name" className="block text-sm font-medium text-gray-300 mb-2">
+                  Chatbot Name *
+                </label>
+                <input
+                  type="text"
+                  id="chatbot-name"
+                  name="name"
+                  value={name}
+                  onChange={(e) => { 
+                    const v = e.target.value; 
+                    setName(v);
+                    // Clear validation error when user starts typing
+                    if (validationErrors.name) {
+                      setValidationErrors(prev => ({ ...prev, name: '' }))
+                    }
+                  }}
+                  placeholder="e.g., Product Support Assistant"
+                  required
+                  className={`block w-full px-4 py-3 bg-gray-800/50 border rounded-xl shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all ${
+                    validationErrors.name ? 'border-red-500' : 'border-gray-700/50'
+                  }`}
+                  disabled={isPending}
+                />
+                <FieldError error={validationErrors.name} />
+              </div>
 
-                {/* System Prompt Input */}
-                <div>
-                  <PromptInput
-                    value={systemPrompt}
-                    onChange={(v) => { setSystemPrompt(v); }}
-                    disabled={isPending}
-                  />
-                </div>
-                
-                {/* Action Buttons for this tab */}
-                <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                  <LoadingButton
-                    isLoading={false}
-                    loadingText="Canceling..."
-                    onClick={handleCancel}
-                    disabled={isPending}
-                    variant="secondary"
-                  >
-                    Cancel
-                  </LoadingButton>
-                  <LoadingButton
-                    isLoading={isPending || isRetrying}
-                    loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                    onClick={() => handleSave(false, isEditMode)}
-                    disabled={isPending || !isOnline}
-                  >
-                    {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
-                  </LoadingButton>
+              {/* System Prompt Input */}
+              <div>
+                <PromptInput
+                  value={systemPrompt}
+                  onChange={(v) => { setSystemPrompt(v); }}
+                  disabled={isPending}
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Data Sources Section */}
+          <section id="dataSources" className="glass rounded-xl p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">{sectionIcons.dataSources}</span>
+                <span>Data Sources</span>
+              </h2>
+              <p className="text-gray-400 mt-2">
+                Add documents, websites, and text to train your chatbot
+              </p>
+            </div>
+
+            <div className="space-y-8">
+              {/* Text Input Section */}
+              <div className="glass rounded-xl p-6">
+                <label htmlFor="pasted-text" className="block text-sm font-medium text-gray-300 mb-2">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">📝</span>
+                    Paste Text Content
+                  </span>
+                </label>
+                <p className="text-xs text-gray-500 mb-4">Add any text content you want your chatbot to learn from.</p>
+                <textarea
+                  id="pasted-text"
+                  rows={8}
+                  value={pastedText}
+                  onChange={(e) => { const v=e.target.value; setPastedText(v); }}
+                  placeholder="Paste your content here..."
+                  className="block w-full px-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-xl shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
+                  disabled={isPending}
+                />
+                <div className="mt-2 flex justify-between text-xs text-gray-500">
+                  <span>{pastedText.length} characters</span>
+                  <span>Tip: Include FAQs, product info, or documentation</span>
                 </div>
               </div>
-            )}
 
-             {/* Data Sources Tab Content */}
-             {activeTab === 'dataSources' && (
-                 <div className="space-y-8">
-                     {/* Text Input Section */}
-                     <div className="glass rounded-xl p-6">
-                         <label htmlFor="pasted-text" className="block text-sm font-medium text-gray-300 mb-2">
-                             <span className="flex items-center gap-2">
-                               <span className="text-lg">📝</span>
-                               Paste Text Content
-                             </span>
-                         </label>
-                         <p className="text-xs text-gray-500 mb-4">Add any text content you want your chatbot to learn from.</p>
-                         <textarea
-                             id="pasted-text"
-                             rows={8}
-                             value={pastedText}
-                             onChange={(e) => { const v=e.target.value; setPastedText(v); }}
-                             placeholder="Paste your content here..."
-                             className="block w-full px-4 py-3 bg-gray-800/50 border border-gray-700/50 rounded-xl shadow-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none"
-                             disabled={isPending}
-                         />
-                         <div className="mt-2 flex justify-between text-xs text-gray-500">
-                           <span>{pastedText.length} characters</span>
-                           <span>Tip: Include FAQs, product info, or documentation</span>
-                         </div>
-                     </div>
+              {/* Website Scrape Section */}
+              <div className="glass rounded-xl p-6">
+                <label htmlFor="website-url" className="block text-sm font-medium text-gray-300 mb-2">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">🌐</span>
+                    Website Scraping
+                  </span>
+                </label>
+                <p className="text-xs text-gray-500 mb-4">Enter URLs to automatically extract content from websites.</p>
+                <MultipleDomainInput
+                  domains={websiteUrls}
+                  onChange={setWebsiteUrls}
+                  disabled={isPending}
+                />
+                {/* Show URL validation errors */}
+                {Object.entries(validationErrors).filter(([key]) => key.startsWith('url_')).map(([key, error]) => (
+                  <FieldError key={key} error={error} />
+                ))}
+              </div>
 
-                     {/* Website Scrape Section */}
-                     <div className="glass rounded-xl p-6">
-                         <label htmlFor="website-url" className="block text-sm font-medium text-gray-300 mb-2">
-                             <span className="flex items-center gap-2">
-                               <span className="text-lg">🌐</span>
-                               Website Scraping
-                             </span>
-                         </label>
-                         <p className="text-xs text-gray-500 mb-4">Enter URLs to automatically extract content from websites.</p>
-                         <MultipleDomainInput
-                             domains={websiteUrls}
-                             onChange={setWebsiteUrls}
-                             disabled={isPending}
-                         />
-                         {/* Show URL validation errors */}
-                         {Object.entries(validationErrors).filter(([key]) => key.startsWith('url_')).map(([key, error]) => (
-                           <FieldError key={key} error={error} />
-                         ))}
-                     </div>
-
-                    {/* File Upload Section (Conditional based on mode) */}
-                    <div className="glass rounded-xl p-6">
-                         <h3 className="text-sm font-medium text-gray-300 mb-2">
-                           <span className="flex items-center gap-2">
-                             <span className="text-lg">📁</span>
-                             Document Upload
-                           </span>
-                         </h3>
-                         <p className="text-xs text-gray-500 mb-4">Upload PDFs, text files, Markdown, or CSV documents.</p>
-                         {isEditMode && chatbotId ? (
-                           <>
-                             {/* Processing Status Component */}
-                             <ProcessingStatus chatbotId={chatbotId} />
-                             
-                             <DocumentUploadForm chatbotId={chatbotId} />
-                             {documentsError && (
-                                <div className="mt-4 bg-red-900/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl" role="alert">
-                                    <strong className="font-bold">Error loading documents:</strong>
-                                    <span className="block sm:inline"> {documentsError.message}</span>
-                                </div>
-                             )}
-                             <DocumentList documents={documents ?? []} /> 
-                           </>
-                         ) : (
-                            <div className="border-2 border-dashed border-gray-700/50 rounded-xl p-8 text-center hover:border-gray-600/50 transition-colors">
-                                <div className="w-16 h-16 mx-auto bg-gray-800/50 rounded-xl flex items-center justify-center mb-4">
-                                  <svg className="w-8 h-8 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
-                                  </svg>
-                                </div>
-                                <h3 className="text-sm font-medium text-white mb-1">File Upload Available After Save</h3>
-                                <p className="text-xs text-gray-500">Save your chatbot to enable document uploads</p>
-                            </div>
-                         )}
-                    </div>
+              {/* File Upload Section (Conditional based on mode) */}
+              <div className="glass rounded-xl p-6">
+                <h3 className="text-sm font-medium text-gray-300 mb-2">
+                  <span className="flex items-center gap-2">
+                    <span className="text-lg">📁</span>
+                    Document Upload
+                  </span>
+                </h3>
+                <p className="text-xs text-gray-500 mb-4">Upload PDFs, text files, Markdown, or CSV documents.</p>
+                {isEditMode && chatbotId ? (
+                  <>
+                    {/* Processing Status Component */}
+                    <ProcessingStatus chatbotId={chatbotId} />
                     
-                    {/* Action Buttons for this tab */}
-                    <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                      <LoadingButton
-                        isLoading={false}
-                        loadingText="Canceling..."
-                        onClick={handleCancel}
-                        disabled={isPending}
-                        variant="secondary"
-                      >
-                        Cancel
-                      </LoadingButton>
-                      <LoadingButton
-                        isLoading={isPending || isRetrying}
-                        loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                        onClick={() => handleSave(false, isEditMode)}
-                        disabled={isPending || !isOnline}
-                      >
-                        {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
-                      </LoadingButton>
+                    <DocumentUploadForm chatbotId={chatbotId} />
+                    {documentsError && (
+                      <div className="mt-4 bg-red-900/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl" role="alert">
+                        <strong className="font-bold">Error loading documents:</strong>
+                        <span className="block sm:inline"> {documentsError.message}</span>
+                      </div>
+                    )}
+                    <DocumentList documents={documents ?? []} /> 
+                  </>
+                ) : (
+                  <div className="border-2 border-dashed border-gray-700/50 rounded-xl p-8 text-center hover:border-gray-600/50 transition-colors">
+                    <div className="w-16 h-16 mx-auto bg-gray-800/50 rounded-xl flex items-center justify-center mb-4">
+                      <svg className="w-8 h-8 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" />
+                      </svg>
                     </div>
-                 </div>
-             )}
-
-             {/* Appearance Tab Content */}
-             {activeTab === 'appearance' && (
-                <div>
-                  <EnhancedAppearanceTab
-                    chatbotId={chatbotId}
-                    isEditMode={isEditMode}
-                    primaryColor={primaryColor}
-                    setPrimaryColor={setPrimaryColor}
-                    secondaryColor={secondaryColor}
-                    setSecondaryColor={setSecondaryColor}
-                    backgroundColor={backgroundColor}
-                    setBackgroundColor={setBackgroundColor}
-                    textColor={textColor}
-                    setTextColor={setTextColor}
-                    fontFamily={fontFamily}
-                    setFontFamily={setFontFamily}
-                    welcomeMessage={welcomeMessage}
-                    setWelcomeMessage={setWelcomeMessage}
-                    botAvatarUrl={botAvatarUrl}
-                    setBotAvatarUrl={setBotAvatarUrl}
-                    userAvatarUrl={userAvatarUrl}
-                    setUserAvatarUrl={setUserAvatarUrl}
-                    chatBubbleStyle={chatBubbleStyle}
-                    setChatBubbleStyle={setChatBubbleStyle}
-                    headerText={headerText}
-                    setHeaderText={setHeaderText}
-                    inputPlaceholder={inputPlaceholder}
-                    setInputPlaceholder={setInputPlaceholder}
-                    showBranding={showBranding}
-                    setShowBranding={setShowBranding}
-                    supabase={supabase}
-                    setError={setError}
-                    createError={createError}
-                  />
-                  
-                  {/* Action Buttons for this tab */}
-                  <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                    <LoadingButton
-                      isLoading={false}
-                      loadingText="Canceling..."
-                      onClick={handleCancel}
-                      disabled={isPending}
-                      variant="secondary"
-                    >
-                      Cancel
-                    </LoadingButton>
-                    <LoadingButton
-                      isLoading={isPending || isRetrying}
-                      loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                      onClick={() => handleSave(false, isEditMode)}
-                      disabled={isPending || !isOnline}
-                    >
-                      {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
-                    </LoadingButton>
+                    <h3 className="text-sm font-medium text-white mb-1">File Upload Available After Save</h3>
+                    <p className="text-xs text-gray-500">Save your chatbot to enable document uploads</p>
                   </div>
-                </div>
-             )}
+                )}
+              </div>
+            </div>
+          </section>
 
-             {/* Embed Tab Content */}
-             {activeTab === 'embed' && (
-                <div>
-                    {isEditMode && chatbotId ? (
-                        <EmbedCodeDisplay chatbotId={chatbotId} launcherIconUrl={botAvatarUrl} />
-                     ) : (
-                        <p className="text-gray-400">Embed code will be available after the chatbot is saved.</p>
-                     )}
-                     {/* Action Buttons for this tab (conditional for edit mode) */}
-                     {isEditMode && chatbotId && (
-                        <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                          <LoadingButton
-                            isLoading={false}
-                            loadingText="Canceling..."
-                            onClick={handleCancel}
-                            disabled={isPending}
-                            variant="secondary"
-                          >
-                            Cancel
-                          </LoadingButton>
-                          <LoadingButton
-                            isLoading={isPending || isRetrying}
-                            loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                            onClick={() => handleSave(false, isEditMode)}
-                            disabled={isPending || !isOnline}
-                          >
-                            {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
-                          </LoadingButton>
-                        </div>
-                     )}
-                </div>
-             )}
+          {/* Appearance Section */}
+          <section id="appearance" className="glass rounded-xl p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">{sectionIcons.appearance}</span>
+                <span>Appearance</span>
+              </h2>
+              <p className="text-gray-400 mt-2">
+                Customize the look and feel of your chatbot
+              </p>
+            </div>
 
-             {/* Actions Tab Content */}
-             {activeTab === 'actions' && (
-                <div>
-                    {isEditMode && chatbotId ? (
-                        <ActionManager chatbotId={chatbotId} />
-                     ) : (
-                        <p className="text-gray-400">Actions can be configured after the chatbot is saved.</p>
-                     )}
-                     {/* Action Buttons for this tab (conditional for edit mode) */}
-                     {isEditMode && chatbotId && (
-                        <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                          <LoadingButton
-                            isLoading={false}
-                            loadingText="Canceling..."
-                            onClick={handleCancel}
-                            disabled={isPending}
-                            variant="secondary"
-                          >
-                            Cancel
-                          </LoadingButton>
-                          <LoadingButton
-                            isLoading={isPending || isRetrying}
-                            loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                            onClick={() => handleSave(false, isEditMode)}
-                            disabled={isPending || !isOnline}
-                          >
-                            {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
-                          </LoadingButton>
-                        </div>
-                     )}
-                </div>
-             )}
+            <EnhancedAppearanceTab
+              chatbotId={chatbotId}
+              isEditMode={isEditMode}
+              primaryColor={primaryColor}
+              setPrimaryColor={setPrimaryColor}
+              secondaryColor={secondaryColor}
+              setSecondaryColor={setSecondaryColor}
+              backgroundColor={backgroundColor}
+              setBackgroundColor={setBackgroundColor}
+              textColor={textColor}
+              setTextColor={setTextColor}
+              fontFamily={fontFamily}
+              setFontFamily={setFontFamily}
+              welcomeMessage={welcomeMessage}
+              setWelcomeMessage={setWelcomeMessage}
+              botAvatarUrl={botAvatarUrl}
+              setBotAvatarUrl={setBotAvatarUrl}
+              userAvatarUrl={userAvatarUrl}
+              setUserAvatarUrl={setUserAvatarUrl}
+              chatBubbleStyle={chatBubbleStyle}
+              setChatBubbleStyle={setChatBubbleStyle}
+              headerText={headerText}
+              setHeaderText={setHeaderText}
+              inputPlaceholder={inputPlaceholder}
+              setInputPlaceholder={setInputPlaceholder}
+              showBranding={showBranding}
+              setShowBranding={setShowBranding}
+              supabase={supabase}
+              setError={setError}
+              createError={createError}
+            />
+          </section>
 
-             {/* Integrations Tab Content */}
-             {activeTab === 'integrations' && (
-                <div>
-                    {isEditMode && chatbotId ? (
-                        <IntegrationsPanel chatbotId={chatbotId} />
-                     ) : (
-                        <p className="text-gray-400">Integrations can be configured after the chatbot is saved.</p>
-                     )}
-                     {/* Action Buttons for this tab (conditional for edit mode) */}
-                     {isEditMode && chatbotId && (
-                        <div className="mt-8 pt-6 border-t border-gray-700 flex justify-end space-x-3">
-                          <LoadingButton
-                            isLoading={false}
-                            loadingText="Canceling..."
-                            onClick={handleCancel}
-                            disabled={isPending}
-                            variant="secondary"
-                          >
-                            Cancel
-                          </LoadingButton>
-                          <LoadingButton
-                            isLoading={isPending || isRetrying}
-                            loadingText={isEditMode ? 'Updating...' : 'Saving...'}
-                            onClick={() => handleSave(false, isEditMode)}
-                            disabled={isPending || !isOnline}
-                          >
-                            {isEditMode ? (isLastTab(activeTab) ? 'Update Chatbot' : 'Save & Continue →') : 'Save Chatbot'}
-                          </LoadingButton>
-                        </div>
-                     )}
-                </div>
-             )}
+          {/* Embed Section */}
+          <section id="embed" className="glass rounded-xl p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">{sectionIcons.embed}</span>
+                <span>Embed</span>
+              </h2>
+              <p className="text-gray-400 mt-2">
+                Get the code to add your chatbot to any website
+              </p>
+            </div>
 
-             {/* Analytics Tab Content */}
-             {activeTab === 'analytics' && (
-                <div>
-                  {isEditMode && chatbotId ? (
-                    <AnalyticsPanel chatbotId={chatbotId} />
-                  ) : (
-                    <p className="text-gray-400">Analytics are available after the chatbot is saved and has activity.</p>
-                  )}
-                </div>
-             )}
-           </div>
+            {isEditMode && chatbotId ? (
+              <EmbedCodeDisplay chatbotId={chatbotId} launcherIconUrl={botAvatarUrl} />
+            ) : (
+              <p className="text-gray-400">Embed code will be available after the chatbot is saved.</p>
+            )}
+          </section>
+
+          {/* Actions Section */}
+          <section id="actions" className="glass rounded-xl p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">{sectionIcons.actions}</span>
+                <span>Actions</span>
+              </h2>
+              <p className="text-gray-400 mt-2">
+                Set up automated actions and workflows
+              </p>
+            </div>
+
+            {isEditMode && chatbotId ? (
+              <ActionManager chatbotId={chatbotId} />
+            ) : (
+              <p className="text-gray-400">Actions can be configured after the chatbot is saved.</p>
+            )}
+          </section>
+
+          {/* Integrations Section */}
+          <section id="integrations" className="glass rounded-xl p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">{sectionIcons.integrations}</span>
+                <span>Integrations</span>
+              </h2>
+              <p className="text-gray-400 mt-2">
+                Connect your chatbot to external services
+              </p>
+            </div>
+
+            {isEditMode && chatbotId ? (
+              <IntegrationsPanel chatbotId={chatbotId} />
+            ) : (
+              <p className="text-gray-400">Integrations can be configured after the chatbot is saved.</p>
+            )}
+          </section>
+
+          {/* Analytics Section */}
+          <section id="analytics" className="glass rounded-xl p-8">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="text-3xl">{sectionIcons.analytics}</span>
+                <span>Analytics</span>
+              </h2>
+              <p className="text-gray-400 mt-2">
+                View chatbot performance and usage metrics
+              </p>
+            </div>
+
+            {isEditMode && chatbotId ? (
+              <AnalyticsPanel chatbotId={chatbotId} />
+            ) : (
+              <p className="text-gray-400">Analytics are available after the chatbot is saved and has activity.</p>
+            )}
+          </section>
+
+          {/* Fixed Action Buttons */}
+          <div className="sticky bottom-8 left-0 right-0 z-10">
+            <div className="glass rounded-xl p-6 flex justify-end space-x-3">
+              <LoadingButton
+                isLoading={false}
+                loadingText="Canceling..."
+                onClick={handleCancel}
+                disabled={isPending}
+                variant="secondary"
+              >
+                Cancel
+              </LoadingButton>
+              <LoadingButton
+                isLoading={isPending || isRetrying}
+                loadingText={isEditMode ? 'Updating...' : 'Saving...'}
+                onClick={() => handleSave(false, false)}
+                disabled={isPending || !isOnline}
+              >
+                {isEditMode ? 'Update Chatbot' : 'Save Chatbot'}
+              </LoadingButton>
+            </div>
+          </div>
         </div>
       </div>
     </>
