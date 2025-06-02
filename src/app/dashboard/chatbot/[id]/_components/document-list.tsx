@@ -20,6 +20,7 @@ export default function DocumentList({ documents }: DocumentListProps) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Auto-refresh when documents are processing
   useEffect(() => {
@@ -72,26 +73,33 @@ export default function DocumentList({ documents }: DocumentListProps) {
 
   if (!documents || documents.length === 0) {
     return (
-      <div className="px-6 py-4 text-center text-gray-500 bg-white rounded shadow-md">
+      <div className="px-6 py-4 text-center text-gray-500 bg-gray-800/30 rounded-xl border border-gray-700/50">
         No documents uploaded for this chatbot yet.
       </div>
     )
   }
 
+  // Determine which documents to show
+  const COLLAPSE_THRESHOLD = 4
+  const shouldShowCollapseToggle = documents.length > COLLAPSE_THRESHOLD
+  const visibleDocuments = shouldShowCollapseToggle && !isExpanded 
+    ? documents.slice(0, COLLAPSE_THRESHOLD)
+    : documents
+
   return (
-    <div className="bg-white rounded shadow-md overflow-hidden">
+    <div className="bg-gray-800/30 rounded-xl border border-gray-700/50 overflow-hidden">
        {error && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-4" role="alert">
+          <div className="bg-red-900/20 border border-red-500/30 text-red-400 p-4 m-4 rounded-xl" role="alert">
             <p className="font-bold">Deletion Error</p>
             <p>{error}</p>
           </div>
         )}
-      <ul className="divide-y divide-gray-200">
-        {documents.map((doc) => (
+      <ul className="divide-y divide-gray-700/50">
+        {visibleDocuments.map((doc) => (
           <li key={doc.id} className="px-6 py-4 flex justify-between items-center">
             <div>
-              <p className="text-base font-medium text-gray-900">{doc.file_name}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-base font-medium text-white">{doc.file_name}</p>
+              <p className="text-sm text-gray-400">
                 Uploaded: {new Date(doc.created_at).toLocaleDateString('en-GB', { 
                   day: '2-digit', 
                   month: '2-digit', 
@@ -101,9 +109,9 @@ export default function DocumentList({ documents }: DocumentListProps) {
             </div>
             <div className="flex items-center space-x-3">
                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                 doc.embedding_status === 'completed' ? 'bg-green-100 text-green-800' :
-                 doc.embedding_status === 'pending' || doc.embedding_status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
-                 'bg-red-100 text-red-800'
+                 doc.embedding_status === 'completed' ? 'bg-green-900/30 text-green-400 border border-green-500/30' :
+                 doc.embedding_status === 'pending' || doc.embedding_status === 'processing' ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-500/30' :
+                 'bg-red-900/30 text-red-400 border border-red-500/30'
                }`}>
                  {doc.embedding_status}
                </span>
@@ -112,8 +120,8 @@ export default function DocumentList({ documents }: DocumentListProps) {
                   disabled={deletingId === doc.id || doc.embedding_status === 'processing'}
                   className={`text-sm font-medium transition duration-150 ease-in-out ${
                     doc.embedding_status === 'processing' 
-                      ? 'text-gray-400 cursor-not-allowed' 
-                      : 'text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed'
+                      ? 'text-gray-500 cursor-not-allowed' 
+                      : 'text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed'
                   }`}
                   title={doc.embedding_status === 'processing' ? 'Cannot delete while processing' : 'Delete document'}
                 >
@@ -124,6 +132,32 @@ export default function DocumentList({ documents }: DocumentListProps) {
           </li>
         ))}
       </ul>
+      
+      {/* Collapse/Expand toggle button */}
+      {shouldShowCollapseToggle && (
+        <div className="px-6 py-3 border-t border-gray-700/50 bg-gray-800/50">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full flex items-center justify-center gap-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+          >
+            {isExpanded ? (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+                Show less ({documents.length - COLLAPSE_THRESHOLD} hidden)
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                Show {documents.length - COLLAPSE_THRESHOLD} more
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   )
 } 
