@@ -427,13 +427,13 @@ export default function ChatbotBuilderForm({
   const getSectionClass = (sectionName: Section) => {
     const isActive = activeSection === sectionName;
     return `
-      relative w-full text-left px-4 py-4 text-sm rounded-xl cursor-pointer group
+      relative w-full text-left px-3 py-3 text-sm rounded-xl cursor-pointer group
       transition-all duration-200 ease-in-out
       ${isActive 
         ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white border border-blue-500/30 shadow-lg shadow-blue-500/10' 
         : 'text-gray-300 hover:text-white hover:bg-gray-700/40 border border-transparent hover:border-gray-600/30'
       }
-      ${isActive ? 'before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-8 before:bg-gradient-to-b before:from-blue-500 before:to-purple-500 before:rounded-r-full' : ''}
+      ${isActive ? 'before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-6 before:bg-gradient-to-b before:from-blue-500 before:to-purple-500 before:rounded-r-full' : ''}
     `;
   };
 
@@ -481,40 +481,33 @@ export default function ChatbotBuilderForm({
       />
 
       {/* Main container: flex row, form card styling */}
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col xl:flex-row gap-6">
         {/* Left Column: Navigation Sidebar */}
-        <div className="lg:w-72 flex-shrink-0">
+        <div className="xl:w-64 flex-shrink-0">
           <div className="sticky top-24">
             {/* Navigation Header */}
-            <div className="glass rounded-xl p-6 mb-6">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-xl">🤖</span>
+            <div className="glass rounded-xl p-4 mb-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <span className="text-lg">🤖</span>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Chatbot Setup</h3>
-                  <p className="text-xs text-gray-400">Configure your assistant</p>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-white truncate">Chatbot Setup</h3>
+                  <p className="text-xs text-gray-400 truncate">Step {Object.keys(sectionIcons).indexOf(activeSection) + 1} of {Object.keys(sectionIcons).length}</p>
                 </div>
               </div>
               
               {/* Progress Indicator */}
-              <div className="mb-4">
-                <div className="flex justify-between text-xs text-gray-400 mb-2">
-                  <span>Setup Progress</span>
-                  <span>Step {Object.keys(sectionIcons).indexOf(activeSection) + 1} of {Object.keys(sectionIcons).length}</span>
-                </div>
-                <div className="w-full bg-gray-700/50 rounded-full h-2">
-                  <div 
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${((Object.keys(sectionIcons).indexOf(activeSection) + 1) / Object.keys(sectionIcons).length) * 100}%` }}
-                  />
-                </div>
+              <div className="w-full bg-gray-700/50 rounded-full h-1.5">
+                <div 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 h-1.5 rounded-full transition-all duration-300"
+                  style={{ width: `${((Object.keys(sectionIcons).indexOf(activeSection) + 1) / Object.keys(sectionIcons).length) * 100}%` }}
+                />
               </div>
             </div>
 
             {/* Navigation Menu */}
-            <nav className="glass rounded-xl p-4">
-              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 px-2">Navigation</h4>
+            <nav className="glass rounded-xl p-3">
               <ul className="space-y-1">
                 {Object.entries(sectionIcons).map(([section, icon]) => (
                   <li key={section}>
@@ -523,18 +516,18 @@ export default function ChatbotBuilderForm({
                       className={getSectionClass(section as Section)} 
                       onClick={() => scrollToSection(section as Section)}
                     >
-                      <span className="flex items-center gap-4">
-                        <span className="text-xl flex-shrink-0">{icon}</span>
-                        <div className="flex-1 text-left">
-                          <span className="block font-medium">{section === 'dataSources' ? 'Data Sources' : section.charAt(0).toUpperCase() + section.slice(1)}</span>
-                          <span className="block text-xs opacity-70 mt-0.5">
-                            {section === 'settings' && 'Basic configuration'}
+                      <span className="flex items-center gap-3">
+                        <span className="text-lg flex-shrink-0">{icon}</span>
+                        <div className="flex-1 text-left min-w-0">
+                          <span className="block font-medium text-sm truncate">{section === 'dataSources' ? 'Data Sources' : section.charAt(0).toUpperCase() + section.slice(1)}</span>
+                          <span className="block text-xs opacity-70 truncate">
+                            {section === 'settings' && 'Basic config'}
                             {section === 'dataSources' && 'Upload content'}
-                            {section === 'appearance' && 'Customize design'}
-                            {section === 'embed' && 'Integration code'}
-                            {section === 'actions' && 'Automated workflows'}
-                            {section === 'integrations' && 'External services'}
-                            {section === 'analytics' && 'Performance metrics'}
+                            {section === 'appearance' && 'Design'}
+                            {section === 'embed' && 'Integration'}
+                            {section === 'actions' && 'Workflows'}
+                            {section === 'integrations' && 'Services'}
+                            {section === 'analytics' && 'Metrics'}
                           </span>
                         </div>
                         {activeSection === section && (
@@ -548,18 +541,17 @@ export default function ChatbotBuilderForm({
               
               {/* Additional Links */}
               {isEditMode && chatbotId && (
-                <div className="mt-6 pt-4 border-t border-gray-700/50">
-                  <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Tools</h4>
+                <div className="mt-4 pt-3 border-t border-gray-700/30">
                   <a
                     href={`/dashboard/chatbot/${chatbotId}/interrogation`}
-                    className="flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 bg-gray-800/30 hover:bg-gray-700/50 hover:text-white border border-gray-700/30 hover:border-gray-600/50 group"
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 bg-gray-800/30 hover:bg-gray-700/50 hover:text-white border border-gray-700/30 hover:border-gray-600/50 group"
                   >
-                    <span className="text-xl">🔍</span>
-                    <div className="flex-1 text-left">
-                      <span className="block font-medium">Interrogation</span>
-                      <span className="block text-xs opacity-70 mt-0.5">Debug conversations</span>
+                    <span className="text-lg">🔍</span>
+                    <div className="flex-1 text-left min-w-0">
+                      <span className="block font-medium text-sm truncate">Interrogation</span>
+                      <span className="block text-xs opacity-70 truncate">Debug chats</span>
                     </div>
-                    <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
                   </a>
@@ -570,9 +562,9 @@ export default function ChatbotBuilderForm({
         </div>
 
         {/* Right Column: All Sections */}
-        <div className="flex-1 space-y-8">
+        <div className="flex-1 min-w-0 space-y-6">
           {/* Settings Section */}
-          <section id="settings" className="glass rounded-xl p-8">
+          <section id="settings" className="glass rounded-xl p-6 xl:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">{sectionIcons.settings}</span>
@@ -624,7 +616,7 @@ export default function ChatbotBuilderForm({
           </section>
 
           {/* Data Sources Section */}
-          <section id="dataSources" className="glass rounded-xl p-8">
+          <section id="dataSources" className="glass rounded-xl p-6 xl:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">{sectionIcons.dataSources}</span>
@@ -719,7 +711,7 @@ export default function ChatbotBuilderForm({
           </section>
 
           {/* Appearance Section */}
-          <section id="appearance" className="glass rounded-xl p-8">
+          <section id="appearance" className="glass rounded-xl p-6 xl:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">{sectionIcons.appearance}</span>
@@ -764,7 +756,7 @@ export default function ChatbotBuilderForm({
           </section>
 
           {/* Embed Section */}
-          <section id="embed" className="glass rounded-xl p-8">
+          <section id="embed" className="glass rounded-xl p-6 xl:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">{sectionIcons.embed}</span>
@@ -783,7 +775,7 @@ export default function ChatbotBuilderForm({
           </section>
 
           {/* Actions Section */}
-          <section id="actions" className="glass rounded-xl p-8">
+          <section id="actions" className="glass rounded-xl p-6 xl:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">{sectionIcons.actions}</span>
@@ -802,7 +794,7 @@ export default function ChatbotBuilderForm({
           </section>
 
           {/* Integrations Section */}
-          <section id="integrations" className="glass rounded-xl p-8">
+          <section id="integrations" className="glass rounded-xl p-6 xl:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">{sectionIcons.integrations}</span>
@@ -821,7 +813,7 @@ export default function ChatbotBuilderForm({
           </section>
 
           {/* Analytics Section */}
-          <section id="analytics" className="glass rounded-xl p-8">
+          <section id="analytics" className="glass rounded-xl p-6 xl:p-8">
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                 <span className="text-3xl">{sectionIcons.analytics}</span>
