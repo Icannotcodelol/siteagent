@@ -153,13 +153,7 @@ Keywords: correction, interrogation, improvement, ${error_category || 'general'}
           file_name: `correction-${error_category || 'general'}-${Date.now()}.txt`,
           content: correctionContent.trim(),
           embedding_status: 'pending',
-          file_type: 'text',
-          metadata: {
-            type: 'interrogation_correction',
-            message_id: messageId,
-            error_category: error_category || 'general',
-            priority: 'high'
-          }
+          file_type: 'text'
         })
         .select('id')
         .single()
@@ -220,13 +214,7 @@ Keywords: correction, interrogation, improvement, ${error_category || 'general'}
           file_name: `correction-${error_category || 'general'}-${Date.now()}.txt`,
           content: correctionContent.trim(),
           embedding_status: 'pending',
-          file_type: 'text',
-          metadata: {
-            type: 'interrogation_correction',
-            message_id: messageId,
-            error_category: error_category || 'general',
-            priority: 'high'
-          }
+          file_type: 'text'
         })
         .select('id')
         .single()
