@@ -16,6 +16,12 @@ export async function middleware(request: NextRequest) {
       return shouldRedirectToGerman
     }
 
+    // Check if user should be redirected to Polish page
+    const shouldRedirectToPolish = checkForPolishRedirect(request)
+    if (shouldRedirectToPolish) {
+      return shouldRedirectToPolish
+    }
+
     const { supabase, response } = createClient(request)
 
     // Refresh session if expired - required for Server Components
@@ -186,6 +192,70 @@ function detectGermanUser(request: NextRequest): boolean {
   return false
 }
 
+function checkForPolishRedirect(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl
+  
+  // Don't redirect if already on Polish page or non-landing pages
+  if (pathname.startsWith('/pl') || !isLandingPage(pathname)) {
+    return null
+  }
+  
+  // Check if user has manually chosen a language (via cookie)
+  const languagePreference = request.cookies.get('language-preference')?.value
+  if (languagePreference && languagePreference !== 'auto') {
+    return null // Respect user's manual choice
+  }
+  
+  const isPolishUser = detectPolishUser(request)
+  
+  if (isPolishUser && pathname === '/') {
+    // Redirect to Polish version
+    const url = request.nextUrl.clone()
+    url.pathname = '/pl'
+    
+    const response = NextResponse.redirect(url)
+    
+    // Set a cookie to remember this is an auto-redirect
+    response.cookies.set('auto-redirected', 'pl', {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+    
+    return response
+  }
+  
+  return null
+}
+
+function detectPolishUser(request: NextRequest): boolean {
+  // Method 1: Check Vercel's geolocation headers (available on Vercel Edge)
+  const country = request.headers.get('x-vercel-ip-country')
+  if (country === 'PL') {
+    return true
+  }
+  
+  // Method 2: Check Cloudflare geolocation headers (if using Cloudflare)
+  const cfCountry = request.headers.get('cf-ipcountry')
+  if (cfCountry === 'PL') {
+    return true
+  }
+  
+  // Method 3: Browser language detection as fallback
+  const acceptLanguage = request.headers.get('accept-language')
+  if (acceptLanguage) {
+    // Check if Polish is the primary language
+    const languages = acceptLanguage.split(',').map(lang => lang.trim().split(';')[0])
+    const primaryLanguage = languages[0]
+    if (primaryLanguage.startsWith('pl')) {
+      return true
+    }
+  }
+  
+  return false
+}
+
 function isLandingPage(pathname: string): boolean {
   // Only redirect on the main landing page
   return pathname === '/'
@@ -197,6 +267,7 @@ function isPublicPath(pathname: string): boolean {
     '/',
     '/it', // Add Italian page to public paths
     '/de', // Add German page to public paths
+    '/pl', // Add Polish page to public paths
     '/login',
     '/signup',
     '/auth',

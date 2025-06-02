@@ -200,17 +200,72 @@ const translations = {
     aiTyping: "KI tippt...",
     tryTheseQuestions: "Versuchen Sie diese Fragen:",
     askAnything: "Fragen Sie mich alles...",
-    messagesRemaining: "verbleibende Nachrichten",
+    messagesRemaining: "Nachrichten übrig",
     securePrivate: "Sicher & Privat",
     demoCompleted: "Demo abgeschlossen!",
-    readyToCreate: "Bereit, unbegrenzte Chatbots zu erstellen und sie in Ihre Website einzubetten?",
-    tryAnotherDemo: "Andere Demo ausprobieren",
+    readyToCreate: "Bereit, unbegrenzte Chatbots zu erstellen und sie auf Ihrer Website einzubetten?",
+    tryAnotherDemo: "Weitere Demo versuchen",
     tryDifferentContent: "Möchten Sie es mit anderem Inhalt versuchen?",
     welcomeMessage: "Hallo! Ich bin bereit, Ihnen bei Fragen zu Ihrem hochgeladenen Inhalt zu helfen. Was möchten Sie wissen?"
+  },
+  pl: {
+    chooseContentSource: "Wybierz Źródło Treści",
+    contentSourceDescription: "Zacznij od przesłania dokumentu, wprowadzenia adresu URL strony internetowej lub wklejenia treści tekstowej. Zobacz, jak tworzymy inteligentnego chatbota w ciągu sekund.",
+    uploadDocument: "Prześlij Dokument",
+    scrapeWebsite: "Pobierz ze Strony",
+    pasteText: "Wklej Tekst",
+    uploadYourDocument: "Prześlij Swój Dokument",
+    dragDropDescription: "Przeciągnij i upuść plik PDF, TXT lub CSV, lub kliknij, aby przeglądać. Wyodrębnimy zawartość i natychmiast utworzymy Twojego chatbota.",
+    processing: "Przetwarzanie...",
+    chooseFile: "Wybierz Plik",
+    scrapeWebsiteContent: "Pobierz Zawartość Strony",
+    websiteUrlDescription: "Wprowadź dowolny adres URL strony internetowej, a my wyodrębnimy zawartość, aby wytrenować Twojego chatbota",
+    websiteUrl: "Adres URL Strony",
+    scrape: "Pobierz",
+    pasteTextContent: "Wklej Zawartość Tekstową",
+    pasteTextDescription: "Wklej dowolną zawartość tekstową, a my utworzymy chatbota, który będzie mógł odpowiadać na pytania na jej temat",
+    textContent: "Zawartość Tekstowa",
+    textPlaceholder: "Wklej tutaj swoją zawartość tekstową... Mogą to być opisy produktów, FAQ, dokumentacja lub jakikolwiek inny tekst, który ma rozumieć Twój chatbot.",
+    createChatbot: "Utwórz Chatbota",
+    anyTextFormat: "Dowolny format tekstu",
+    instantTraining: "Natychmiastowe trenowanie",
+    secureExtraction: "Bezpieczne wyodrębnianie",
+    realTimeProcessing: "Przetwarzanie w czasie rzeczywistym",
+    instantSetup: "Natychmiastowa konfiguracja",
+    maxSize: "Maks 5MB",
+    somethingWentWrong: "Coś poszło nie tak",
+    demoChatbotReady: "Demo Chatbot Gotowy!",
+    howChatbotAppears: "Tak wygląda Twój chatbot dla odwiedzających",
+    widgetDescription: "Widget poniżej pokazuje dokładnie to, co Twoi klienci zobaczą i z czym będą wchodzić w interakcję na Twojej stronie internetowej. Spróbuj zadać pytania dotyczące zawartości, którą właśnie dostarczyłeś.",
+    yourBusinessWebsite: "Strona Internetowa Twojej Firmy",
+    poweredBySiteAgent: "Powered by SiteAgent AI",
+    aiAssistantOnline: "Asystent AI Online",
+    aboutOurService: "O Naszej Usłudze",
+    serviceDescription: "Witamy w naszym centrum wsparcia. Nasz asystent AI może pomóc Ci znaleźć odpowiedzi natychmiast, używając zawartości, którą właśnie przesłałeś. Jest wytrenowany na Twoich konkretnych informacjach i gotowy do pomocy Twoim odwiedzającym 24/7.",
+    quickLinks: "Szybkie Linki",
+    startFreeTrial: "Rozpocznij Bezpłatny Trial",
+    seeFeatures: "Zobacz Funkcje",
+    viewPricing: "Zobacz Cennik",
+    aiAssistant: "Asystent AI",
+    online: "Online",
+    trainingAssistant: "Trenujemy Twojego asystenta AI...",
+    trainingDescription: "To zwykle trwa zaledwie kilka sekund",
+    trainingProblem: "Napotkaliśmy problem podczas trenowania Twojego asystenta.",
+    tryAgainLater: "Spróbuj ponownie z inną zawartością lub wróć później.",
+    aiTyping: "AI pisze...",
+    tryTheseQuestions: "Spróbuj tych pytań:",
+    askAnything: "Zapytaj mnie o cokolwiek...",
+    messagesRemaining: "pozostałe wiadomości",
+    securePrivate: "Bezpieczne i Prywatne",
+    demoCompleted: "Demo zakończone!",
+    readyToCreate: "Gotowy do tworzenia nieograniczonych chatbotów i osadzania ich na swojej stronie internetowej?",
+    tryAnotherDemo: "Spróbuj Innego Demo",
+    tryDifferentContent: "Chcesz spróbować z inną zawartością?",
+    welcomeMessage: "Cześć! Jestem gotowy pomóc Ci z pytaniami dotyczącymi przesłanej zawartości. Co chciałbyś wiedzieć?"
   }
 };
 
-type Locale = 'en' | 'it' | 'de';
+type Locale = 'en' | 'it' | 'de' | 'pl';
 
 interface LivePreviewProps {
   locale?: Locale;
@@ -218,7 +273,7 @@ interface LivePreviewProps {
 
 export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
   const t = translations[locale];
-  const isBright = locale === 'it' || locale === 'de'; // Both Italian and German use bright theme
+  const isBright = locale === 'it' || locale === 'de' || locale === 'pl'; // Italian, German, and Polish use bright theme
   
   const [activeTab, setActiveTab] = useState<ContentType>('document');
   const [session, setSession] = useState<PreviewSession | null>(null);

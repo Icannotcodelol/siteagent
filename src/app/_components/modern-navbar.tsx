@@ -17,7 +17,7 @@ export default function ModernNavbar({ authButtonSlot, locale = 'en' }: ModernNa
     <header className="fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-xl border-b border-gray-800/50 md:top-6 md:left-1/2 md:right-auto md:transform md:-translate-x-1/2 md:w-full md:max-w-7xl md:px-6 md:bg-gray-900/80 md:border md:border-gray-700/50 md:rounded-2xl md:shadow-2xl">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-3">
-          <Link href={locale === 'it' ? '/it' : locale === 'de' ? '/de' : '/'} className="group flex items-center gap-3">
+          <Link href={locale === 'it' ? '/it' : locale === 'de' ? '/de' : locale === 'pl' ? '/pl' : '/'} className="group flex items-center gap-3">
             <div className="relative">
               <Image src="/sitelogo.svg" alt="SiteAgent Logo" width={36} height={36} priority />
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full opacity-20 group-hover:opacity-40 transition-opacity blur-sm"></div>
@@ -31,15 +31,15 @@ export default function ModernNavbar({ authButtonSlot, locale = 'en' }: ModernNa
         <nav className="hidden md:flex md:items-center md:gap-1">
           {[
             { 
-              label: locale === 'it' ? "Caratteristiche" : locale === 'de' ? "Funktionen" : "Features", 
+              label: locale === 'it' ? "Caratteristiche" : locale === 'de' ? "Funktionen" : locale === 'pl' ? "Funkcje" : "Features", 
               href: "#features" 
             },
             { 
-              label: locale === 'it' ? "Come Funziona" : locale === 'de' ? "Wie es funktioniert" : "How It Works", 
+              label: locale === 'it' ? "Come Funziona" : locale === 'de' ? "Wie es funktioniert" : locale === 'pl' ? "Jak to działa" : "How It Works", 
               href: "#how-it-works" 
             },
             { 
-              label: locale === 'it' ? "Prezzi" : locale === 'de' ? "Preise" : "Pricing", 
+              label: locale === 'it' ? "Prezzi" : locale === 'de' ? "Preise" : locale === 'pl' ? "Cennik" : "Pricing", 
               href: "#pricing" 
             },
             { label: "FAQ", href: "#faq" }
@@ -80,15 +80,15 @@ export default function ModernNavbar({ authButtonSlot, locale = 'en' }: ModernNa
           <nav className="flex flex-col p-4 space-y-2">
             {[
               { 
-                label: locale === 'it' ? "Caratteristiche" : locale === 'de' ? "Funktionen" : "Features", 
+                label: locale === 'it' ? "Caratteristiche" : locale === 'de' ? "Funktionen" : locale === 'pl' ? "Funkcje" : "Features", 
                 href: "#features" 
               },
               { 
-                label: locale === 'it' ? "Come Funziona" : locale === 'de' ? "Wie es funktioniert" : "How It Works", 
+                label: locale === 'it' ? "Come Funziona" : locale === 'de' ? "Wie es funktioniert" : locale === 'pl' ? "Jak to działa" : "How It Works", 
                 href: "#how-it-works" 
               },
               { 
-                label: locale === 'it' ? "Prezzi" : locale === 'de' ? "Preise" : "Pricing", 
+                label: locale === 'it' ? "Prezzi" : locale === 'de' ? "Preise" : locale === 'pl' ? "Cennik" : "Pricing", 
                 href: "#pricing" 
               },
               { label: "FAQ", href: "#faq" }
