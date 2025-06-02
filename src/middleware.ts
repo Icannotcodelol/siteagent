@@ -28,6 +28,12 @@ export async function middleware(request: NextRequest) {
       return shouldRedirectToSpanish
     }
 
+    // Check if user should be redirected to Dutch page
+    const shouldRedirectToDutch = checkForDutchRedirect(request)
+    if (shouldRedirectToDutch) {
+      return shouldRedirectToDutch
+    }
+
     const { supabase, response } = createClient(request)
 
     // Refresh session if expired - required for Server Components
@@ -326,6 +332,70 @@ function detectSpanishUser(request: NextRequest): boolean {
   return false
 }
 
+function checkForDutchRedirect(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl
+  
+  // Don't redirect if already on Dutch page or non-landing pages
+  if (pathname.startsWith('/nl') || !isLandingPage(pathname)) {
+    return null
+  }
+  
+  // Check if user has manually chosen a language (via cookie)
+  const languagePreference = request.cookies.get('language-preference')?.value
+  if (languagePreference && languagePreference !== 'auto') {
+    return null // Respect user's manual choice
+  }
+  
+  const isDutchUser = detectDutchUser(request)
+  
+  if (isDutchUser && pathname === '/') {
+    // Redirect to Dutch version
+    const url = request.nextUrl.clone()
+    url.pathname = '/nl'
+    
+    const response = NextResponse.redirect(url)
+    
+    // Set a cookie to remember this is an auto-redirect
+    response.cookies.set('auto-redirected', 'nl', {
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax'
+    })
+    
+    return response
+  }
+  
+  return null
+}
+
+function detectDutchUser(request: NextRequest): boolean {
+  // Method 1: Check Vercel's geolocation headers (available on Vercel Edge)
+  const country = request.headers.get('x-vercel-ip-country')
+  if (country === 'NL' || country === 'BE') {
+    return true
+  }
+  
+  // Method 2: Check Cloudflare geolocation headers (if using Cloudflare)
+  const cfCountry = request.headers.get('cf-ipcountry')
+  if (cfCountry === 'NL' || cfCountry === 'BE') {
+    return true
+  }
+  
+  // Method 3: Browser language detection as fallback
+  const acceptLanguage = request.headers.get('accept-language')
+  if (acceptLanguage) {
+    // Check if Dutch is the primary language
+    const languages = acceptLanguage.split(',').map(lang => lang.trim().split(';')[0])
+    const primaryLanguage = languages[0]
+    if (primaryLanguage.startsWith('nl')) {
+      return true
+    }
+  }
+  
+  return false
+}
+
 function isLandingPage(pathname: string): boolean {
   // Only redirect on the main landing page
   return pathname === '/'
@@ -339,6 +409,7 @@ function isPublicPath(pathname: string): boolean {
     '/de', // Add German page to public paths
     '/pl', // Add Polish page to public paths
     '/es', // Add Spanish page to public paths
+    '/nl', // Add Dutch page to public paths
     '/login',
     '/signup',
     '/auth',

@@ -16,6 +16,7 @@ const languages: Language[] = [
   { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
   { code: 'pl', name: 'Polski', flag: '🇵🇱' },
   { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
 ];
 
 export default function LanguageSwitcher({ currentLocale = 'en' }: { currentLocale?: string }) {
@@ -35,6 +36,8 @@ export default function LanguageSwitcher({ currentLocale = 'en' }: { currentLoca
       router.push('/pl');
     } else if (languageCode === 'es') {
       router.push('/es');
+    } else if (languageCode === 'nl') {
+      router.push('/nl');
     } else {
       router.push('/');
     }

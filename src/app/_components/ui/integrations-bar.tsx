@@ -7,7 +7,7 @@ interface Integration {
 }
 
 interface IntegrationsBarProps {
-  locale?: 'en' | 'it' | 'de' | 'pl' | 'es';
+  locale?: 'en' | 'it' | 'de' | 'pl' | 'es' | 'nl';
 }
 
 // Placeholder simple SVG icons - REMOVED as we are using image paths now
@@ -40,12 +40,16 @@ const translations = {
   es: {
     title: "Funciona con tus herramientas",
     description: "Integra diversas fuentes de datos para enriquecer el conocimiento y las capacidades de tu agente."
+  },
+  nl: {
+    title: "Werkt met jouw tools",
+    description: "Integreer diverse databronnen om de kennis en mogelijkheden van je agent te verrijken."
   }
 };
 
 const IntegrationsBar: React.FC<IntegrationsBarProps> = ({ locale = 'en' }) => {
   const t = translations[locale];
-  const isBright = locale === 'it' || locale === 'de' || locale === 'pl' || locale === 'es'; // Add Spanish to bright theme
+  const isBright = locale === 'it' || locale === 'de' || locale === 'pl' || locale === 'es' || locale === 'nl'; // Add Spanish and Dutch to bright theme
 
   return (
     <div className="w-full py-12">

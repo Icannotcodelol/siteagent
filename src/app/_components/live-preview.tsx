@@ -317,10 +317,65 @@ const translations = {
     tryAnotherDemo: "Probar Otra Demo",
     tryDifferentContent: "¿Quieres probar con contenido diferente?",
     welcomeMessage: "¡Hola! Estoy listo para ayudarte con preguntas sobre tu contenido subido. ¿Qué te gustaría saber?"
+  },
+  nl: {
+    chooseContentSource: "Kies je Contentbron",
+    contentSourceDescription: "Begin met het uploaden van een document, het invoeren van een website URL, of het plakken van tekstcontent. Kijk hoe we in seconden een intelligente chatbot creëren.",
+    uploadDocument: "Document Uploaden",
+    scrapeWebsite: "Website Uitlezen",
+    pasteText: "Tekst Plakken",
+    uploadYourDocument: "Upload je Document",
+    dragDropDescription: "Sleep een PDF, TXT of CSV bestand hierheen of klik om te bladeren. We halen de content eruit en maken direct je chatbot.",
+    processing: "Verwerken...",
+    chooseFile: "Bestand Kiezen",
+    scrapeWebsiteContent: "Website Content Uitlezen",
+    websiteUrlDescription: "Voer een website URL in en we halen de content eruit om je chatbot te trainen",
+    websiteUrl: "Website URL",
+    scrape: "Uitlezen",
+    pasteTextContent: "Tekst Content Plakken",
+    pasteTextDescription: "Plak tekstcontent en we maken een chatbot die vragen erover kan beantwoorden",
+    textContent: "Tekst Content",
+    textPlaceholder: "Plak hier je tekstcontent... Dit kunnen productbeschrijvingen, FAQ's, documentatie of andere tekst zijn die je chatbot moet begrijpen.",
+    createChatbot: "Chatbot Maken",
+    anyTextFormat: "Elk tekstformaat",
+    instantTraining: "Directe training",
+    secureExtraction: "Veilige extractie",
+    realTimeProcessing: "Realtime verwerking",
+    instantSetup: "Directe installatie",
+    maxSize: "Max 5MB",
+    somethingWentWrong: "Er ging iets mis",
+    demoChatbotReady: "Demo Chatbot Klaar!",
+    howChatbotAppears: "Zo ziet je chatbot eruit voor bezoekers",
+    widgetDescription: "De widget hieronder toont precies wat je klanten zullen zien en waarmee ze zullen interacteren op je website. Probeer vragen te stellen over de content die je net hebt aangeleverd.",
+    yourBusinessWebsite: "Jouw Bedrijfswebsite",
+    poweredBySiteAgent: "Powered by SiteAgent AI",
+    aiAssistantOnline: "AI Assistent Online",
+    aboutOurService: "Over Onze Service",
+    serviceDescription: "Welkom bij ons ondersteuningscentrum. Onze AI assistent kan je direct helpen met antwoorden op basis van de content die je net hebt geüpload. Het is getraind op jouw specifieke informatie en klaar om je bezoekers 24/7 te helpen.",
+    quickLinks: "Snelle Links",
+    startFreeTrial: "Gratis Proefperiode",
+    seeFeatures: "Bekijk Functies",
+    viewPricing: "Bekijk Prijzen",
+    aiAssistant: "AI Assistent",
+    online: "Online",
+    trainingAssistant: "Je AI assistent trainen...",
+    trainingDescription: "Dit duurt meestal maar een paar seconden",
+    trainingProblem: "We ondervonden een probleem tijdens het trainen van je assistent.",
+    tryAgainLater: "Probeer het opnieuw met andere content of kom later terug.",
+    aiTyping: "AI is aan het typen...",
+    tryTheseQuestions: "Probeer deze vragen:",
+    askAnything: "Vraag me alles...",
+    messagesRemaining: "berichten over",
+    securePrivate: "Veilig & Privé",
+    demoCompleted: "Demo voltooid!",
+    readyToCreate: "Klaar om onbeperkt chatbots te maken en in je website in te bouwen?",
+    tryAnotherDemo: "Andere Demo Proberen",
+    tryDifferentContent: "Wil je het proberen met andere content?",
+    welcomeMessage: "Hallo! Ik ben klaar om je te helpen met vragen over je geüploade content. Wat wil je weten?"
   }
 };
 
-type Locale = 'en' | 'it' | 'de' | 'pl' | 'es';
+type Locale = 'en' | 'it' | 'de' | 'pl' | 'es' | 'nl';
 
 interface LivePreviewProps {
   locale?: Locale;
@@ -328,7 +383,7 @@ interface LivePreviewProps {
 
 export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
   const t = translations[locale];
-  const isBright = locale === 'it' || locale === 'de' || locale === 'pl' || locale === 'es'; // Italian, German, Polish, and Spanish use bright theme
+  const isBright = locale === 'it' || locale === 'de' || locale === 'pl' || locale === 'es' || locale === 'nl'; // Italian, German, Polish, Spanish, and Dutch use bright theme
   
   const [activeTab, setActiveTab] = useState<ContentType>('document');
   const [session, setSession] = useState<PreviewSession | null>(null);
