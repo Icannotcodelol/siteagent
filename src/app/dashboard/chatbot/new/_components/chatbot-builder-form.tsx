@@ -480,10 +480,10 @@ export default function ChatbotBuilderForm({
         onFieldFocus={handleFieldFocus}
       />
 
-      {/* Main container: flex row, form card styling */}
-      <div className="flex flex-col xl:flex-row gap-6">
+      {/* Two-column layout: Navigation sidebar + Main content */}
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Left Column: Navigation Sidebar */}
-        <div className="xl:w-64 flex-shrink-0">
+        <div className="lg:w-60 flex-shrink-0">
           <div className="sticky top-24">
             {/* Navigation Header */}
             <div className="glass rounded-xl p-4 mb-4">
@@ -561,7 +561,7 @@ export default function ChatbotBuilderForm({
           </div>
         </div>
 
-        {/* Right Column: All Sections */}
+        {/* Right Column: Main Configuration Content */}
         <div className="flex-1 min-w-0 space-y-6">
           {/* Settings Section */}
           <section id="settings" className="glass rounded-xl p-6 xl:p-8">
