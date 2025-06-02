@@ -419,7 +419,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
       {/* Flag modal */}
       {isInterrogation && flagTargetId && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl text-gray-900">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Flag Incorrect Response</h2>
               <button 
@@ -434,7 +434,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
             
             <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
               <p className="text-sm text-blue-800">
-                💡 This will help improve the chatbot by creating a correction that gets added to the knowledge base.
+                💡 <strong>Information issues</strong> will be added to the knowledge base. <strong>Behavior issues</strong> will improve the system prompt.
               </p>
             </div>
 
@@ -445,13 +445,20 @@ export default function ChatPreview(props: ChatPreviewProps) {
                 </label>
                 <select 
                   ref={flagTypeRef} 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
                 >
-                  <option value="factual">Factual error - Wrong information provided</option>
-                  <option value="context">Context misunderstanding - Didn't understand the question</option>
-                  <option value="relevance">Irrelevant answer - Answer doesn't address the question</option>
-                  <option value="incomplete">Incomplete answer - Missing important details</option>
-                  <option value="tone">Wrong tone - Inappropriate style or approach</option>
+                  <optgroup label="📚 Information/Data Issues (will add to knowledge base)">
+                    <option value="factual">Factual error - Wrong information provided</option>
+                    <option value="incomplete">Incomplete answer - Missing important details</option>
+                    <option value="context">Context misunderstanding - Didn't understand the question</option>
+                    <option value="relevance">Irrelevant answer - Answer doesn't address the question</option>
+                  </optgroup>
+                  <optgroup label="🎭 Behavior/Tone Issues (will update system prompt)">
+                    <option value="tone">Wrong tone - Inappropriate style or approach</option>
+                    <option value="personality">Wrong personality - Not matching desired character</option>
+                    <option value="format">Wrong format - Response structure or style issues</option>
+                    <option value="instructions">Not following instructions - Ignoring specific rules</option>
+                  </optgroup>
                 </select>
               </div>
               
@@ -462,7 +469,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
                 <textarea 
                   ref={flagDescRef} 
                   rows={3} 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white placeholder-gray-500"
                   placeholder="What specifically was wrong with the response?"
                 />
               </div>
@@ -474,7 +481,7 @@ export default function ChatPreview(props: ChatPreviewProps) {
                 <textarea 
                   ref={correctAnswerRef} 
                   rows={4} 
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white placeholder-gray-500"
                   placeholder="Provide the accurate response the chatbot should have given..."
                 />
               </div>
@@ -506,8 +513,18 @@ export default function ChatPreview(props: ChatPreviewProps) {
                     setMessages(prev => prev.map(m => (m as any).id===flagTargetId ? { ...m, flagged:true }: m));
                     setFlagTargetId(null);
                     
-                    // Show success feedback
-                    alert('✅ Response flagged successfully! This correction will help improve future responses.');
+                    // Show success feedback based on correction type
+                    const behaviorIssues = ['tone', 'personality', 'format', 'instructions'];
+                    const isDataIssue = ['factual', 'incomplete', 'context', 'relevance'].includes(cat);
+                    const isBehaviorIssue = behaviorIssues.includes(cat);
+                    
+                    if (isBehaviorIssue) {
+                      alert('✅ Behavior correction applied! The system prompt has been updated to improve future responses.');
+                    } else if (isDataIssue) {
+                      alert('✅ Information correction submitted! This has been added to the knowledge base.');
+                    } else {
+                      alert('✅ Response flagged successfully! This correction will help improve future responses.');
+                    }
                   } catch(e){ 
                     console.error('Flag error',e);
                     alert('❌ Failed to submit flag. Please try again.');

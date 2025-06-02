@@ -237,9 +237,9 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom of messages
+  // Auto-scroll to bottom of messages only when user sends a message or AI responds
   useEffect(() => {
-    if (messagesEndRef.current) {
+    if (messagesEndRef.current && messages.length > 1) { // Only auto-scroll after initial message
       const scrollContainer = messagesEndRef.current.closest('.overflow-y-auto');
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
@@ -1007,7 +1007,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
             </button>
           ) : (
             // Expanded widget
-            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-80 h-96 flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
+            <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-96 h-[32rem] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
               {/* Widget Header */}
               <div className={`p-4 text-white ${
                 isBright 
@@ -1048,127 +1048,126 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                 </div>
               </div>
 
-              {/* Messages Area */}
-              <div className={`flex-1 overflow-y-auto p-4 ${
-                isBright ? 'bg-blue-50/30' : 'bg-gray-50'
-              }`}>
-                {session?.status === 'processing' && (
-                  <div className="text-center py-12 animate-in fade-in duration-500">
-                    <div className="relative">
-                      <Loader2 className={`h-10 w-10 animate-spin mx-auto mb-4 ${
-                        isBright ? 'text-purple-500' : 'text-blue-600'
-                      }`} />
-                      <div className="absolute inset-0 animate-ping">
-                        <Loader2 className={`h-10 w-10 mx-auto opacity-20 ${
-                          isBright ? 'text-purple-400' : 'text-blue-400'
+              {/* Messages Container - uses remaining space between header and input */}
+              <div className="flex-1 flex flex-col min-h-0">
+                {/* Messages Area - scrollable */}
+                <div className={`flex-1 overflow-y-auto p-4 ${
+                  isBright ? 'bg-blue-50/30' : 'bg-gray-50'
+                }`}>
+                  {session?.status === 'processing' && (
+                    <div className="text-center py-12 animate-in fade-in duration-500">
+                      <div className="relative">
+                        <Loader2 className={`h-10 w-10 animate-spin mx-auto mb-4 ${
+                          isBright ? 'text-purple-500' : 'text-blue-600'
                         }`} />
-                      </div>
-                    </div>
-                    <p className="text-gray-600 text-sm font-medium">
-                      {t.trainingAssistant}
-                    </p>
-                    <p className="text-gray-500 text-xs mt-1">
-                      {t.trainingDescription}
-                    </p>
-                  </div>
-                )}
-
-                {session?.status === 'failed' && (
-                  <div className="text-center py-12 animate-in fade-in duration-500">
-                    <XCircle className="h-10 w-10 text-red-500 mx-auto mb-4" />
-                    <p className="text-gray-600 text-sm font-medium mb-1">
-                      {t.trainingProblem}
-                    </p>
-                    <p className="text-gray-500 text-xs max-w-xs mx-auto whitespace-pre-wrap">
-                      {error || t.tryAgainLater}
-                    </p>
-                  </div>
-                )}
-
-                <div className="space-y-4">
-                  {messages.map((message, index) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
-                          message.isUser
-                            ? isBright
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-                              : 'bg-blue-600 text-white'
-                            : 'bg-white text-gray-800 border border-gray-200'
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap text-left leading-relaxed">{message.content}</p>
-                        <div className={`text-xs mt-2 ${
-                          message.isUser 
-                            ? isBright ? 'text-blue-100' : 'text-blue-100'
-                            : 'text-gray-500'
-                        }`}>
-                          {message.timestamp.toLocaleTimeString([], { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
+                        <div className="absolute inset-0 animate-ping">
+                          <Loader2 className={`h-10 w-10 mx-auto opacity-20 ${
+                            isBright ? 'text-purple-400' : 'text-blue-400'
+                          }`} />
                         </div>
                       </div>
-                    </div>
-                  ))}
-
-                  {isSending && (
-                    <div className="flex justify-start animate-in fade-in duration-300">
-                      <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-200">
-                        <div className="flex items-center gap-2">
-                          <div className="flex space-x-1">
-                            <div className={`w-2 h-2 rounded-full animate-bounce ${
-                              isBright ? 'bg-purple-400' : 'bg-gray-400'
-                            }`}></div>
-                            <div className={`w-2 h-2 rounded-full animate-bounce ${
-                              isBright ? 'bg-purple-400' : 'bg-gray-400'
-                            }`} style={{ animationDelay: '0.1s' }}></div>
-                            <div className={`w-2 h-2 rounded-full animate-bounce ${
-                              isBright ? 'bg-purple-400' : 'bg-gray-400'
-                            }`} style={{ animationDelay: '0.2s' }}></div>
-                          </div>
-                          <span className="text-xs text-gray-500 ml-1">
-                            {t.aiTyping}
-                          </span>
-                        </div>
-                      </div>
+                      <p className="text-gray-600 text-sm font-medium">
+                        {t.trainingAssistant}
+                      </p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {t.trainingDescription}
+                      </p>
                     </div>
                   )}
-                </div>
 
-                <div ref={messagesEndRef} />
-              </div>
+                  {session?.status === 'failed' && (
+                    <div className="text-center py-12 animate-in fade-in duration-500">
+                      <XCircle className="h-10 w-10 text-red-500 mx-auto mb-4" />
+                      <p className="text-gray-600 text-sm font-medium mb-1">
+                        {t.trainingProblem}
+                      </p>
+                      <p className="text-gray-500 text-xs max-w-xs mx-auto whitespace-pre-wrap">
+                        {error || t.tryAgainLater}
+                      </p>
+                    </div>
+                  )}
 
-              {/* Suggested Questions */}
-              {session?.status === 'completed' && session.suggestedQuestions.length > 0 && messages.length <= 1 && (
-                <div className={`px-4 py-3 border-t border-gray-200 animate-in slide-in-from-bottom duration-300 delay-200 ${
-                  isBright ? 'bg-blue-50/50' : 'bg-gray-50'
-                }`}>
-                  <p className="text-xs text-gray-500 mb-3 font-medium">
-                    {t.tryTheseQuestions}
-                  </p>
-                  <div className="space-y-2">
-                    {session.suggestedQuestions.slice(0, 2).map((question, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleSuggestedQuestion(question)}
-                        className={`w-full text-left p-3 bg-white rounded-xl text-xs text-gray-700 border transition-all duration-200 hover:shadow-sm ${
-                          isBright 
-                            ? 'border-blue-200 hover:bg-blue-50 hover:border-blue-300' 
-                            : 'border-gray-200 hover:bg-blue-50 hover:border-blue-200'
-                        }`}
+                  <div className="space-y-4">
+                    {messages.map((message, index) => (
+                      <div
+                        key={message.id}
+                        className={`flex ${message.isUser ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}
+                        style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <span className={`mr-1 ${isBright ? 'text-purple-600' : 'text-blue-600'}`}>💬</span>
-                        {question}
-                      </button>
+                        <div
+                          className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
+                            message.isUser
+                              ? isBright
+                                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+                                : 'bg-blue-600 text-white'
+                              : 'bg-white text-gray-800 border border-gray-200'
+                          }`}
+                        >
+                          <p className="whitespace-pre-wrap text-left leading-relaxed">{message.content}</p>
+                          <div className={`text-xs mt-2 ${
+                            message.isUser 
+                              ? isBright ? 'text-blue-100' : 'text-blue-100'
+                              : 'text-gray-500'
+                          }`}>
+                            {message.timestamp.toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </div>
+                        </div>
+                      </div>
                     ))}
+
+                    {isSending && (
+                      <div className="flex justify-start animate-in fade-in duration-300">
+                        <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-200">
+                          <div className="flex items-center gap-2">
+                            <div className="flex space-x-1">
+                              <div className={`w-2 h-2 rounded-full animate-bounce ${
+                                isBright ? 'bg-purple-400' : 'bg-gray-400'
+                              }`}></div>
+                              <div className={`w-2 h-2 rounded-full animate-bounce ${
+                                isBright ? 'bg-purple-400' : 'bg-gray-400'
+                              }`} style={{ animationDelay: '0.1s' }}></div>
+                              <div className={`w-2 h-2 rounded-full animate-bounce ${
+                                isBright ? 'bg-purple-400' : 'bg-gray-400'
+                              }`} style={{ animationDelay: '0.2s' }}></div>
+                            </div>
+                            <span className="text-xs text-gray-500 ml-1">
+                              {t.aiTyping}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
+
+                  <div ref={messagesEndRef} />
                 </div>
-              )}
+
+                {/* Suggested Questions - ultra compact, single line */}
+                {session?.status === 'completed' && session.suggestedQuestions.length > 0 && messages.length <= 1 && (
+                  <div className={`px-3 py-1.5 border-t border-gray-200 animate-in slide-in-from-bottom duration-300 delay-200 flex-shrink-0 ${
+                    isBright ? 'bg-blue-50/30' : 'bg-gray-50'
+                  }`}>
+                    <div className="flex gap-1.5 overflow-x-auto">
+                      {session.suggestedQuestions.slice(0, 2).map((question, index) => (
+                        <button
+                          key={index}
+                          onClick={() => handleSuggestedQuestion(question)}
+                          className={`flex-shrink-0 px-2 py-1 bg-white rounded text-xs text-gray-700 border transition-all duration-200 hover:shadow-sm whitespace-nowrap ${
+                            isBright 
+                              ? 'border-blue-200 hover:bg-blue-50 hover:border-blue-300' 
+                              : 'border-gray-200 hover:bg-blue-50 hover:border-blue-200'
+                          }`}
+                        >
+                          💬 {question.length > 30 ? question.substring(0, 30) + '...' : question}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Message Input */}
               {session?.status === 'completed' && session.remainingMessages > 0 && (

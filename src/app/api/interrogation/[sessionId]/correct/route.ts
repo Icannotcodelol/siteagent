@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, CookieOptions } from '@supabase/ssr'
+import { updateSystemPromptFromCorrection } from '@/app/actions'
 
 interface RouteContext {
   params: {
@@ -106,13 +107,44 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
 
   console.log('New interrogation correction recorded', correction.id)
 
-  // -------------------------------------------------------
-  // Create an inline document so the corrected answer is
-  // ingested by the RAG pipeline and improves future answers
-  // -------------------------------------------------------
-  try {
-    // Create a more detailed correction document that's more likely to be retrieved
-    const correctionContent = `
+  // Determine correction type and handle accordingly
+  const behaviorIssues = ['tone', 'personality', 'format', 'instructions']
+  const dataIssues = ['factual', 'incomplete', 'context', 'relevance']
+  
+  if (behaviorIssues.includes(errorType)) {
+    // -------------------------------------------------------
+    // Handle behavior/tone issues by updating system prompt
+    // -------------------------------------------------------
+    console.log(`Processing behavior correction: ${errorType}`)
+    
+    try {
+      const result = await updateSystemPromptFromCorrection(
+        session.chatbot_id,
+        errorType,
+        description || '',
+        correctAnswer
+      )
+      
+      if (!result.success) {
+        console.error('Failed to update system prompt:', result.error)
+        // Don't fail the whole request, just log the issue
+      } else {
+        console.log('Successfully updated system prompt with behavior correction')
+      }
+    } catch (error) {
+      console.error('Error updating system prompt:', error)
+      // Don't fail the whole request, just log the issue
+    }
+    
+  } else if (dataIssues.includes(errorType)) {
+    // -------------------------------------------------------
+    // Handle data/information issues by creating correction documents
+    // -------------------------------------------------------
+    console.log(`Processing data correction: ${errorType}`)
+    
+    try {
+      // Create a more detailed correction document that's more likely to be retrieved
+      const correctionContent = `
 CORRECTION: ${errorType}
 
 Original Question Context: This correction addresses issues that may arise when users ask similar questions.
@@ -125,55 +157,122 @@ ${additionalNotes ? `Additional Notes: ${additionalNotes}\n\n` : ''}
 
 Keywords: correction, interrogation, improvement, ${errorType}`
 
-    const { data: docRow, error: docErr } = await supabase
-      .from('documents')
-      .insert({
-        chatbot_id: session.chatbot_id,
-        user_id: user.id,
-        file_name: `correction-${errorType}-${Date.now()}.txt`,
-        content: correctionContent.trim(),
-        embedding_status: 'pending',
-        file_type: 'text',
-        // Add metadata to identify this as a correction document
-        metadata: {
-          type: 'interrogation_correction',
-          message_id: chatMessageId,
-          error_type: errorType,
-          priority: 'high'
-        }
-      })
-      .select('id')
-      .single()
-
-    if (docErr) {
-      console.error('Failed to create correction document', docErr)
-    } else {
-      console.log('Queued correction document for embedding', docRow.id)
-      
-      // Directly invoke generate-embeddings function
-      try {
-        const { error: invokeError } = await supabase.functions.invoke(
-          'generate-embeddings',
-          {
-            body: {
-              invoker: 'interrogation-correction',
-              documentId: docRow.id,
-              scrapedContent: correctionContent.trim()
-            }
+      const { data: docRow, error: docErr } = await supabase
+        .from('documents')
+        .insert({
+          chatbot_id: session.chatbot_id,
+          user_id: user.id,
+          file_name: `correction-${errorType}-${Date.now()}.txt`,
+          content: correctionContent.trim(),
+          embedding_status: 'pending',
+          file_type: 'text',
+          metadata: {
+            type: 'interrogation_correction',
+            message_id: chatMessageId,
+            error_type: errorType,
+            priority: 'high'
           }
-        )
+        })
+        .select('id')
+        .single()
+
+      if (docErr) {
+        console.error('Failed to create correction document', docErr)
+      } else {
+        console.log('Queued correction document for embedding', docRow.id)
         
-        if (invokeError) {
-          console.error('Failed to invoke generate-embeddings for correction', invokeError)
-        } else {
-          console.log('Successfully triggered embedding generation for correction', docRow.id)
+        // Directly invoke generate-embeddings function
+        try {
+          const { error: invokeError } = await supabase.functions.invoke(
+            'generate-embeddings',
+            {
+              body: {
+                invoker: 'interrogation-correction',
+                documentId: docRow.id,
+                scrapedContent: correctionContent.trim()
+              }
+            }
+          )
+          
+          if (invokeError) {
+            console.error('Failed to invoke generate-embeddings for correction', invokeError)
+          } else {
+            console.log('Successfully triggered embedding generation for correction', docRow.id)
+          }
+        } catch (invokeErr) {
+          console.error('Error invoking generate-embeddings function', invokeErr)
         }
-      } catch (invokeErr) {
-        console.error('Error invoking generate-embeddings function', invokeErr)
       }
+    } catch (e) {
+      console.error('Unexpected error creating correction document', e)
     }
-  } catch (e) {
-    console.error('Unexpected error creating correction document', e)
+  } else {
+    // Unknown category, default to data issue behavior
+    console.log(`Unknown error category: ${errorType}, defaulting to data correction`)
+    
+    try {
+      // Create a more detailed correction document that's more likely to be retrieved
+      const correctionContent = `
+CORRECTION: ${errorType}
+
+Original Question Context: This correction addresses issues that may arise when users ask similar questions.
+
+${description ? `Problem Description: ${description}\n\n` : ''}
+
+Correct Answer: ${correctAnswer}
+
+${additionalNotes ? `Additional Notes: ${additionalNotes}\n\n` : ''}
+
+Keywords: correction, interrogation, improvement, ${errorType}`
+
+      const { data: docRow, error: docErr } = await supabase
+        .from('documents')
+        .insert({
+          chatbot_id: session.chatbot_id,
+          user_id: user.id,
+          file_name: `correction-${errorType}-${Date.now()}.txt`,
+          content: correctionContent.trim(),
+          embedding_status: 'pending',
+          file_type: 'text',
+          metadata: {
+            type: 'interrogation_correction',
+            message_id: chatMessageId,
+            error_type: errorType,
+            priority: 'high'
+          }
+        })
+        .select('id')
+        .single()
+
+      if (docErr) {
+        console.error('Failed to create correction document', docErr)
+      } else {
+        console.log('Queued correction document for embedding', docRow.id)
+        
+        try {
+          const { error: invokeError } = await supabase.functions.invoke(
+            'generate-embeddings',
+            {
+              body: {
+                invoker: 'interrogation-correction',
+                documentId: docRow.id,
+                scrapedContent: correctionContent.trim()
+              }
+            }
+          )
+          
+          if (invokeError) {
+            console.error('Failed to invoke generate-embeddings for correction', invokeError)
+          } else {
+            console.log('Successfully triggered embedding generation for correction', docRow.id)
+          }
+        } catch (invokeErr) {
+          console.error('Error invoking generate-embeddings function', invokeErr)
+        }
+      }
+    } catch (e) {
+      console.error('Unexpected error creating correction document', e)
+    }
   }
 
   return NextResponse.json({ correctionId: correction.id, createdAt: correction.created_at })
