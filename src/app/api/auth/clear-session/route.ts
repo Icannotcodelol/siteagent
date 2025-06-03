@@ -5,12 +5,12 @@ export async function POST() {
   try {
     const cookieStore = await cookies()
     
-    // Clear all possible Supabase auth cookies
+    // Clear all possible Supabase auth cookies (updated for custom domain)
     const authCookieNames = [
-      'sb-liqepcjnkbuqaaolksjn-auth-token',
-      'sb-liqepcjnkbuqaaolksjn-auth-token.0',
-      'sb-liqepcjnkbuqaaolksjn-auth-token.1',
-      'sb-liqepcjnkbuqaaolksjn-auth-token.2',
+      'sb-authsiteagenteu-auth-token',
+      'sb-authsiteagenteu-auth-token.0',
+      'sb-authsiteagenteu-auth-token.1',
+      'sb-authsiteagenteu-auth-token.2',
     ]
     
     authCookieNames.forEach(name => {

@@ -54,10 +54,10 @@ export async function middleware(request: NextRequest) {
         },
       })
       
-      // Clear auth cookies
-      response.cookies.delete('sb-liqepcjnkbuqaaolksjn-auth-token')
-      response.cookies.delete('sb-liqepcjnkbuqaaolksjn-auth-token.0')
-      response.cookies.delete('sb-liqepcjnkbuqaaolksjn-auth-token.1')
+      // Clear auth cookies (updated for custom domain)
+      response.cookies.delete('sb-authsiteagenteu-auth-token')
+      response.cookies.delete('sb-authsiteagenteu-auth-token.0')
+      response.cookies.delete('sb-authsiteagenteu-auth-token.1')
       
       return response
     }
