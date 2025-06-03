@@ -701,6 +701,69 @@ export async function canSendMessage(
 }
 
 /**
+ * Checks if a user can scrape additional websites based on their current plan limits.
+ *
+ * A "website scrape" in this context refers to a document whose file_name begins with
+ * "http" (i.e. a URL document). The function counts the user's existing scraped
+ * websites and determines if adding `additionalWebsites` would exceed the plan's
+ * `max_websites_scraped` limit.
+ *
+ * Legacy plans (plans where `is_active = false`) are unrestricted: the function
+ * always returns true for those users.
+ *
+ * @param userId               – The ID of the user attempting the scrape.
+ * @param additionalWebsites   – How many new websites the user is about to add.
+ * @param supabase             – A Supabase client instance.
+ * @returns `true` if the scrape is permitted, `false` otherwise.
+ */
+export async function canScrapeWebsite(
+  userId: string,
+  additionalWebsites: number,
+  supabase: SupabaseClient
+): Promise<boolean> {
+  if (!userId) return false;
+
+  // Step-1: fetch subscription + plan
+  const subscription = await getUserSubscriptionWithPlanDetails(userId, supabase);
+  if (!subscription || !subscription.plans) {
+    console.warn(`canScrapeWebsite: No active plan found for user ${userId}. Denying website scrape.`);
+    return false;
+  }
+
+  // Legacy/legacy-like plans (is_active = false) are exempt from scraping limits
+  if (!subscription.plans.is_active) {
+    return true;
+  }
+
+  const planLimit = subscription.plans.max_websites_scraped;
+
+  // A planLimit of 0 means the plan does not allow website scraping at all.
+  if (planLimit === 0) {
+    console.log(`User ${userId}: plan disallows website scraping (limit = 0).`);
+    return false;
+  }
+
+  // Step-2: count existing scraped websites (documents with URL file_name)
+  const { count: existingCount, error: countError } = await supabase
+    .from('documents')
+    .select('id', { head: true, count: 'exact' })
+    .eq('user_id', userId)
+    .ilike('file_name', 'http%');
+
+  if (countError) {
+    console.error(`Error counting scraped websites for user ${userId}:`, countError.message);
+    return false; // fail closed
+  }
+
+  const currentScraped = existingCount || 0;
+  const canScrape = (currentScraped + additionalWebsites) <= planLimit;
+
+  console.log(`User ${userId}: Websites scraped ${currentScraped} + new ${additionalWebsites} / limit ${planLimit}. Can scrape: ${canScrape}`);
+
+  return canScrape;
+}
+
+/**
  * Increments the message count for a user in their current billing cycle using an RPC call.
  * This should be called after a message is successfully processed/sent by one of the user's chatbots.
  *

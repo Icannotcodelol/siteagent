@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import { v4 as uuidv4 } from 'uuid'
-import { canCreateChatbot } from '@/lib/services/subscriptionService'
+import { canCreateChatbot, canScrapeWebsite } from '@/lib/services/subscriptionService'
 
 interface ActionResult {
   success: boolean;
@@ -82,6 +82,17 @@ export async function createChatbotAction(
   const systemPrompt = data.system_prompt?.trim() || null;
   const pastedText = data.pasted_text?.trim() || null; // Get pasted text
   const websiteUrls = data.website_urls || []; // Get website URLs
+
+  // 3a. Check website scraping limit (if any URLs provided)
+  if (websiteUrls.length > 0) {
+    const canScrape = await canScrapeWebsite(user.id, websiteUrls.length, supabase);
+    if (!canScrape) {
+      return {
+        success: false,
+        error: 'Website scraping limit reached for your current plan. Please upgrade your plan or remove some scraped websites before adding new ones.'
+      };
+    }
+  }
 
   if (!chatbotName) {
       return { success: false, error: 'Chatbot name cannot be empty.' };
@@ -232,6 +243,17 @@ export async function updateChatbotAction(
     const systemPrompt = data.system_prompt?.trim() || null
     const pastedText = data.pasted_text?.trim() || null; // Get pasted text
     const websiteUrls = data.website_urls || []; // Get website URLs
+
+    // 3a. Check website scraping limit (if URLs provided)
+    if (websiteUrls.length > 0) {
+        const canScrape = await canScrapeWebsite(user.id, websiteUrls.length, supabase);
+        if (!canScrape) {
+            return {
+                success: false,
+                error: 'Website scraping limit reached for your current plan. Please upgrade your plan or remove some scraped websites before adding new ones.'
+            };
+        }
+    }
 
     if (!chatbotName) {
         return { success: false, error: 'Chatbot name cannot be empty.' }
