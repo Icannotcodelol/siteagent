@@ -74,20 +74,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     },
-    // Demo pages
-    {
-      url: `${baseUrl}/mysugrdemo`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/pauseandplaydemo`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    // International pages
+    // Language-specific pages
     {
       url: `${baseUrl}/de`,
       lastModified: currentDate,
@@ -101,13 +88,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/es`,
+      url: `${baseUrl}/pl`,
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/pl`,
+      url: `${baseUrl}/es`,
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
       priority: 0.9,
@@ -117,6 +104,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
       priority: 0.9,
+    },
+    // Demo pages
+    {
+      url: `${baseUrl}/mysugrdemo`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/pauseandplaydemo`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
     },
   ]
 

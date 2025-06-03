@@ -308,7 +308,7 @@ export default function Page() {
       {/* Widget esterno per produzione */}
       {process.env.NODE_ENV === 'production' && (
         <Script
-          src="https://siteagent.eu/chatbot-widget.js"
+                      src="https://siteagent.eu/chatbot-widget.js"
           data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
           data-launcher-icon="https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg?semt=ais_hybrid&w=740"
           strategy="lazyOnload"

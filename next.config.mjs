@@ -92,39 +92,25 @@ const nextConfig = {
           },
         ],
       },
-      // Ensure sitemap and robots.txt are served with correct content type
+    ];
+  },
+  
+  async rewrites() {
+    return [
       {
-        source: '/sitemap.xml',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/xml',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
+        source: '/js/script.js',
+        destination: 'https://datafa.st/js/script.js',
       },
       {
-        source: '/robots.txt',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'text/plain',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
+        source: '/api/events',
+        destination: 'https://datafa.st/api/events',
       },
     ];
   },
   
   async redirects() {
     return [
-      // Redirect www to non-www for canonical domain consistency
+      // Redirect www to non-www
       {
         source: '/:path*',
         has: [
@@ -135,19 +121,6 @@ const nextConfig = {
         ],
         destination: 'https://siteagent.eu/:path*',
         permanent: true,
-      },
-    ];
-  },
-
-  async rewrites() {
-    return [
-      {
-        source: '/js/script.js',
-        destination: 'https://datafa.st/js/script.js',
-      },
-      {
-        source: '/api/events',
-        destination: 'https://datafa.st/api/events',
       },
     ];
   },
