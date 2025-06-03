@@ -532,8 +532,11 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
         )}
       </div>
       {/* Input Area */}
-      <form onSubmit={handleSubmit} className="p-3 border-t border-gray-200" style={{ background: secondaryColor || '#f3f4f6' }}>
-        <div className="flex items-center border border-gray-300 rounded-md" style={{ background: backgroundColor || '#fff' }}>
+      <form onSubmit={handleSubmit} className="p-3" style={{ background: backgroundColor || '#fff' }}>
+        <div className="flex items-center rounded-lg border" style={{ 
+          background: backgroundColor || '#fff',
+          borderColor: secondaryColor || '#e5e7eb'
+        }}>
           <input
             ref={inputRef} // Assign ref to input
             type="text"
@@ -558,8 +561,9 @@ export default function ChatInterface({ chatbotId, primaryColor, secondaryColor,
           />
           <button
             type="submit"
-            className="p-2 text-purple-500 hover:text-purple-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             disabled={isLoading || !inputValue.trim()}
+            style={{ color: primaryColor || '#9333ea' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />

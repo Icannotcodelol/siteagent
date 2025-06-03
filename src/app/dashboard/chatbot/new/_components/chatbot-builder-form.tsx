@@ -42,7 +42,7 @@ import {
   getErrorMessage,
   type AppError 
 } from './error-handling'
-import EnhancedAppearanceTab from './enhanced-appearance-tab'
+import SimplifiedAppearanceTab from './simplified-appearance-tab'
 
 // Define possible section values
 type Section = 'settings' | 'dataSources' | 'appearance' | 'embed' | 'actions' | 'integrations' | 'analytics';
@@ -719,36 +719,42 @@ export default function ChatbotBuilderForm({
               </p>
             </div>
 
-            <EnhancedAppearanceTab
+            <SimplifiedAppearanceTab
               chatbotId={chatbotId}
-              isEditMode={isEditMode}
-              primaryColor={primaryColor}
-              setPrimaryColor={setPrimaryColor}
-              secondaryColor={secondaryColor}
-              setSecondaryColor={setSecondaryColor}
-              backgroundColor={backgroundColor}
-              setBackgroundColor={setBackgroundColor}
-              textColor={textColor}
-              setTextColor={setTextColor}
-              fontFamily={fontFamily}
-              setFontFamily={setFontFamily}
-              welcomeMessage={welcomeMessage}
-              setWelcomeMessage={setWelcomeMessage}
-              botAvatarUrl={botAvatarUrl}
-              setBotAvatarUrl={setBotAvatarUrl}
-              userAvatarUrl={userAvatarUrl}
-              setUserAvatarUrl={setUserAvatarUrl}
-              chatBubbleStyle={chatBubbleStyle}
-              setChatBubbleStyle={setChatBubbleStyle}
-              headerText={headerText}
-              setHeaderText={setHeaderText}
-              inputPlaceholder={inputPlaceholder}
-              setInputPlaceholder={setInputPlaceholder}
-              showBranding={showBranding}
-              setShowBranding={setShowBranding}
-              supabase={supabase}
-              setError={setError}
-              createError={createError}
+              settings={{
+                primaryColor,
+                secondaryColor,
+                backgroundColor,
+                textColor,
+                fontFamily,
+                welcomeMessage,
+                headerText,
+                inputPlaceholder,
+                botAvatarUrl,
+                userAvatarUrl,
+                chatBubbleStyle,
+                showBranding,
+              }}
+              onChange={(updates) => {
+                if (updates.primaryColor !== undefined) setPrimaryColor(updates.primaryColor);
+                if (updates.secondaryColor !== undefined) setSecondaryColor(updates.secondaryColor);
+                if (updates.backgroundColor !== undefined) setBackgroundColor(updates.backgroundColor);
+                if (updates.textColor !== undefined) setTextColor(updates.textColor);
+                if (updates.fontFamily !== undefined) setFontFamily(updates.fontFamily);
+                if (updates.welcomeMessage !== undefined) setWelcomeMessage(updates.welcomeMessage);
+                if (updates.headerText !== undefined) setHeaderText(updates.headerText);
+                if (updates.inputPlaceholder !== undefined) setInputPlaceholder(updates.inputPlaceholder);
+                if (updates.botAvatarUrl !== undefined) setBotAvatarUrl(updates.botAvatarUrl);
+                if (updates.userAvatarUrl !== undefined) setUserAvatarUrl(updates.userAvatarUrl);
+                if (updates.chatBubbleStyle !== undefined) setChatBubbleStyle(updates.chatBubbleStyle);
+                if (updates.showBranding !== undefined) setShowBranding(updates.showBranding);
+                
+                // Update the appearance context as well
+                setAppearance(updates);
+                
+                // Trigger auto-save
+                triggerAutoSave();
+              }}
             />
           </section>
 

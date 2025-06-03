@@ -392,8 +392,11 @@ export default function ChatPreview(props: ChatPreviewProps) {
         {/* Container-based scrolling handles auto-scroll; anchor not needed */}
       </div>
       {/* Input Area */}
-      <div className="p-3 border-t border-gray-700" style={{ background: secondaryColor || '#23232b' }}>
-        <div className="flex items-center border border-gray-700 rounded-md" style={{ background: backgroundColor || '#1a1a1a' }}>
+      <div className="p-3" style={{ background: backgroundColor || '#1a1a1a' }}>
+        <div className="flex items-center rounded-lg border" style={{ 
+          background: backgroundColor || '#1a1a1a',
+          borderColor: secondaryColor || '#374151'
+        }}>
           <input 
             type="text"
             placeholder={inputPlaceholder || 'Type your message...'}
@@ -404,11 +407,12 @@ export default function ChatPreview(props: ChatPreviewProps) {
             disabled={isLoading}
             style={{ color: textColor || '#fff', fontFamily: fontFamily || 'inherit' }}
           />
-          {/* Purple send button */}
+          {/* Send button using primary color */}
           <button 
-            className="p-2 text-purple-500 hover:text-purple-400 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="p-2 hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
             onClick={handleSendMessage}
             disabled={isLoading || !input.trim()}
+            style={{ color: primaryColor || '#9333ea' }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />

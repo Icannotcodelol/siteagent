@@ -12,6 +12,7 @@ import { OpenAI } from 'npm:openai@4' // Use OpenAI SDK v4+
 import pdfParse from 'npm:pdf-parse/lib/pdf-parse.js';
 import { Pinecone } from 'npm:@pinecone-database/pinecone@2.0.1'; // Ensure this is your desired version
 import { processCsvToText, detectCsvDelimiter, isValidCsv, parseSimpleCsv } from './csv-processor.ts';
+import JSZip from 'npm:jszip@3.10.1';
 
 // Constants
 const EMBEDDING_MODEL = 'text-embedding-3-large'
@@ -214,205 +215,106 @@ Deno.serve(async (req: Request) => {
     await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'processing');
     
     let textContent = '';
+    // Determine file extension for content processing logic
+    // Use fileName (which includes the original extension) if available, otherwise infer from storagePath
+    const effectiveFileNameForExtension = fileName || storagePath || '';
+    const fileExtension = effectiveFileNameForExtension.split('.').pop()?.toLowerCase() || '';
+
     if (rawContent) {
-        // FIXED: Only detect CSV for files with explicit CSV indicators, not all content
-        // This prevents web content from being misidentified as CSV
+        // This block is for content passed directly (e.g., scraped web content or text input)
+        // We need to be careful not to misinterpret this as a file upload with an extension.
+        // CSV detection for directly passed content (if explicitly marked or structured as such)
         const hasExplicitCsvIndicator = fileName?.toLowerCase().endsWith('.csv') ?? false;
         const hasExplicitCsvContentType = contentType === 'text/csv' || contentType === 'application/csv';
         const isExplicitCsv = hasExplicitCsvIndicator || hasExplicitCsvContentType;
         
-        // DEBUG: Add logging to track CSV detection
-        console.log('[DEBUG CSV] fileName:', fileName);
-        console.log('[DEBUG CSV] contentType:', contentType);
-        console.log('[DEBUG CSV] hasExplicitCsvIndicator:', hasExplicitCsvIndicator);
-        console.log('[DEBUG CSV] hasExplicitCsvContentType:', hasExplicitCsvContentType);
-        console.log('[DEBUG CSV] isExplicitCsv:', isExplicitCsv);
+        console.log('[DEBUG CSV - Direct Content] fileName:', fileName);
+        console.log('[DEBUG CSV - Direct Content] contentType:', contentType);
+        console.log('[DEBUG CSV - Direct Content] isExplicitCsv:', isExplicitCsv);
         
-        // Additional validation: only if explicitly marked as CSV AND passes validation
         const looksLikeCsv = isExplicitCsv && isValidCsv(rawContent);
-        
-        console.log('[DEBUG CSV] looksLikeCsv:', looksLikeCsv);
+        console.log('[DEBUG CSV - Direct Content] looksLikeCsv:', looksLikeCsv);
         
         if (looksLikeCsv) {
-            console.log('Detected inline CSV content. Processing without embeddings...');
-
-            // Validate CSV format (already implied by isValidCsv but good to double-check)
-            if (!isValidCsv(rawContent)) {
-                console.error(`Inline CSV content appears invalid for document ${docIdToProcess}`);
-                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', 'Invalid inline CSV format');
-                return new Response(JSON.stringify({ message: 'Invalid CSV format' }), {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-
+            console.log(`Detected inline CSV content for document ${docIdToProcess}. Processing...`);
             const delimiter = detectCsvDelimiter(rawContent);
             const parsedRows = parseSimpleCsv(rawContent, delimiter);
-            const headers = parsedRows[0] || [];
-            const dataRows = parsedRows.slice(1);
-
-            const rowChunks: any[] = [];
-            dataRows.forEach((row) => {
-                const rowTextParts = row.map((cell, cellIdx) => {
-                    const columnName = headers[cellIdx] || `Column ${cellIdx + 1}`;
-                    return `${columnName}: ${cell}`;
-                }).filter(Boolean);
-
-                if (rowTextParts.length === 0) return;
-
-                const rowText = rowTextParts.join(', ');
-                rowChunks.push({
-                    document_id: docIdToProcess,
-                    chatbot_id: chatbotId,
-                    chunk_text: rowText,
-                    embedding: null, // Skip embeddings for CSV rows
-                    token_count: rowText.length,
-                });
-            });
-
-            if (rowChunks.length > 0) {
-                const { error: insertErr } = await supabaseAdminClient
-                    .from('document_chunks')
-                    .insert(rowChunks);
-
-                if (insertErr) {
-                    console.error(`Failed to insert inline CSV chunks for doc ${docIdToProcess}:`, insertErr);
-                    await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `CSV chunk insert error: ${insertErr.message}`);
-                    return new Response(JSON.stringify({ message: 'CSV processing failed', error: insertErr.message }), {
-                        status: 500,
-                        headers: { 'Content-Type': 'application/json' },
-                    });
-                }
-                console.log(`Stored ${rowChunks.length} CSV rows for inline document ${docIdToProcess} without embeddings.`);
-            } else {
-                console.warn(`No non-empty rows found in inline CSV document ${docIdToProcess}.`);
-            }
-
-            await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'completed', 'CSV stored without embeddings');
-            return new Response(JSON.stringify({ message: `CSV document ${docIdToProcess} processed without embeddings. Rows stored: ${rowChunks.length}` }), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' },
-            });
+            // Convert parsed CSV rows back to a simple text representation or handle as structured data
+            // For now, let's join rows and cells into a single text block for embedding
+            textContent = parsedRows.map(row => row.join(' ')).join('\n');
+            console.log(`Successfully processed inline CSV content for document ${docIdToProcess}`);
+        } else {
+            // Default to treating rawContent as plain text if not CSV
+            textContent = rawContent;
+            console.log(`Using direct rawContent as text for document ${docIdToProcess}`);
         }
-
-        console.log('Using direct content from database as plain text.');
-        textContent = rawContent;
-    } else if (storagePath) {
-        console.log(`Downloading from storage path: ${storagePath}`);
-        const { data: fileDataBuffer, error: downloadError } = await supabaseAdminClient.storage
-            .from('documents') 
+    } else if (storagePath && supabaseAdminClient) {
+        // Content needs to be fetched from Supabase Storage
+        console.log(`Fetching content from storage path: ${storagePath} for document ${docIdToProcess}`);
+        const { data: fileData, error: downloadError } = await supabaseAdminClient.storage
+            .from('documents') // Assuming 'documents' is your bucket name
             .download(storagePath);
 
         if (downloadError) {
-            throw new Error(`Storage download error: ${downloadError.message}`);
-        }
-        if (!fileDataBuffer) {
-            throw new Error('Downloaded data is null.');
-        }
-
-        const fileExtension = fileName?.split('.').pop()?.toLowerCase();
-        console.log(`Detected file extension from name: ${fileExtension}`);
-
-        if (fileExtension === 'pdf' || contentType === 'application/pdf') {
-            console.log("Attempting to parse PDF from storage...");
-            try {
-                const buffer = await fileDataBuffer.arrayBuffer(); 
-                const nodeBuffer = buffer as unknown as Buffer; 
-                const data = await pdfParse(nodeBuffer);
-                textContent = data.text;
-                console.log(`Successfully parsed PDF. Text length: ${textContent.length}`);
-            } catch (parseError: any) {
-                console.error(`Failed to parse PDF ${fileName}:`, parseError);
-                const detailedError = parseError.message || 'PDF parsing failed.';
-                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Failed to parse PDF: ${detailedError}`);
-                return new Response(JSON.stringify({ message: `Failed to parse PDF: ${detailedError}` }), {
-                    status: 200, 
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-        } else if (fileExtension === 'txt' || fileExtension === 'md' || contentType === 'text/plain' || contentType === 'text/markdown') {
-            console.log("Reading text file from storage...");
-            textContent = await fileDataBuffer.text();
-            console.log(`Read text file. Length: ${textContent.length}`);
-        } else if (fileExtension === 'csv' || contentType === 'text/csv' || contentType === 'application/csv') {
-            console.log("Processing CSV file from storage...");
-            const csvContent = await fileDataBuffer.text();
-            
-            // Validate CSV format
-            if (!isValidCsv(csvContent)) {
-                console.error(`Invalid CSV format for document ${docIdToProcess}`);
-                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', 'Invalid CSV format');
-                return new Response(JSON.stringify({ message: 'Invalid CSV format' }), {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' },
-                });
-            }
-
-            // Detect delimiter and process CSV
-            const delimiter = detectCsvDelimiter(csvContent);
-            const csvResult = processCsvToText(csvContent, { 
-                delimiter,
-                includeHeaders: true,
-                maxRows: 10000 // Reasonable limit for processing
-            });
-
-            // NEW: Skip RAG for CSV and store each row as a plain chunk (no embedding)
-            // ----------------------------------------------------------------------
-            {
-              // Parse again to get structured rows
-              const parsedRows = parseSimpleCsv(csvContent, delimiter);
-              const headers = parsedRows[0] || [];
-              const dataRows = parsedRows.slice(1);
-              const rowChunks: any[] = [];
-              dataRows.forEach((row, idx) => {
-                const rowTextParts = row.map((cell, cellIdx) => {
-                  const columnName = headers[cellIdx] || `Column ${cellIdx + 1}`;
-                  return `${columnName}: ${cell}`;
-                }).filter(Boolean);
-                if (rowTextParts.length === 0) return;
-                const rowText = rowTextParts.join(', ');
-
-                rowChunks.push({
-                  document_id: docIdToProcess,
-                  chatbot_id: chatbotId,
-                  chunk_text: rowText,
-                  embedding: null, // Explicitly no embedding – we are skipping RAG for CSV rows
-                  token_count: rowText.length,
-                });
-              });
-
-              if (rowChunks.length > 0) {
-                const { error: insertCsvChunksErr } = await supabaseAdminClient
-                  .from('document_chunks')
-                  .insert(rowChunks);
-
-                if (insertCsvChunksErr) {
-                  console.error(`Failed to insert CSV chunks for doc ${docIdToProcess}:`, insertCsvChunksErr);
-                  await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `CSV chunk insert error: ${insertCsvChunksErr.message}`);
-                  return new Response(JSON.stringify({ message: 'CSV processing failed', error: insertCsvChunksErr.message }), {
-                    status: 500,
-                    headers: { 'Content-Type': 'application/json' },
-                  });
-                }
-                console.log(`Stored ${rowChunks.length} CSV rows for document ${docIdToProcess} without embeddings.`);
-              } else {
-                console.warn(`No non-empty rows found in CSV document ${docIdToProcess}.`);
-              }
-
-              // Mark document as completed and exit early – no embeddings / Pinecone upsert
-              await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'completed', 'CSV stored without embeddings');
-              return new Response(JSON.stringify({ message: `CSV document ${docIdToProcess} processed without embeddings. Rows stored: ${rowChunks.length}` }), {
-                status: 200,
+            console.error(`Error downloading file ${storagePath} for document ${docIdToProcess}:`, downloadError);
+            await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Failed to download file: ${downloadError.message}`);
+            return new Response(JSON.stringify({ message: `Download failed for ${docIdToProcess}` }), {
+                status: 200, // HTTP 200 because the function itself didn't crash
                 headers: { 'Content-Type': 'application/json' },
-              });
+            });
+        }
+        console.log(`Successfully downloaded file ${storagePath} for document ${docIdToProcess}`);
+
+        if (fileExtension === 'pdf') {
+            try {
+                const pdfBuffer = await fileData.arrayBuffer();
+                const pdfData = await pdfParse(pdfBuffer);
+                textContent = pdfData.text;
+                console.log(`Successfully parsed PDF content for document ${docIdToProcess}`);
+            } catch (pdfError: any) {
+                console.error(`Error parsing PDF file ${docIdToProcess}:`, pdfError);
+                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Failed to parse PDF content: ${pdfError.message}`);
+                return new Response(JSON.stringify({ message: `PDF parsing failed for ${docIdToProcess}` }), { status: 200 });
             }
-            // ----------------------------------------------------------------------
-            // (Note: The original embedding logic for CSV is now bypassed by the early return above)
+        } else if (fileExtension === 'docx') {
+            try {
+                const docxBuffer = await fileData.arrayBuffer();
+                textContent = await extractTextFromDocx(docxBuffer);
+                console.log(`Successfully extracted text from DOCX: ${docIdToProcess}`);
+            } catch (docxError: any) {
+                console.error(`Error parsing DOCX file ${docIdToProcess}:`, docxError);
+                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Failed to parse DOCX content: ${docxError.message}`);
+                return new Response(JSON.stringify({ message: `DOCX parsing failed for ${docIdToProcess}` }), { status: 200 });
+            }
+        } else if (fileExtension === 'csv') {
+             try {
+                const csvText = await fileData.text();
+                if (!isValidCsv(csvText)) {
+                    throw new Error('Invalid CSV format detected after download.');
+                }
+                const delimiter = detectCsvDelimiter(csvText);
+                const parsedRows = parseSimpleCsv(csvText, delimiter);
+                textContent = parsedRows.map(row => row.join(' ')).join('\n');
+                console.log(`Successfully processed CSV content from storage for document ${docIdToProcess}`);
+            } catch (csvError: any) {
+                console.error(`Error processing CSV file from storage ${docIdToProcess}:`, csvError);
+                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Failed to process CSV from storage: ${csvError.message}`);
+                return new Response(JSON.stringify({ message: `CSV processing from storage failed for ${docIdToProcess}` }), { status: 200 });
+            }
+        } else if (fileExtension === 'txt' || fileExtension === 'md' || contentType?.startsWith('text/')) {
+            try {
+                textContent = await fileData.text();
+                console.log(`Successfully read text-based file (${fileExtension}) from storage for document ${docIdToProcess}`);
+            } catch (textError: any) {
+                console.error(`Error reading text file ${docIdToProcess} from storage:`, textError);
+                await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Failed to read text file from storage: ${textError.message}`);
+                return new Response(JSON.stringify({ message: `Text file reading from storage failed for ${docIdToProcess}` }), { status: 200 });
+            }
         } else {
-            console.warn(`Unsupported file type from storage: Extension=${fileExtension}, ContentType=${contentType}`);
-            await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Unsupported file type: ${fileExtension ?? contentType}`);
-            return new Response(JSON.stringify({ message: `Unsupported file type: ${fileExtension ?? contentType}` }), {
-                status: 200, 
+            console.warn(`[${docIdToProcess}] Unsupported file type for text extraction from storage: ${fileExtension} (contentType: ${contentType}, fileName: ${fileName})`);
+            await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Unsupported file type for extraction: ${fileExtension}`);
+            return new Response(JSON.stringify({ message: `Unsupported file type ${fileExtension} for ${docIdToProcess}` }), {
+                status: 200,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
@@ -666,4 +568,25 @@ async function updateDocumentStatus(
     if (updateError) {
         console.error(`Failed to update document ${docId} status to ${status}:`, updateError);
     }
+}
+
+/**
+ * Extract plain text from a DOCX (Office Open XML) file buffer.
+ * This implementation avoids Node.js filesystem calls and DOM APIs,
+ * relying solely on JSZip and simple XML parsing which are fully supported
+ * in the Supabase Edge Runtime (Deno).
+ */
+async function extractTextFromDocx(arrayBuffer: ArrayBuffer): Promise<string> {
+  const zip = await JSZip.loadAsync(arrayBuffer);
+  const docXml = await zip.file('word/document.xml')?.async('string');
+  if (!docXml) {
+    throw new Error('word/document.xml not found inside DOCX');
+  }
+
+  // Collect text inside <w:t> elements which hold the actual document text
+  const textMatches = [...docXml.matchAll(/<w:t[^>]*>(.*?)<\/w:t>/gms)].map(m => m[1]);
+  if (textMatches.length === 0) return '';
+
+  // Join with spaces and collapse multiple whitespace characters
+  return textMatches.join(' ').replace(/\s+/g, ' ').trim();
 }

@@ -21,7 +21,7 @@ export default function ForgotPasswordPage() {
     const isDevelopment = process.env.NODE_ENV === 'development'
     const redirectTo = isDevelopment
       ? 'http://localhost:3000/auth/update-password'
-      : 'https://www.siteagent.eu/auth/update-password'
+      : 'https://siteagent.eu/auth/update-password'
 
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,

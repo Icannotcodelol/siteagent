@@ -11,6 +11,8 @@ import {
   getProactiveMessageForChatbot
 } from '@/app/actions/proactive-messages'
 import { ErrorType } from './error-handling'
+import ColorPicker from './color-picker'
+import FontDropdown from './font-dropdown'
 
 interface EnhancedAppearanceTabProps {
   chatbotId?: string
@@ -54,27 +56,7 @@ const colorPresets = [
   { name: 'Dark', primary: '#6366f1', secondary: '#374151', background: '#111827', text: '#f9fafb' },
 ]
 
-// Font families with better categorization
-const fontCategories = {
-  'Modern Sans-Serif': [
-    { name: "Inter", value: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" },
-    { name: "Roboto", value: "'Roboto', sans-serif" },
-    { name: "Open Sans", value: "'Open Sans', sans-serif" },
-    { name: "Lato", value: "'Lato', sans-serif" },
-    { name: "Montserrat", value: "'Montserrat', sans-serif" },
-    { name: "Nunito", value: "'Nunito', sans-serif" },
-  ],
-  'Classic': [
-    { name: "Arial", value: "Arial, Helvetica, sans-serif" },
-    { name: "Verdana", value: "Verdana, Geneva, sans-serif" },
-    { name: "Georgia", value: "Georgia, serif" },
-    { name: "Times New Roman", value: "'Times New Roman', Times, serif" },
-  ],
-  'Monospace': [
-    { name: "Courier New", value: "'Courier New', Courier, monospace" },
-    { name: "Monaco", value: "Monaco, 'Lucida Console', monospace" },
-  ]
-}
+
 
 // Chat bubble style options
 const bubbleStyles = [
@@ -211,33 +193,6 @@ export default function EnhancedAppearanceTab(props: EnhancedAppearanceTabProps)
     }
   }
 
-  const ColorPicker = ({ label, value, onChange, description }: { 
-    label: string
-    value: string
-    onChange: (value: string) => void
-    description?: string
-  }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-300">{label}</label>
-      {description && <p className="text-xs text-gray-500">{description}</p>}
-      <div className="flex items-center space-x-3">
-        <input
-          type="color"
-          value={value || '#9333ea'}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-12 h-12 rounded-lg border border-gray-600 cursor-pointer"
-        />
-        <input
-          type="text"
-          value={value || '#9333ea'}
-          onChange={(e) => onChange(e.target.value)}
-          className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-md text-white text-sm font-mono"
-          placeholder="#000000"
-        />
-      </div>
-    </div>
-  )
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -323,7 +278,7 @@ export default function EnhancedAppearanceTab(props: EnhancedAppearanceTabProps)
                   label="Secondary Color"
                   value={props.secondaryColor}
                   onChange={(value) => handleColorChange('secondary', value)}
-                  description="Background color for header and input areas"
+                  description="Border color for input field and accent elements"
                 />
                 <ColorPicker
                   label="Background Color"
@@ -345,32 +300,16 @@ export default function EnhancedAppearanceTab(props: EnhancedAppearanceTabProps)
           {activeSection === 'typography' && (
             <div className="space-y-6">
               <div>
-                <h4 className="text-lg font-medium text-white mb-4">Font Family</h4>
-                {Object.entries(fontCategories).map(([category, fonts]) => (
-                  <div key={category} className="mb-6">
-                    <h5 className="text-sm font-medium text-gray-400 mb-3">{category}</h5>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {fonts.map((font) => (
-                        <button
-                          key={font.value}
-                          onClick={() => {
-                            props.setFontFamily(font.value)
-                            setAppearance({ fontFamily: font.value })
-                          }}
-                          className={`p-3 text-left rounded-lg border transition-colors ${
-                            props.fontFamily === font.value
-                              ? 'border-purple-500 bg-purple-500/10'
-                              : 'border-gray-700 hover:border-gray-600'
-                          }`}
-                          style={{ fontFamily: font.value }}
-                        >
-                          <span className="text-white text-sm">{font.name}</span>
-                          <p className="text-xs text-gray-400 mt-1">The quick brown fox</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                <h4 className="text-lg font-medium text-white mb-4">Typography</h4>
+                <FontDropdown
+                  label="Font Family"
+                  value={props.fontFamily}
+                  onChange={(value) => {
+                    props.setFontFamily(value)
+                    setAppearance({ fontFamily: value })
+                  }}
+                  description="Choose the typography for your chatbot interface"
+                />
               </div>
             </div>
           )}

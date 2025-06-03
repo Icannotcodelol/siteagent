@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'es_ES',
-    url: 'https://www.siteagent.eu/es/',
+    url: 'https://siteagent.eu/es/',
     title: 'SiteAgent - Chatbots Inteligentes. Más Rápidos',
     description: 'Convierte fácilmente tus documentos existentes en chatbots personalizados e intégralos en tu sitio web. Todo en menos de 5 minutos.',
     siteName: 'SiteAgent',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     creator: '@SiteAgent',
   },
   alternates: {
-    canonical: 'https://www.siteagent.eu/es/'
+    canonical: 'https://siteagent.eu/es/'
   },
   verification: {
     google: 'your-google-verification-code',
