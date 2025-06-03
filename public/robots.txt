@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /embed/
+Disallow: /auth/
+Disallow: /_next/
+Disallow: /admin/
+Disallow: /private/
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+Sitemap: https://siteagent.eu/sitemap.xml 
