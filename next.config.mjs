@@ -107,23 +107,6 @@ const nextConfig = {
       },
     ];
   },
-  
-  async redirects() {
-    return [
-      // Redirect www to non-www
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'www.siteagent.eu',
-          },
-        ],
-        destination: 'https://siteagent.eu/:path*',
-        permanent: true,
-      },
-    ];
-  },
   // You can add other Next.js configuration options below as needed
 };
 

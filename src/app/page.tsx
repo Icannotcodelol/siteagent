@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://siteagent.eu/',
+    url: 'https://www.siteagent.eu/',
     title: 'SiteAgent - Smarter Chatbots. Faster',
     description: 'Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes. Create AI assistants that automate real business tasks.',
     siteName: 'SiteAgent',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     creator: '@SiteAgent',
   },
   alternates: {
-    canonical: 'https://siteagent.eu/'
+    canonical: 'https://www.siteagent.eu/'
   },
   verification: {
     google: 'your-google-verification-code', // You should replace this with actual verification code
@@ -320,7 +320,7 @@ export default function Page() {
       {/* External widget for production */}
       {process.env.NODE_ENV === 'production' && (
         <Script
-                      src="https://siteagent.eu/chatbot-widget.js"
+          src="https://www.siteagent.eu/chatbot-widget.js"
           data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
           data-launcher-icon="https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg?semt=ais_hybrid&w=740"
           strategy="lazyOnload"

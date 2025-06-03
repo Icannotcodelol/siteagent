@@ -10,7 +10,7 @@ import { QueryProvider } from '@/lib/providers/query-provider'
 import { Toaster } from 'react-hot-toast'
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://siteagent.eu'),
+  metadataBase: new URL('https://www.siteagent.eu'),
   title: {
     default: "Add AI Chatbot to Your Website Easily | SiteAgent",
     template: "%s | SiteAgent",

@@ -121,7 +121,7 @@ function generatePaymentFailureHTML(userName: string): string {
             <li>Contact your bank if the issue persists</li>
           </ul>
           
-          <p><a href="https://siteagent.eu/dashboard/billing" class="button">Update Payment Method</a></p>
+          <p><a href="https://www.siteagent.eu/dashboard/billing" class="button">Update Payment Method</a></p>
           
           <p>If you have any questions, please contact our support team.</p>
         </div>
@@ -174,7 +174,7 @@ function generateUsageOverageHTML(userName: string, currentUsage: number, limit:
           
           <p>You're approaching your plan limit. Consider upgrading to avoid service interruption.</p>
           
-          <p><a href="https://siteagent.eu/dashboard/billing" class="button">Upgrade Plan</a></p>
+          <p><a href="https://www.siteagent.eu/dashboard/billing" class="button">Upgrade Plan</a></p>
         </div>
         
         <div class="footer">

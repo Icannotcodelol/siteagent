@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'it_IT',
-    url: 'https://siteagent.eu/it/',
+    url: 'https://www.siteagent.eu/it/',
     title: 'SiteAgent - Chatbot Intelligenti. Velocissimi',
     description: 'Trasforma i tuoi documenti in chatbot intelligenti e integrarli nel tuo sito. Tutto in meno di 5 minuti.',
     siteName: 'SiteAgent',
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     creator: '@SiteAgent',
   },
   alternates: {
-    canonical: 'https://siteagent.eu/it/'
+    canonical: 'https://www.siteagent.eu/it/'
   },
   verification: {
     google: 'your-google-verification-code',
@@ -308,7 +308,7 @@ export default function Page() {
       {/* Widget esterno per produzione */}
       {process.env.NODE_ENV === 'production' && (
         <Script
-                      src="https://siteagent.eu/chatbot-widget.js"
+          src="https://www.siteagent.eu/chatbot-widget.js"
           data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
           data-launcher-icon="https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg?semt=ais_hybrid&w=740"
           strategy="lazyOnload"
