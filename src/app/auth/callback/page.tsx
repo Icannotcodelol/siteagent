@@ -1,5 +1,3 @@
-"use server"
-
 // Server Component that finalises the Supabase OAuth flow and sets the
 // authentication cookies before redirecting the user to the dashboard.
 
