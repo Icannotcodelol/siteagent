@@ -197,6 +197,9 @@ export async function POST(request: NextRequest) {
     const history: ChatMessage[] | undefined = undefined; // Client-sent history, will be replaced by DB history
     let sessionIdFromRequest: string | undefined;
 
+    // CSV detection / routing
+    let hasCsvGlobal: boolean = false; // will be set after chatbotHasCsv lookup
+
     try {
         const body = await request.json();
         query = body.query;
