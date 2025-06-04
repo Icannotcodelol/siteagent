@@ -20,6 +20,8 @@ const EMBEDDING_MODEL = 'text-embedding-3-large'
 const TEXT_CHUNK_SIZE = 800 
 const TEXT_CHUNK_OVERLAP = 200
 const BATCH_SIZE_OPENAI = 50; // Batch size for OpenAI and Supabase operations
+const MAX_CHUNKS_PER_RUN = BATCH_SIZE_OPENAI * 10;
+const MAX_CSV_ROWS = 10000;
 
 console.log('generate-embeddings function booting up (PDF, Direct Text, Pinecone support).')
 
@@ -86,6 +88,30 @@ Deno.serve(async (req: Request) => {
       contentType = docData.file_type;
       initialStatus = docData.embedding_status;
       fileName = docData.file_name;
+
+    } else if (payload.invoker === 'batch-continue' && payload.documentId) {
+      // Internal re-invocation to continue processing an existing document
+      console.log(`Batch-continue invocation detected for documentId: ${payload.documentId}`);
+      docIdToProcess = payload.documentId;
+
+      // Fetch the document metadata (excluding content) so that we can load content from storage
+      const { data: docData, error: fetchError } = await supabaseAdminClient
+        .from('documents')
+        .select('id, chatbot_id, storage_path, file_type, embedding_status, file_name, embedding_progress')
+        .eq('id', docIdToProcess)
+        .single();
+
+      if (fetchError) {
+        console.error(`Error fetching document details for batch-continue ${docIdToProcess}:`, fetchError);
+        throw new Error(`Failed to fetch document details for batch-continue ${docIdToProcess}: ${fetchError.message}`);
+      }
+
+      chatbotId = docData.chatbot_id;
+      storagePath = docData.storage_path;
+      contentType = docData.file_type;
+      initialStatus = docData.embedding_status;
+      fileName = docData.file_name;
+      // rawContent will be populated later via storage fetch
 
     } else if (payload.type === 'INSERT' && payload.table === 'documents' && payload.record && payload.record.id) {
       // This path is now primarily for non-website (e.g., PDF) uploads if they still use a webhook.
@@ -188,7 +214,7 @@ Deno.serve(async (req: Request) => {
     // Check if document is already being processed by another function instance
     const { data: currentDoc, error: statusCheckError } = await supabaseAdminClient
       .from('documents')
-      .select('embedding_status')
+      .select('embedding_status, embedding_progress')
       .eq('id', docIdToProcess)
       .single();
     
@@ -196,7 +222,7 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Failed to check document status: ${statusCheckError.message}`);
     }
     
-    if (currentDoc.embedding_status === 'processing') {
+    if (currentDoc.embedding_status === 'processing' && payload.invoker !== 'batch-continue') {
       console.log(`Document ${docIdToProcess} is already being processed by another instance. Exiting.`);
       return new Response(JSON.stringify({ message: 'Document is already being processed.' }), {
         status: 200,
@@ -214,6 +240,10 @@ Deno.serve(async (req: Request) => {
 
     await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'processing');
     
+    // Determine the point from which this invocation should continue embedding
+    const startIndex = currentDoc.embedding_progress ?? 0;
+    let processedThisRun = 0;
+
     let textContent = '';
     // Determine file extension for content processing logic
     // Use fileName (which includes the original extension) if available, otherwise infer from storagePath
@@ -236,13 +266,9 @@ Deno.serve(async (req: Request) => {
         console.log('[DEBUG CSV - Direct Content] looksLikeCsv:', looksLikeCsv);
         
         if (looksLikeCsv) {
-            console.log(`Detected inline CSV content for document ${docIdToProcess}. Processing...`);
-            const delimiter = detectCsvDelimiter(rawContent);
-            const parsedRows = parseSimpleCsv(rawContent, delimiter);
-            // Convert parsed CSV rows back to a simple text representation or handle as structured data
-            // For now, let's join rows and cells into a single text block for embedding
-            textContent = parsedRows.map(row => row.join(' ')).join('\n');
-            console.log(`Successfully processed inline CSV content for document ${docIdToProcess}`);
+            console.log(`Detected inline CSV content for document ${docIdToProcess}. Storing rows instead of embedding...`);
+            const resp = await storeCsvRowsAndFinish(rawContent, supabaseAdminClient, docIdToProcess, chatbotId);
+            return resp; // Early return – skip embedding logic
         } else {
             // Default to treating rawContent as plain text if not CSV
             textContent = rawContent;
@@ -289,13 +315,8 @@ Deno.serve(async (req: Request) => {
         } else if (fileExtension === 'csv') {
              try {
                 const csvText = await fileData.text();
-                if (!isValidCsv(csvText)) {
-                    throw new Error('Invalid CSV format detected after download.');
-                }
-                const delimiter = detectCsvDelimiter(csvText);
-                const parsedRows = parseSimpleCsv(csvText, delimiter);
-                textContent = parsedRows.map(row => row.join(' ')).join('\n');
-                console.log(`Successfully processed CSV content from storage for document ${docIdToProcess}`);
+                const resp = await storeCsvRowsAndFinish(csvText, supabaseAdminClient, docIdToProcess, chatbotId);
+                return resp; // Early return – skip embedding logic
             } catch (csvError: any) {
                 console.error(`Error processing CSV file from storage ${docIdToProcess}:`, csvError);
                 await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'failed', `Failed to process CSV from storage: ${csvError.message}`);
@@ -348,8 +369,13 @@ Deno.serve(async (req: Request) => {
     
     const allVectorsForPinecone: any[] = []; // Keep this to collect all vectors for final Pinecone upsert
 
-    for (let i = 0; i < textChunks.length; i += BATCH_SIZE_OPENAI) {
+    for (
+      let i = startIndex;
+      i < textChunks.length && processedThisRun < MAX_CHUNKS_PER_RUN;
+      i += BATCH_SIZE_OPENAI
+    ) {
       const batchOfTextChunks = textChunks.slice(i, i + BATCH_SIZE_OPENAI);
+      processedThisRun += batchOfTextChunks.length;
       console.log(`[${docIdToProcess}] Processing batch of ${batchOfTextChunks.length} chunks for OpenAI (starting at index ${i})`);
 
       // 1. Get Embeddings for the Batch from OpenAI
@@ -501,7 +527,50 @@ Deno.serve(async (req: Request) => {
       }
 
     console.log(`Document ${docIdToProcess} processed successfully.`);
-    await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'completed');
+    // At this point all chunks have been processed in this invocation
+    // If newProgress equals total chunks, mark as completed, otherwise status remains 'processing'
+    const finalProgress = startIndex + processedThisRun;
+
+    await supabaseAdminClient
+      .from('documents')
+      .update({ embedding_progress: finalProgress })
+      .eq('id', docIdToProcess);
+
+    if (finalProgress >= textChunks.length) {
+      await updateDocumentStatus(supabaseAdminClient, docIdToProcess, 'completed');
+    }
+
+    // ---------------- Progress Tracking & Re-invocation ----------------
+    const newProgress = startIndex + processedThisRun;
+
+    // Persist latest progress regardless of completion state
+    await supabaseAdminClient
+      .from('documents')
+      .update({ embedding_progress: newProgress })
+      .eq('id', docIdToProcess);
+
+    // If there are still chunks left, queue another invocation and exit early
+    if (newProgress < textChunks.length) {
+      console.log(`[${docIdToProcess}] Embedded ${newProgress}/${textChunks.length} chunks – queuing next batch.`);
+
+      try {
+        await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-embeddings`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
+          },
+          body: JSON.stringify({ documentId: docIdToProcess, invoker: 'batch-continue' }),
+        });
+      } catch (invokeErr) {
+        console.error(`[${docIdToProcess}] Failed to invoke next batch:`, invokeErr);
+      }
+
+      return new Response(
+        JSON.stringify({ message: `Processed batch. Progress ${newProgress}/${textChunks.length}.` }),
+        { status: 202, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
 
     return new Response(JSON.stringify({ message: `Document ${docIdToProcess} processed and embedded successfully.` }), {
       status: 200,
@@ -589,4 +658,71 @@ async function extractTextFromDocx(arrayBuffer: ArrayBuffer): Promise<string> {
 
   // Join with spaces and collapse multiple whitespace characters
   return textMatches.join(' ').replace(/\s+/g, ' ').trim();
+}
+
+// Helper function to store CSV rows and mark document as completed
+async function storeCsvRowsAndFinish(
+  csvText: string,
+  supabase: SupabaseClient,
+  docId: string,
+  chatbotId: string
+): Promise<Response> {
+  if (!isValidCsv(csvText)) {
+    await updateDocumentStatus(supabase, docId, 'failed', 'Invalid CSV format');
+    return new Response(JSON.stringify({ message: 'Invalid CSV format.' }), { status: 400 });
+  }
+
+  const delimiter = detectCsvDelimiter(csvText);
+  const parsed = parseSimpleCsv(csvText, delimiter);
+  if (parsed.length < 2) {
+    await updateDocumentStatus(supabase, docId, 'failed', 'CSV has no data rows');
+    return new Response(JSON.stringify({ message: 'CSV must contain headers and at least one data row.' }), { status: 400 });
+  }
+
+  const headers = parsed[0];
+  const dataRows = parsed.slice(1);
+  if (dataRows.length > MAX_CSV_ROWS) {
+    await updateDocumentStatus(supabase, docId, 'failed', `CSV exceeds ${MAX_CSV_ROWS} row limit`);
+    return new Response(JSON.stringify({ message: `CSV exceeds the maximum allowed ${MAX_CSV_ROWS} rows.` }), { status: 400 });
+  }
+
+  // Upsert into csv_documents (id matches documents.id)
+  const { error: docErr } = await supabase
+    .from('csv_documents')
+    .upsert({ id: docId, chatbot_id: chatbotId, headers, row_count: dataRows.length });
+  if (docErr) {
+    console.error(`[${docId}] Failed to upsert into csv_documents:`, docErr);
+    await updateDocumentStatus(supabase, docId, 'failed', docErr.message);
+    return new Response(JSON.stringify({ message: 'Failed to save CSV metadata.' }), { status: 500 });
+  }
+
+  // Prepare and insert rows in batches
+  const BATCH_SIZE = 1000;
+  for (let i = 0; i < dataRows.length; i += BATCH_SIZE) {
+    const slice = dataRows.slice(i, i + BATCH_SIZE);
+    const batch = slice.map((row, idx) => {
+      const obj: Record<string, string> = {};
+      row.forEach((cell, ci) => {
+        const col = headers[ci] || `column_${ci + 1}`;
+        obj[col] = cell;
+      });
+      return {
+        document_id: docId,
+        chatbot_id: chatbotId,
+        row_index: i + idx,
+        row_text: row.map((cell, ci) => `${headers[ci] ?? `column_${ci+1}`}: ${cell}`).join(' | '),
+        row_json: obj,
+      };
+    });
+    const { error: rowErr } = await supabase.from('csv_rows').insert(batch);
+    if (rowErr) {
+      console.error(`[${docId}] Error inserting csv_rows batch starting ${i}:`, rowErr);
+      await updateDocumentStatus(supabase, docId, 'failed', rowErr.message);
+      return new Response(JSON.stringify({ message: 'Error storing CSV rows.' }), { status: 500 });
+    }
+  }
+
+  await updateDocumentStatus(supabase, docId, 'completed');
+  console.log(`[${docId}] CSV stored successfully with ${dataRows.length} rows.`);
+  return new Response(JSON.stringify({ message: 'CSV stored successfully. This file is not embedded.' }), { status: 200 });
 }

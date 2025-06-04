@@ -855,6 +855,7 @@ export async function POST(request: NextRequest) {
                 const tokens = extractSearchTokens(query);
                 const pgMatches: any[] = [];
                 for (const tok of tokens) {
+                    // Search in regular document chunks
                     const { data, error } = await supabaseAdmin
                         .from('document_chunks')
                         .select('chunk_text')
@@ -866,6 +867,18 @@ export async function POST(request: NextRequest) {
                         continue;
                     }
                     if (data) pgMatches.push(...data);
+
+                    // NEW: search in csv_rows
+                    const { data: csvData, error: csvErr } = await supabaseAdmin
+                        .from('csv_rows')
+                        .select('row_text')
+                        .eq('chatbot_id', chatbotId)
+                        .ilike('row_text', `%${tok}%`)
+                        .limit(Math.ceil(MATCH_COUNT / tokens.length));
+                    if (csvErr) {
+                        console.error('CSV rows fallback search error:', csvErr);
+                    }
+                    if (csvData) pgMatches.push(...csvData.map(r => ({ chunk_text: r.row_text })));
                 }
 
                 if (pgMatches.length > 0) {
@@ -946,6 +959,22 @@ export async function POST(request: NextRequest) {
                         chunks = numericRows.map((m: any) => ({ chunk_text: m.chunk_text })).slice(0, MATCH_COUNT);
                         console.log(`[DEBUG] Direct numeric search found ${numericRows.length} chunks.`);
                     }
+
+                    // CSV rows numeric search
+                    const { data: csvNumeric, error: csvNumErr } = await supabaseAdmin
+                        .from('csv_rows')
+                        .select('row_text')
+                        .eq('chatbot_id', chatbotId)
+                        .or(numericTokensInQuery.map(t => `row_text.ilike.%${t}%`).join(','))
+                        .limit(MATCH_COUNT);
+                    if (csvNumErr) {
+                        console.error('[DEBUG] CSV numeric search error:', csvNumErr);
+                    } else if (csvNumeric && csvNumeric.length > 0) {
+                        const csvChunks = csvNumeric.map((r: any) => ({ chunk_text: r.row_text }));
+                        chunks = [...csvChunks, ...(chunks || [])].slice(0, MATCH_COUNT);
+                        console.log(`[DEBUG] CSV numeric search added ${csvNumeric.length} rows.`);
+                    }
+
                 } catch (numEx) {
                     console.error('[DEBUG] Exception during numeric direct search:', numEx);
                 }
