@@ -481,6 +481,24 @@ function extractSearchTokens(text: string): string[] {
   return Array.from(tokens);
 }
 
+// Helper: does this chatbot have any CSV documents?
+async function chatbotHasCsv(chatbotId: string, supabaseAdmin: any): Promise<boolean> {
+  const { count } = await supabaseAdmin
+    .from('csv_documents')
+    .select('id', { head: true, count: 'exact' })
+    .eq('chatbot_id', chatbotId)
+    .gt('row_count', 0);
+  return (count ?? 0) > 0;
+}
+
+// Helper: quick heuristic whether the query likely targets tabular/CSV data
+function isTabularQuery(q: string): boolean {
+  if (/\b\d{4,5}\b/.test(q)) return true; // postal codes, IDs etc.
+  const kw = ['plz','postleitzahl','row','spalte','column','csv','tabelle','table'];
+  const lower = q.toLowerCase();
+  return kw.some(k=> lower.includes(k));
+}
+
 // --- Main POST Handler ---
 export async function POST(request: NextRequest) {
     // Re-check environment variables per request in case they failed init
@@ -521,6 +539,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`Received PUBLIC chat request for chatbot ${chatbotId}, session ${sessionId}: \"${query}\"`);
 
+    let csvMatches: { row_text: string }[] = [];
+    const queryTokens = extractSearchTokens(query);
+
     // --- Step 1: Fetch Chatbot Owner ID ---
     let ownerId: string;
     try {
@@ -537,6 +558,29 @@ export async function POST(request: NextRequest) {
     } catch (e: any) {
         console.error(`Unexpected error fetching chatbot owner for ${chatbotId}:`, e.message);
         return NextResponse.json({ error: 'Server error fetching chatbot details.' }, { status: 500, headers: getCorsHeaders() });
+    }
+
+    // Determine if this chatbot has CSV data and if query looks tabular
+    const hasCsv = await chatbotHasCsv(chatbotId, supabaseAdmin);
+    const tabularQuery = hasCsv && isTabularQuery(query);
+
+    if (tabularQuery && queryTokens.length > 0) {
+        try {
+            const { data: csvRows, error: csvErr } = await supabaseAdmin
+                .from('csv_rows')
+                .select('row_text')
+                .eq('chatbot_id', chatbotId)
+                .or(queryTokens.map(t => `row_text.ilike.%${t}%`).join(','))
+                .limit(MATCH_COUNT);
+            if (csvErr) {
+                console.error('Early CSV search error:', csvErr);
+            } else if (csvRows) {
+                csvMatches = csvRows;
+                console.log(`[DEBUG] Early CSV search found ${csvRows.length} rows.`);
+            }
+        } catch (e) {
+            console.error('Exception during early CSV search:', e);
+        }
     }
 
     // --- Step 2: PERMISSION CHECK: canSendMessage --- 
@@ -786,7 +830,8 @@ export async function POST(request: NextRequest) {
         const systemPrompt = `${SITEAGENT_GLOBAL_BASE_PROMPT}
 
 ---\n\nUser-defined instructions:\n${userDefinedPrompt}
----` + integrationNote + integrationGuidelines;
+---` + integrationNote + integrationGuidelines +
+        (hasCsv ? '\n\nSource-selection guideline: If the block "Context from CSV" answers the user\'s question, prefer it over "Context from Documents".' : '');
 
         console.log(`Using system prompt (first 100 chars): \"${systemPrompt.substring(0,100)}...\"`);
         // -------------------------------------------------------------
@@ -1014,17 +1059,44 @@ export async function POST(request: NextRequest) {
              console.log(`[DEBUG] Found ${finalChunks.length} total chunks (${correctionChunks.length} corrections + ${(finalChunks.length - correctionChunks.length)} regular). Final context (first 500 chars):`, finalContextText.substring(0, 500));
         }
 
+        // Before messagesForOpenAI creation (around where finalContextText defined)
+        const csvContextText = (csvMatches && csvMatches.length > 0)
+            ? csvMatches.map(r => r.row_text).join("\n")
+            : "No relevant CSV data.";
+
         // 4. Construct the messages for the LLM, incorporating history and new system prompt structure
         const messagesForOpenAI: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [];
 
         // System Prompt: Instructs on using history and provided context
         messagesForOpenAI.push({
             role: 'system',
-            content: `${systemPrompt}\n\nYou are an AI assistant answering the LATEST user question. Your primary goal is to use the "Conversation History" (if provided below) and the "Context from documents" (also provided below) to understand the full dialogue and provide a comprehensive and contextually relevant answer to the LATEST user question. Always refer to the "Conversation History" to understand references to previous topics (e.g., if the user says 'it' or 'that', determine what 'it' or 'that' refers to from the history). \n\nFirst, review the "User-defined instructions", "integration notes", and "integration guidelines" provided earlier in this system prompt. These sections contain specific data, rules, tool usage guidelines, and examples for this particular chatbot. If the answer to the user's LATEST question is found within these primary instructions, prioritize it. This includes deciding if a tool/integration should be used based on its guidelines.\n\nIf these primary instructions do not provide a direct answer, then use both the "Context from documents" and the full "Conversation History" to formulate your response to the LATEST user question. If no source (primary instructions, documents, or history) provides a sufficient answer, clearly state that you cannot answer based on the provided information. Do not make up information or answer based on prior knowledge outside of these provided sources.\n\nContext from documents (for the LATEST user question, use in conjunction with Conversation History):
+            content: hasCsv ?
+`${systemPrompt}
+
+You are an AI assistant answering the LATEST user question.  Use the following context blocks and the conversation history to craft your answer.
+
+Context from CSV (structured data):
+---
+${csvContextText}
+---
+
+Context from Documents:
 ---
 ${finalContextText}
 ---
-Conversation History is provided in the subsequent messages.`
+
+Conversation History appears after this message.`
+            :
+`${systemPrompt}
+
+You are an AI assistant answering the LATEST user question.  Use the following context block and conversation history to craft your answer.
+
+Context from Documents:
+---
+${finalContextText}
+---
+
+Conversation History appears after this message.`
         });
 
         // --- SERVER-SIDE HISTORY FETCH ---

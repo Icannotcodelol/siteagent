@@ -163,6 +163,24 @@ function extractSearchTokens(text: string): string[] {
   return Array.from(tokens);
 }
 
+// Helper: does this chatbot have any CSV documents?
+async function chatbotHasCsv(chatbotId: string, supabaseAdmin: any): Promise<boolean> {
+  const { count } = await supabaseAdmin
+    .from('csv_documents')
+    .select('id', { head: true, count: 'exact' })
+    .eq('chatbot_id', chatbotId)
+    .gt('row_count', 0);
+  return (count ?? 0) > 0;
+}
+
+// Heuristic for tabular query
+function isTabularQuery(q: string): boolean {
+  if (/\b\d{4,5}\b/.test(q)) return true;
+  const kw = ['plz','postleitzahl','row','spalte','column','csv','tabelle','table'];
+  const l = q.toLowerCase();
+  return kw.some(k => l.includes(k));
+}
+
 // --- Main POST Handler ---
 export async function POST(request: NextRequest) {
     let supabase;
@@ -194,12 +212,35 @@ export async function POST(request: NextRequest) {
         if (!query || typeof query !== 'string' || !chatbotId || typeof chatbotId !== 'string') {
             throw new Error('Missing or invalid "query" or "chatbotId" in request body.');
         }
+
+        // CSV detection helpers
+        const queryTokens = extractSearchTokens(query);
+        hasCsvGlobal = await chatbotHasCsv(chatbotId, supabase);
+        var csvMatches: { row_text: string }[] = [];
+        const tabularQuery = hasCsvGlobal && isTabularQuery(query);
+        if (tabularQuery && queryTokens.length > 0) {
+            try {
+                const { data: csvRows, error: csvErr } = await supabase
+                    .from('csv_rows')
+                    .select('row_text')
+                    .eq('chatbot_id', chatbotId)
+                    .or(queryTokens.map(t => `row_text.ilike.%${t}%`).join(','))
+                    .limit(MATCH_COUNT);
+                if (!csvErr && csvRows) {
+                    csvMatches = csvRows;
+                }
+            } catch {}
+        }
+
     } catch (e: any) {
         return NextResponse.json({ error: `Invalid request body: ${e.message}` }, { status: 400 });
     }
 
     const sessionId = sessionIdFromRequest || globalThis.crypto?.randomUUID?.() || (Date.now().toString() + Math.random().toString(16).slice(2));
     console.log(`Received AUTH chat request for chatbot ${chatbotId}, session ${sessionId}: "${query}"`);
+
+    // Globals for CSV context
+    let csvContextText = '';
 
     // 2. Check user authentication (optional but recommended for authorization)
      const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -410,7 +451,8 @@ export async function POST(request: NextRequest) {
         const userDefinedPrompt = chatbotData.system_prompt || "You are a helpful AI assistant. Answer based only on the provided context."; // Default prompt
 
         // Combine prompts so the global base prompt is ALWAYS first, followed by the user's custom prompt (if any).
-        const combinedSystemPrompt = `${SITEAGENT_GLOBAL_BASE_PROMPT}\n\n---\n\nUser-defined instructions:\n${userDefinedPrompt}\n---`;
+        const combinedSystemPrompt = `${SITEAGENT_GLOBAL_BASE_PROMPT}\n\n---\n\nUser-defined instructions:\n${userDefinedPrompt}\n---` +
+            (hasCsvGlobal ? '\n\nSource-selection guideline: If the block "Context from CSV" answers the user\'s question, prefer it over "Context from Documents".' : '');
         console.log(`Using system prompt: "${combinedSystemPrompt.substring(0,100)}..."`);
         // -------------------------------------------------------------
 
@@ -588,6 +630,10 @@ export async function POST(request: NextRequest) {
         const finalContextText = (finalChunks && finalChunks.length > 0)
             ? finalChunks.map((chunk: any) => chunk.content ?? chunk.chunk_text).join("\n\n---\n\n")
             : "No relevant context found in documents.";
+
+        csvContextText = (csvMatches && csvMatches.length > 0)
+            ? csvMatches.map(r => r.row_text).join("\n")
+            : "No relevant CSV data.";
 
         if (!finalChunks || finalChunks.length === 0) { console.log("No relevant chunks found after correction merge."); }
         else { console.log(`Found ${finalChunks.length} total chunks (${correctionChunks.length} corrections + ${(finalChunks.length - correctionChunks.length)} regular).`); }
