@@ -14,9 +14,15 @@
   </url>
   <url>
     <loc>https://www.siteagent.eu/blog</loc>
-    <lastmod>2024-12-19</lastmod>
+    <lastmod>2025-06-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.siteagent.eu/blog/rag-explained-simple-terms</loc>
+    <lastmod>2025-06-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.siteagent.eu/careers</loc>

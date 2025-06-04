@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CheckCircle } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 interface BuilderHeaderProps {
@@ -62,9 +62,9 @@ export default function BuilderHeader({ title = "Create New Chatbot" }: BuilderH
           
           {/* Status indicator */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800/50">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-              <span className="text-sm text-gray-400">Auto-saving</span>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800/50 text-green-400">
+              <CheckCircle className="w-4 h-4" />
+              <span className="text-sm text-gray-300">All changes saved</span>
             </div>
           </div>
         </div>

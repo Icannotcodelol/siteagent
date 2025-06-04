@@ -146,6 +146,16 @@ export default function BlogPage() {
         Check back soon for our first posts. We're excited to share our journey and help you navigate the future of AI-driven communication!
       </p>
 
+      {/* Latest Posts */}
+      <h2 className="mt-12 mb-6 text-2xl font-semibold tracking-tight text-white sm:text-3xl border-l-4 border-green-500 pl-4">Latest Post</h2>
+      <div className="space-y-6">
+        <Link href="/blog/rag-explained-simple-terms" className="group block rounded-lg border border-gray-800 bg-gray-900 p-6 transition-colors hover:border-blue-600">
+          <h3 className="text-xl font-semibold text-white group-hover:text-blue-400">RAG Explained in Simple Terms: Custom Chatbot Implementation Guide</h3>
+          <p className="mt-2 text-sm text-gray-400">June 4, 2025 · Technical</p>
+          <p className="mt-4 text-gray-400">Discover how Retrieval-Augmented Generation (RAG) revolutionizes chatbots and how SiteAgent simplifies implementation.</p>
+        </Link>
+      </div>
+
       <div className="mt-16 text-center">
         <Link href="/contact">
           <button className="group relative inline-flex h-12 items-center justify-center overflow-hidden rounded-md bg-blue-600 px-6 font-medium text-white transition-all duration-300 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">
