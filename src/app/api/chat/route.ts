@@ -173,14 +173,6 @@ async function chatbotHasCsv(chatbotId: string, supabaseAdmin: any): Promise<boo
   return (count ?? 0) > 0;
 }
 
-// Heuristic for tabular query
-function isTabularQuery(q: string): boolean {
-  if (/\b\d{4,5}\b/.test(q)) return true;
-  const kw = ['plz','postleitzahl','row','spalte','column','csv','tabelle','table'];
-  const l = q.toLowerCase();
-  return kw.some(k => l.includes(k));
-}
-
 // --- Main POST Handler ---
 export async function POST(request: NextRequest) {
     let supabase;
@@ -220,8 +212,10 @@ export async function POST(request: NextRequest) {
         const queryTokens = extractSearchTokens(query);
         hasCsvGlobal = await chatbotHasCsv(chatbotId, supabase);
         var csvMatches: { row_text: string }[] = [];
-        const tabularQuery = hasCsvGlobal && isTabularQuery(query);
-        if (tabularQuery && queryTokens.length > 0) {
+        // We now search CSV rows whenever the chatbot has CSV data and we have at least one significant token.
+        // This broadens matching to city names as well, not just numeric postal codes or explicit CSV keywords.
+        const csvSearchNeeded = hasCsvGlobal && queryTokens.length > 0;
+        if (csvSearchNeeded) {
             try {
                 const { data: csvRows, error: csvErr } = await supabase
                     .from('csv_rows')
@@ -657,6 +651,11 @@ Context from documents (secondary source, for the LATEST user question):
 ---
 ${finalContextText}
 ---
+
+Context from CSV (specialised tabular data):
+---
+${csvContextText}
+---
 `;
 
         // 6. Call OpenAI Chat Completions API (include conversation history for better memory)
@@ -668,7 +667,6 @@ ${finalContextText}
         let historyFromDB: ChatMessage[] = [];
         if (sessionId) { // Only fetch if sessionId is available
             console.log(`Fetching history from DB for session (auth): ${sessionId}, chatbot: ${chatbotId}`);
-            // Use supabaseAdmin for direct DB access to chat_messages if RLS prevents user client
             const supabaseAdminForHistory = createClient(
                 process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
                 process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
@@ -679,7 +677,7 @@ ${finalContextText}
                 .eq('chatbot_id', chatbotId)
                 .eq('session_id', sessionId)
                 .order('created_at', { ascending: true })
-                .limit(30); // Fetch last 30 messages
+                .limit(30);
 
             if (dbHistoryError) {
                 console.error("Error fetching chat history from DB (auth):", dbHistoryError);
@@ -692,13 +690,11 @@ ${finalContextText}
             }
         }
 
-        // Append the most recent 15 messages from DB history
         if (historyFromDB.length > 0) {
             messagesForOpenAI.push(...historyFromDB.slice(-15).map(h => ({ role: h.role, content: h.content })));
         }
         // --- END SERVER-SIDE HISTORY FETCH ---
 
-        // Finally, add the current user query as the latest message
         messagesForOpenAI.push({ role: 'user', content: query });
 
         const chatCompletion = await openai.chat.completions.create({
@@ -713,34 +709,30 @@ ${finalContextText}
         if (!answer) { throw new Error("OpenAI failed to generate an answer."); }
         console.log("Answer generated successfully.");
 
-        // 6.b. Log assistant message for analytics / billing
+        // Log assistant message
         try {
-          const supabaseAdminLog = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
-            process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
-          );
+            const supabaseAdminLog = createClient(
+                process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+                process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+            );
 
-          await supabaseAdminLog.from('chat_messages').insert({
-            chatbot_id: chatbotId,
-            session_id: sessionId, // <-- USE THE CONSISTENT SESSION ID HERE
-            is_user_message: false,
-            content: answer,
-          });
+            await supabaseAdminLog.from('chat_messages').insert({
+                chatbot_id: chatbotId,
+                session_id: sessionId,
+                is_user_message: false,
+                content: answer,
+            });
         } catch (logErr) {
-          console.error('Failed to log chatbot message', logErr);
+            console.error('Failed to log chatbot message', logErr);
         }
 
-        // 7. Return the answer
         return NextResponse.json({ answer: answer, sessionId });
 
     } catch (error: any) {
         console.error('Authenticated chat processing error:', error);
-        // Distinguish OpenAI errors from other errors if needed
         const errorMessage = error.message || 'An internal server error occurred.';
         return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
-} 
+}
 
-const openAiTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
-    // ... existing tools in auth route? Actually not defined earlier, but we can add new array near top where constants defined (OPENAI_CHAT_MODEL etc.).
-] 
+const openAiTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [];
