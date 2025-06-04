@@ -45,8 +45,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <header className="bg-gray-900 text-white border-b border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            {/* Logo - Using actual logo file */}
-            <Link href="/dashboard" className="flex items-center space-x-3 group">
+            {/* Logo - fallback to native anchor for rock-solid navigation */}
+            <a href="/dashboard" className="flex items-center space-x-3 group">
               <Image 
                 src="/sitelogo.svg" 
                 alt="SiteAgent Logo" 
@@ -58,7 +58,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <span className="text-xl font-semibold group-hover:text-indigo-400 transition-colors">
                 SiteAgent
               </span>
-            </Link>
+            </a>
 
             {/* User Menu - Single, proper dropdown */}
             <UserMenu user={data.user} />

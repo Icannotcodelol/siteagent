@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 interface BuilderHeaderProps {
   title?: string; // Optional title, defaults to "Create New Chatbot"
@@ -9,31 +10,43 @@ interface BuilderHeaderProps {
 
 // Basic header component for the builder layout
 export default function BuilderHeader({ title = "Create New Chatbot" }: BuilderHeaderProps) {
+  const router = useRouter();
+
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Force full navigation in case client-side routing is obstructed
+    if (typeof window !== 'undefined') {
+      window.location.href = '/dashboard';
+    } else {
+      router.push('/dashboard');
+    }
+  };
+
   return (
     <header className="relative mb-8">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 rounded-2xl blur-3xl" />
+      {/* Decorative gradient layer. Placed behind content and made non-interactive */}
+      <div className="absolute inset-0 -z-10 pointer-events-none bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 rounded-2xl blur-3xl" />
       
       <div className="relative glass rounded-2xl p-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             {/* Back button */}
-            <Link
-              href="/dashboard"
+            <button
+              onClick={handleBack}
               className="group flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
             >
               <div className="w-10 h-10 rounded-lg bg-gray-800/50 group-hover:bg-gray-700/50 flex items-center justify-center transition-all">
                 <ArrowLeft className="w-5 h-5" />
               </div>
               <span className="text-sm font-medium hidden sm:inline">Back to Dashboard</span>
-            </Link>
+            </button>
             
             {/* Title and breadcrumb */}
             <div className="border-l border-gray-700 pl-6">
               <nav className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-                <Link href="/dashboard" className="hover:text-gray-300 transition-colors">
+                <button onClick={handleBack} className="hover:text-gray-300 transition-colors text-left">
                   Dashboard
-                </Link>
+                </button>
                 <span>/</span>
                 <span className="text-gray-400">Chatbots</span>
                 <span>/</span>

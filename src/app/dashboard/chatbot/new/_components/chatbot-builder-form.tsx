@@ -378,7 +378,11 @@ export default function ChatbotBuilderForm({
           } else {
             console.log('Chatbot created successfully!')
             if (result.chatbotId) {
-              router.push(`/dashboard/chatbot/${result.chatbotId}`)
+              if (typeof window !== 'undefined') {
+                window.location.href = `/dashboard/chatbot/${result.chatbotId}`;
+              } else {
+                router.push(`/dashboard/chatbot/${result.chatbotId}`);
+              }
             }
           }
         }
