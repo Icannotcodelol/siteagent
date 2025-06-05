@@ -1,4 +1,4 @@
-User-agent: *
+User-Agent: *
 Allow: /
 Disallow: /api/
 Disallow: /dashboard/
@@ -8,13 +8,13 @@ Disallow: /_next/
 Disallow: /admin/
 Disallow: /private/
 
-User-agent: GPTBot
+User-Agent: GPTBot
 Disallow: /
 
-User-agent: ChatGPT-User
+User-Agent: ChatGPT-User
 Disallow: /
 
-User-agent: CCBot
+User-Agent: CCBot
 Disallow: /
 
-Sitemap: https://siteagent.eu/sitemap.xml 
+Sitemap: https://www.siteagent.eu/2025sitemap.xml
