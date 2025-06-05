@@ -13,7 +13,7 @@ declare global {
 export function Analytics() {
   return (
     <>
-      {/* Optimized Google Analytics - Load after critical content */}
+      {/* Google Analytics */}
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-P056NB8EH7"
         strategy="lazyOnload"
@@ -29,6 +29,22 @@ export function Analytics() {
               page_location: window.location.href,
               send_page_view: false // Manual control for better performance
             });
+          }
+        }}
+      />
+
+      {/* Google Ads Conversion Tracking */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=AW-17145285037"
+        strategy="lazyOnload"
+        onLoad={() => {
+          if (typeof window !== 'undefined') {
+            window.dataLayer = window.dataLayer || [];
+            window.gtag = function(...args: any[]) {
+              window.dataLayer.push(args);
+            };
+            window.gtag('js', new Date());
+            window.gtag('config', 'AW-17145285037');
           }
         }}
       />
