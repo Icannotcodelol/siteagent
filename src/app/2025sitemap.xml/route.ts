@@ -9,7 +9,8 @@ import { NextResponse } from 'next/server';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.siteagent.eu';
+// Ensure consistent URL format regardless of environment variable
+const SITE_URL = 'https://www.siteagent.eu';
 
 type Frequency = 'daily' | 'weekly' | 'monthly' | 'yearly';
 
