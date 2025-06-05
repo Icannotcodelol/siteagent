@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://siteagent.eu'
+  const baseUrl = 'https://www.siteagent.eu'
   
   return {
     rules: [
@@ -31,7 +31,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: `${baseUrl}/2025sitemap.xml`,
   }
 } 
