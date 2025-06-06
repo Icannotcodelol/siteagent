@@ -1797,7 +1797,7 @@ function Footer() {
   return (
     <footer className="border-t border-gray-800 bg-gray-900 py-12">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-5">
           <div>
             <Link href="/" className="group flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 transition-all duration-300 group-hover:bg-blue-500">
@@ -1824,6 +1824,7 @@ function Footer() {
           </div>
           {[
             { title: "Product", links: [{ label: "Features", href: "#features" }, { label: "Pricing", href: "#pricing" }, { label: "Documentation", href: "/docs" }, { label: "Changelog", href: "/changelog" }] },
+            { title: "Tools", links: [{ label: "Color Palette Generator", href: "/tools/color-palette-generator" }] },
             { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Careers", href: "/careers" }, { label: "Contact", href: "/contact" }] },
             { title: "Legal", links: [{ label: "Privacy Policy", href: "/privacy" }, { label: "Terms of Service", href: "/terms" }, { label: "Security", href: "/security" }] },
           ].map((section, index) => (
