@@ -97,7 +97,7 @@ Deno.serve(async (req: Request) => {
       // Fetch the document metadata (excluding content) so that we can load content from storage
       const { data: docData, error: fetchError } = await supabaseAdminClient
         .from('documents')
-        .select('id, chatbot_id, storage_path, file_type, embedding_status, file_name, embedding_progress')
+        .select('id, chatbot_id, storage_path, file_type, embedding_status, file_name, embedding_progress, content')
         .eq('id', docIdToProcess)
         .single();
 
@@ -111,7 +111,8 @@ Deno.serve(async (req: Request) => {
       contentType = docData.file_type;
       initialStatus = docData.embedding_status;
       fileName = docData.file_name;
-      // rawContent will be populated later via storage fetch
+      rawContent = docData.content as string | null; // Use stored scraped content if available
+      // If rawContent is null, content will be loaded later via storage fetch
 
     } else if (payload.type === 'INSERT' && payload.table === 'documents' && payload.record && payload.record.id) {
       // This path is now primarily for non-website (e.g., PDF) uploads if they still use a webhook.
@@ -222,7 +223,7 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Failed to check document status: ${statusCheckError.message}`);
     }
     
-    if (currentDoc.embedding_status === 'processing' && payload.invoker !== 'batch-continue') {
+    if (payload.invoker !== 'batch-continue' && currentDoc.embedding_status === 'processing') {
       console.log(`Document ${docIdToProcess} is already being processed by another instance. Exiting.`);
       return new Response(JSON.stringify({ message: 'Document is already being processed.' }), {
         status: 200,
@@ -230,7 +231,7 @@ Deno.serve(async (req: Request) => {
       });
     }
     
-    if (currentDoc.embedding_status !== 'pending') {
+    if (payload.invoker !== 'batch-continue' && currentDoc.embedding_status !== 'pending') {
       console.log(`Document ${docIdToProcess} status is '${currentDoc.embedding_status}', skipping embedding.`);
       return new Response(JSON.stringify({ message: 'Document not in pending state.' }), {
         status: 200,

@@ -4,6 +4,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { load as loadHtml } from 'npm:cheerio@1'
 // import { Database } from '../../../types/supabase.d.ts' // Removed for now - path issue
 
 console.log('scrape-website function booting up.')
@@ -138,11 +139,21 @@ Deno.serve(async (req: Request) => {
 
         const contentType = response.headers.get('content-type');
         if (contentType && (contentType.includes('text/html') || contentType.includes('text/plain'))) {
-             scrapedText = await response.text();
-             console.log(`[${documentId}] Successfully fetched content. Length: ${scrapedText?.length ?? 0}`);
-             // TODO: Implement more robust HTML parsing/text extraction here if needed
-             // For now, we store the raw HTML/text. Consider libraries like Deno DOM or Cheerio
-             // if you only want specific parts of the HTML.
+             const rawHtml = await response.text();
+             console.log(`[${documentId}] Successfully fetched raw HTML. Length: ${rawHtml.length}`);
+
+             // --- Clean HTML to plain visible text using Cheerio ---
+             try {
+               const $ = loadHtml(rawHtml);
+               // Remove non-visible elements
+               $('script, style, noscript, iframe, svg, canvas, img, picture, video').remove();
+               const text = $('body').text();
+               scrapedText = text.replace(/\s+/g, ' ').trim();
+               console.log(`[${documentId}] Extracted visible text length: ${scrapedText.length}`);
+             } catch (parseErr) {
+               console.warn(`[${documentId}] Cheerio parse failed, falling back to raw HTML text. Error: ${parseErr}`);
+               scrapedText = rawHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+             }
         } else {
              throw new Error(`Unsupported content type: ${contentType ?? 'unknown'}`);
         }
