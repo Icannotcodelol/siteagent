@@ -562,9 +562,10 @@ export async function POST(request: NextRequest) {
 
     // Determine if this chatbot has CSV data and if query looks tabular
     const hasCsv = await chatbotHasCsv(chatbotId, supabaseAdmin);
-    const tabularQuery = hasCsv && isTabularQuery(query);
 
-    if (tabularQuery && queryTokens.length > 0) {
+    // Search CSV rows whenever the chatbot has CSV data and we have at least one significant token.
+    // This mirrors the behaviour of the authenticated /api/chat route used in Interrogation Mode.
+    if (hasCsv && queryTokens.length > 0) {
         try {
             const { data: csvRows, error: csvErr } = await supabaseAdmin
                 .from('csv_rows')
