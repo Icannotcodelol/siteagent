@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     title: 'Free Color Palette Generator - Extract Colors from Images',
     description: 'Generate beautiful color palettes from images or create random harmonious color schemes. Perfect for designers and developers.',
     type: 'website',
-    url: 'https://siteagent.eu/tools/color-palette-generator',
+    url: 'https://www.siteagent.eu/tools/color-palette-generator',
     siteName: 'SiteAgent',
     locale: 'en_US',
     images: [
@@ -61,10 +61,7 @@ export const metadata: Metadata = {
     images: ['/tools/color-palette-generator-og.png'],
   },
   alternates: {
-    canonical: 'https://siteagent.eu/tools/color-palette-generator',
-  },
-  other: {
-    'google-site-verification': 'your-google-verification-code',
+    canonical: 'https://www.siteagent.eu/tools/color-palette-generator',
   },
 };
 
@@ -75,7 +72,7 @@ const structuredData = {
   name: 'Color Palette Generator',
   alternateName: 'Image Color Extractor',
   description: 'Free online tool to generate beautiful color palettes from images or create random harmonious color schemes. Perfect for designers, developers, and creative professionals.',
-  url: 'https://siteagent.eu/tools/color-palette-generator',
+  url: 'https://www.siteagent.eu/tools/color-palette-generator',
   applicationCategory: 'DesignApplication',
   operatingSystem: 'Web Browser',
   browserRequirements: 'Requires modern web browser with JavaScript enabled',
@@ -98,12 +95,12 @@ const structuredData = {
   creator: {
     '@type': 'Organization',
     name: 'SiteAgent',
-    url: 'https://siteagent.eu'
+    url: 'https://www.siteagent.eu'
   },
   provider: {
     '@type': 'Organization',
     name: 'SiteAgent',
-    url: 'https://siteagent.eu'
+    url: 'https://www.siteagent.eu'
   },
   isAccessibleForFree: true,
   inLanguage: 'en-US',
@@ -112,7 +109,7 @@ const structuredData = {
     '@type': 'Audience',
     audienceType: ['Designers', 'Web Developers', 'Graphic Designers', 'UI/UX Designers', 'Creative Professionals']
   },
-  screenshot: 'https://siteagent.eu/tools/color-palette-generator-og.png',
+  screenshot: 'https://www.siteagent.eu/tools/color-palette-generator-og.png',
   softwareVersion: '1.0',
   dateCreated: '2024-01-01',
   dateModified: new Date().toISOString(),

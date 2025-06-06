@@ -19,7 +19,7 @@ export const metadata = {
     authors: ['SiteAgent Team'],
     tags: ['RAG', 'Chatbot', 'AI', 'Customer Service', 'Automation'],
     images: ['/blog/RAGEXPLAINED.png'],
-    url: 'https://siteagent.eu/blog/rag-explained-simple-terms'
+    url: 'https://www.siteagent.eu/blog/rag-explained-simple-terms'
   },
   twitter: {
     card: 'summary_large_image',
@@ -29,7 +29,7 @@ export const metadata = {
   },
   robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   alternates: {
-    canonical: 'https://siteagent.eu/blog/rag-explained-simple-terms'
+    canonical: 'https://www.siteagent.eu/blog/rag-explained-simple-terms'
   }
 };
 
@@ -370,14 +370,14 @@ export default function RagExplainedPost() {
             author: {
               '@type': 'Organization',
               name: 'SiteAgent Team',
-              url: 'https://siteagent.eu'
+              url: 'https://www.siteagent.eu'
             },
             publisher: {
               '@type': 'Organization',
               name: 'SiteAgent',
               logo: {
                 '@type': 'ImageObject',
-                url: 'https://siteagent.eu/sitelogo.svg'
+                url: 'https://www.siteagent.eu/sitelogo.svg'
               }
             },
             description: 'Learn how Retrieval-Augmented Generation (RAG) transforms chatbots, why it matters for your website, and how SiteAgent makes implementation effortless.'

@@ -41,10 +41,15 @@ export const metadata: Metadata = {
     creator: '@SiteAgent',
   },
   alternates: {
-    canonical: 'https://www.siteagent.eu/'
-  },
-  verification: {
-    google: 'your-google-verification-code', // You should replace this with actual verification code
+    canonical: 'https://www.siteagent.eu/',
+    languages: {
+      'en': 'https://www.siteagent.eu/',
+      'de': 'https://www.siteagent.eu/de/',
+      'it': 'https://www.siteagent.eu/it/',
+      'pl': 'https://www.siteagent.eu/pl/',
+      'es': 'https://www.siteagent.eu/es/',
+      'nl': 'https://www.siteagent.eu/nl/',
+    }
   },
 };
 

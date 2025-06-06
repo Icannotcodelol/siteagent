@@ -51,9 +51,6 @@ export const metadata: Metadata = {
       'nl': 'https://www.siteagent.eu/nl/',
     }
   },
-  verification: {
-    google: 'your-google-verification-code',
-  },
 };
 
 // Revolutionary hero with bright, light design
