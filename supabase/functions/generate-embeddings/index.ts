@@ -56,9 +56,17 @@ Deno.serve(async (req: Request) => {
     const payload = JSON.parse(rawBody);
     console.log('Payload:', payload);
 
+    const serviceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') 
+        ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') 
+        ?? '';
+
+    if (!serviceRoleKey) {
+        return new Response(JSON.stringify({ error: 'SERVICE_ROLE_KEY env var is missing.' }), { status: 500 });
+    }
+
     supabaseAdminClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      serviceRoleKey,
     );
 
     // Check if invoked directly by scrape-website (or other direct invoker)

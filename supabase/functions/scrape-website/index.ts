@@ -20,7 +20,7 @@ interface DocumentRecord {
 async function updateDocument(
     supabase: ReturnType<typeof createClient>,
     docId: string,
-    status: 'pending' | 'scrape_failed',
+    status: 'pending' | 'failed',
     content: string | null,
     errorMessage?: string
 ) {
@@ -85,9 +85,18 @@ Deno.serve(async (req: Request) => {
     console.log(`[${documentId}] Processing scrape request for document ID: ${documentId}`);
 
     // --- Setup Supabase Admin Client (using function env vars) ---
+    // Prefer FUNCTION-specific SERVICE_ROLE_KEY to avoid CLI restriction on SUPABASE_* names
+    const serviceRoleKey = Deno.env.get('SERVICE_ROLE_KEY') 
+        ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') 
+        ?? '';
+
+    if (!serviceRoleKey) {
+        throw new Error('SERVICE_ROLE_KEY environment variable is missing.');
+    }
+
     supabaseAdmin = createClient(
         Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        serviceRoleKey,
     );
 
     // --- Fetch Document Details (URL) --- 
@@ -112,7 +121,7 @@ Deno.serve(async (req: Request) => {
     
     if (!urlToScrape || (!urlToScrape.startsWith('http://') && !urlToScrape.startsWith('https://'))) {
         // Update status directly here if URL is invalid
-        await updateDocument(supabaseAdmin, documentId, 'scrape_failed', null, `Invalid URL in file_name: ${urlToScrape}`);
+        await updateDocument(supabaseAdmin, documentId, 'failed', null, `Invalid URL in file_name: ${urlToScrape}`);
         console.error(`[${documentId}] Invalid or missing URL in file_name: ${urlToScrape}`);
         // Return 200 to prevent server action from thinking invoke failed
         return new Response(JSON.stringify({ message: `Scraping failed: Invalid URL format.` }), {
@@ -127,8 +136,8 @@ Deno.serve(async (req: Request) => {
     try {
         const response = await fetch(urlToScrape, { 
             headers: { 
-                // Add a basic user-agent, some sites block default fetch/deno agent
-                'User-Agent': 'Mozilla/5.0 (compatible; SiteAgentBot/1.0; +https://yourdomain.com/bot)' 
+                // Use a common browser User-Agent to avoid basic bot blocking
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
             }
         });
         
@@ -149,7 +158,7 @@ Deno.serve(async (req: Request) => {
 
     } catch (fetchError: any) {
         console.error(`[${documentId}] Failed to fetch or process URL ${urlToScrape}:`, fetchError);
-        await updateDocument(supabaseAdmin, documentId, 'scrape_failed', null, fetchError.message);
+        await updateDocument(supabaseAdmin, documentId, 'failed', null, fetchError.message);
         return new Response(JSON.stringify({ message: `Scraping failed: ${fetchError.message}` }), {
             status: 200, 
             headers: { 'Content-Type': 'application/json' },
@@ -187,7 +196,7 @@ Deno.serve(async (req: Request) => {
         }
 
     } else {
-        await updateDocument(supabaseAdmin, documentId, 'scrape_failed', null, 'No text content scraped.');
+        await updateDocument(supabaseAdmin, documentId, 'failed', null, 'No text content scraped.');
         console.warn(`[${documentId}] No text content was scraped despite fetch success.`);
     }
 
@@ -201,7 +210,7 @@ Deno.serve(async (req: Request) => {
     console.error(`[${documentId ?? 'unknown'}] General error processing scrape request:`, error);
     if (documentId && supabaseAdmin) {
       try {
-         await updateDocument(supabaseAdmin, documentId, 'scrape_failed', null, error.message || 'Unknown scraping error');
+         await updateDocument(supabaseAdmin, documentId, 'failed', null, error.message || 'Unknown scraping error');
       } catch (updateErr) {
         console.error(`[${documentId}] Failed to update document status to failed after general error:`, updateErr);
       }
