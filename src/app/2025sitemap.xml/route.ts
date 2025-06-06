@@ -59,9 +59,22 @@ export async function GET() {
       { path: '/', freq: 'daily', prio: '1.0' },
       { path: '/about', freq: 'monthly', prio: '0.8' },
       { path: '/contact', freq: 'monthly', prio: '0.8' },
-      { path: '/pricing', freq: 'monthly', prio: '0.8' },
-      { path: '/features', freq: 'monthly', prio: '0.8' },
       { path: '/blog', freq: 'weekly', prio: '0.7' },
+      { path: '/careers', freq: 'monthly', prio: '0.6' },
+      { path: '/privacy', freq: 'yearly', prio: '0.3' },
+      { path: '/terms', freq: 'yearly', prio: '0.3' },
+      { path: '/security', freq: 'yearly', prio: '0.3' },
+      { path: '/signup', freq: 'monthly', prio: '0.9' },
+      { path: '/login', freq: 'monthly', prio: '0.8' },
+      { path: '/overview', freq: 'weekly', prio: '0.6' },
+      { path: '/mysugrdemo', freq: 'monthly', prio: '0.5' },
+      { path: '/pauseandplaydemo', freq: 'monthly', prio: '0.5' },
+      // Localized pages
+      { path: '/de', freq: 'daily', prio: '0.9' },
+      { path: '/it', freq: 'daily', prio: '0.9' },
+      { path: '/pl', freq: 'daily', prio: '0.9' },
+      { path: '/es', freq: 'daily', prio: '0.9' },
+      { path: '/nl', freq: 'daily', prio: '0.9' },
     ];
 
     const urls: string[] = [];
