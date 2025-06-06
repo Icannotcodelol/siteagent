@@ -45,121 +45,184 @@ function collectBlogPosts(): { slug: string; lastModified: Date }[] {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const now = new Date()
+  
   const staticRoutes: MetadataRoute.Sitemap = [
+    // Main English pages with language alternates
     {
       url: `${SITE_URL}/`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 1.0,
+      alternates: {
+        languages: {
+          'en': `${SITE_URL}/`,
+          'de': `${SITE_URL}/de`,
+          'it': `${SITE_URL}/it`,
+          'pl': `${SITE_URL}/pl`,
+          'es': `${SITE_URL}/es`,
+          'nl': `${SITE_URL}/nl`,
+        }
+      }
     },
     {
       url: `${SITE_URL}/about`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${SITE_URL}/contact`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${SITE_URL}/blog`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.7,
     },
     {
       url: `${SITE_URL}/careers`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: `${SITE_URL}/privacy`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/terms`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/security`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${SITE_URL}/signup`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.9,
     },
     {
       url: `${SITE_URL}/login`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${SITE_URL}/overview`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.6,
     },
     {
       url: `${SITE_URL}/tools/color-palette-generator`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${SITE_URL}/mysugrdemo`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${SITE_URL}/pauseandplaydemo`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
-    // Localized pages
+    // Localized pages with proper language alternates
     {
       url: `${SITE_URL}/de`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
+      alternates: {
+        languages: {
+          'en': `${SITE_URL}/`,
+          'de': `${SITE_URL}/de`,
+          'it': `${SITE_URL}/it`,
+          'pl': `${SITE_URL}/pl`,
+          'es': `${SITE_URL}/es`,
+          'nl': `${SITE_URL}/nl`,
+        }
+      }
     },
     {
       url: `${SITE_URL}/it`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
+      alternates: {
+        languages: {
+          'en': `${SITE_URL}/`,
+          'de': `${SITE_URL}/de`,
+          'it': `${SITE_URL}/it`,
+          'pl': `${SITE_URL}/pl`,
+          'es': `${SITE_URL}/es`,
+          'nl': `${SITE_URL}/nl`,
+        }
+      }
     },
     {
       url: `${SITE_URL}/pl`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
+      alternates: {
+        languages: {
+          'en': `${SITE_URL}/`,
+          'de': `${SITE_URL}/de`,
+          'it': `${SITE_URL}/it`,
+          'pl': `${SITE_URL}/pl`,
+          'es': `${SITE_URL}/es`,
+          'nl': `${SITE_URL}/nl`,
+        }
+      }
     },
     {
       url: `${SITE_URL}/es`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
+      alternates: {
+        languages: {
+          'en': `${SITE_URL}/`,
+          'de': `${SITE_URL}/de`,
+          'it': `${SITE_URL}/it`,
+          'pl': `${SITE_URL}/pl`,
+          'es': `${SITE_URL}/es`,
+          'nl': `${SITE_URL}/nl`,
+        }
+      }
     },
     {
       url: `${SITE_URL}/nl`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
+      alternates: {
+        languages: {
+          'en': `${SITE_URL}/`,
+          'de': `${SITE_URL}/de`,
+          'it': `${SITE_URL}/it`,
+          'pl': `${SITE_URL}/pl`,
+          'es': `${SITE_URL}/es`,
+          'nl': `${SITE_URL}/nl`,
+        }
+      }
     },
   ]
 

@@ -41,7 +41,15 @@ export const metadata: Metadata = {
     creator: '@SiteAgent',
   },
   alternates: {
-    canonical: 'https://www.siteagent.eu/de/'
+    canonical: 'https://www.siteagent.eu/de/',
+    languages: {
+      'en': 'https://www.siteagent.eu/',
+      'de': 'https://www.siteagent.eu/de/',
+      'it': 'https://www.siteagent.eu/it/',
+      'pl': 'https://www.siteagent.eu/pl/',
+      'es': 'https://www.siteagent.eu/es/',
+      'nl': 'https://www.siteagent.eu/nl/',
+    }
   },
   verification: {
     google: 'your-google-verification-code',

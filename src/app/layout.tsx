@@ -49,6 +49,17 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  alternates: {
+    canonical: 'https://www.siteagent.eu',
+    languages: {
+      'en': 'https://www.siteagent.eu',
+      'de': 'https://www.siteagent.eu/de',
+      'it': 'https://www.siteagent.eu/it', 
+      'pl': 'https://www.siteagent.eu/pl',
+      'es': 'https://www.siteagent.eu/es',
+      'nl': 'https://www.siteagent.eu/nl',
+    }
+  },
   // icons: { // Optional: Add favicons
   //   icon: "/favicon.ico",
   //   shortcut: "/favicon-16x16.png",
