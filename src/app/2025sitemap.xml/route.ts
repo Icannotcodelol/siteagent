@@ -53,6 +53,10 @@ function collectBlogPostsFromDir(dir: string): { slug: string; lastmod: string }
     .filter(Boolean) as { slug: string; lastmod: string }[];
 }
 
+// Tell Next.js to statically generate this route and refresh it at most once per hour.
+export const dynamic = 'force-static';
+export const revalidate = 3600; // seconds
+
 export async function GET() {
   try {
     const staticRoutes = [
