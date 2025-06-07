@@ -56,12 +56,20 @@ function collectBlogPostsFromDir(dir: string): { slug: string; lastmod: string }
 export async function GET() {
   try {
     const staticRoutes = [
+      // Base (English) routes
       { path: '/', freq: 'daily', prio: '1.0' },
       { path: '/about', freq: 'monthly', prio: '0.8' },
       { path: '/contact', freq: 'monthly', prio: '0.8' },
       { path: '/pricing', freq: 'monthly', prio: '0.8' },
       { path: '/features', freq: 'monthly', prio: '0.8' },
       { path: '/blog', freq: 'weekly', prio: '0.7' },
+
+      // Localised landing pages
+      { path: '/de', freq: 'weekly', prio: '0.9' },
+      { path: '/es', freq: 'weekly', prio: '0.9' },
+      { path: '/it', freq: 'weekly', prio: '0.9' },
+      { path: '/nl', freq: 'weekly', prio: '0.9' },
+      { path: '/pl', freq: 'weekly', prio: '0.9' },
     ];
 
     const urls: string[] = [];
