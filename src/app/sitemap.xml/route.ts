@@ -62,8 +62,6 @@ export async function GET() {
       { path: '/', freq: 'daily', prio: '1.0' },
       { path: '/about', freq: 'monthly', prio: '0.8' },
       { path: '/contact', freq: 'monthly', prio: '0.8' },
-      { path: '/pricing', freq: 'monthly', prio: '0.8' },
-      { path: '/features', freq: 'monthly', prio: '0.8' },
       { path: '/blog', freq: 'weekly', prio: '0.7' },
     ] as const
 
