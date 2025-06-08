@@ -119,4 +119,25 @@ export async function GET() {
       },
     })
   }
+}
+
+// HEAD handler for crawler compatibility - returns same headers as GET but no body
+export async function HEAD() {
+  try {
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=0, s-maxage=3600',
+      },
+    })
+  } catch (error) {
+    console.error('[sitemap] HEAD request failed', error)
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/xml; charset=utf-8',
+      },
+    })
+  }
 } 

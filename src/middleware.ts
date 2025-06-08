@@ -3,26 +3,61 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 // Helper function to detect crawlers and SEO tools
 function isCrawlerOrBot(request: NextRequest): boolean {
+  // Check for bypass query parameter
+  const url = new URL(request.url)
+  if (url.searchParams.has('no-redirect') || url.searchParams.has('bypass-geo')) {
+    return true
+  }
+  
   const userAgent = request.headers.get('user-agent')?.toLowerCase() || ''
   
+  // Empty or very short user agents are often automated tools
+  if (!userAgent || userAgent.length < 10) {
+    return true
+  }
+  
   const crawlerPatterns = [
+    // Search engines
     'googlebot',
     'bingbot',
     'slurp', // Yahoo
     'duckduckbot',
     'baiduspider',
     'yandexbot',
+    'sogou',
+    'exabot',
+    
+    // Social media crawlers
     'facebookexternalhit',
     'twitterbot',
-    'rogerbot', // Moz
     'linkedinbot',
     'whatsapp',
     'telegrambot',
-    'applebot',
+    'discordbot',
+    'slackbot',
+    
+    // SEO and monitoring tools
+    'rogerbot', // Moz
+    'screaming frog',
+    'seobility',
+    'semrushbot',
+    'ahrefsbot',
+    'dotbot',
+    'majestic',
     'chrome-lighthouse',
+    'pagespeed',
     'gtmetrix',
     'pingdom',
     'uptime',
+    'sitechecker',
+    'seositecheckup',
+    'woorank',
+    'deadlinkchecker',
+    'linkchecker',
+    'validator',
+    'w3c_validator',
+    
+    // Generic patterns
     'seo',
     'crawler',
     'spider',
@@ -32,7 +67,10 @@ function isCrawlerOrBot(request: NextRequest): boolean {
     'monitor',
     'test',
     'audit',
-    'scan'
+    'scan',
+    'analyze',
+    'tool',
+    'fetch'
   ]
   
   return crawlerPatterns.some(pattern => userAgent.includes(pattern))

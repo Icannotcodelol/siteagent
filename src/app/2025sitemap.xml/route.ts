@@ -14,4 +14,11 @@ export function GET() {
   return NextResponse.redirect('https://www.siteagent.eu/sitemap.xml', {
     status: 308,
   })
+}
+
+// HEAD handler for crawler compatibility
+export function HEAD() {
+  return NextResponse.redirect('https://www.siteagent.eu/sitemap.xml', {
+    status: 308,
+  })
 } 
