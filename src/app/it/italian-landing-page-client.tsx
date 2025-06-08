@@ -1215,7 +1215,7 @@ function Footer() {
             </div>
           </div>
           {[
-            { title: "Prodotto", links: [{ label: "Caratteristiche", href: "#features" }, { label: "Prezzi", href: "#pricing" }, { label: "Documentazione", href: "/docs" }, { label: "Changelog", href: "/changelog" }] },
+            { title: "Prodotto", links: [{ label: "Caratteristiche", href: "#features" }, { label: "Prezzi", href: "#pricing" }, { label: "Strumenti Gratuiti", href: "/tools" }, { label: "Documentazione", href: "/docs" }, { label: "Changelog", href: "/changelog" }] },
             { title: "Azienda", links: [{ label: "Chi Siamo", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Carriere", href: "/careers" }, { label: "Contatti", href: "/contact" }] },
             { title: "Legale", links: [{ label: "Informativa Privacy", href: "/privacy" }, { label: "Termini di Servizio", href: "/terms" }, { label: "Sicurezza", href: "/security" }] },
           ].map((section, index) => (

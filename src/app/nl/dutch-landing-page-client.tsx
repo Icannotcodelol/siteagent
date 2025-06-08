@@ -1034,6 +1034,7 @@ function Footer() {
             <ul className="space-y-3">
               <li><Link href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Functionaliteiten</Link></li>
               <li><Link href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Prijzen</Link></li>
+              <li><Link href="/tools" className="text-gray-600 hover:text-blue-600 transition-colors">Gratis Tools</Link></li>
               <li><Link href="#" className="text-gray-600 hover:text-blue-600 transition-colors">Integraties</Link></li>
               <li><Link href="#" className="text-gray-600 hover:text-blue-600 transition-colors">API</Link></li>
             </ul>
