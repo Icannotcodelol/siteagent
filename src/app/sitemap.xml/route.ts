@@ -58,38 +58,11 @@ function collectBlogPostsFromDir(dir: string): { slug: string; lastmod: string }
 
 export async function GET() {
   try {
-    const staticRoutes = [
-      { path: '/about', freq: 'monthly', prio: '0.8' },
-      { path: '/contact', freq: 'monthly', prio: '0.8' },
-      { path: '/blog', freq: 'weekly', prio: '0.7' },
-    ] as const
-
-    const urls: string[] = []
+    // Minimal test sitemap with just one URL
     const today = new Date().toISOString().split('T')[0]
-
-    // Primary pages
-    staticRoutes.forEach(({ path: p, freq, prio }) => {
-      urls.push(generateUrlXml(`${SITE_URL}${p}`, today, freq as Frequency, prio))
-    })
-
-    // Localised landing pages (e.g. /de, /es ...)
-    LOCALES.forEach((locale) => {
-      urls.push(generateUrlXml(`${SITE_URL}/${locale}`, today, 'daily', '0.9'))
-    })
-
-    // Blog posts – look in both source and compiled output so it works in all envs
-    const candidateDirs = [
-      path.join(process.cwd(), 'src', 'app', 'blog'),
-      path.join(process.cwd(), '.next', 'server', 'app', 'blog'),
+    const urls = [
+      generateUrlXml(`${SITE_URL}/about`, today, 'monthly', '0.8')
     ]
-
-    const blogPosts = candidateDirs.flatMap(collectBlogPostsFromDir)
-    const seen = new Set<string>()
-    blogPosts.forEach(({ slug, lastmod }) => {
-      if (seen.has(slug)) return
-      seen.add(slug)
-      urls.push(generateUrlXml(`${SITE_URL}/blog/${slug}`, lastmod, 'monthly', '0.8'))
-    })
 
     const sitemap = [
       '<?xml version="1.0" encoding="UTF-8"?>',
