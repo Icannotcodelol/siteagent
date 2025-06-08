@@ -1264,7 +1264,7 @@ function Footer() {
             <ul className="space-y-2 text-gray-400">
               <li><Link href="#features" className="hover:text-white transition-colors">Funkcje</Link></li>
               <li><Link href="#pricing" className="hover:text-white transition-colors">Cennik</Link></li>
-              <li><Link href="/tools" className="hover:text-white transition-colors">Darmowe Narzędzia</Link></li>
+              <li><Link href="/tools/token-counter" className="hover:text-white transition-colors">Licznik Tokenów AI</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Integracje</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">API</Link></li>
             </ul>

@@ -1171,7 +1171,7 @@ function Footer() {
             <ul className="space-y-3">
               <li><a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Funktionen</a></li>
               <li><a href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Preise</a></li>
-              <li><a href="/tools" className="text-gray-600 hover:text-blue-600 transition-colors">Kostenlose Tools</a></li>
+              <li><a href="/tools/token-counter" className="text-gray-600 hover:text-blue-600 transition-colors">KI Token-Zähler</a></li>
               <li><a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">Über uns</a></li>
               <li><a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Kontakt</a></li>
             </ul>

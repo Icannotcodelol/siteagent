@@ -1035,7 +1035,7 @@ function Footer() {
             <ul className="space-y-3">
               <li><Link href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Características</Link></li>
               <li><Link href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Precios</Link></li>
-              <li><Link href="/tools" className="text-gray-600 hover:text-blue-600 transition-colors">Herramientas Gratuitas</Link></li>
+              <li><Link href="/tools/token-counter" className="text-gray-600 hover:text-blue-600 transition-colors">Contador de Tokens IA</Link></li>
               <li><Link href="#" className="text-gray-600 hover:text-blue-600 transition-colors">Integraciones</Link></li>
               <li><Link href="#" className="text-gray-600 hover:text-blue-600 transition-colors">API</Link></li>
             </ul>
