@@ -2,6 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AuthButton } from '@/app/_components/auth-button';
 import { Facebook, Twitter, Linkedin, Github, ArrowRight } from 'lucide-react';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // Consistent Navbar (Copied from AboutPage - consider refactoring to a shared component)
 function PageNavbar() {
@@ -110,7 +112,67 @@ function StaticPageLayout({ title, children }: { title: string, children: React.
   );
 }
 
+// Blog post metadata type
+interface BlogPost {
+  slug: string;
+  title: string;
+  description: string;
+  date: string;
+  category: string;
+  href: string;
+}
+
+// Get all blog posts dynamically
+function getBlogPosts(): BlogPost[] {
+  const blogDir = path.join(process.cwd(), 'src', 'app', 'blog');
+  
+  if (!fs.existsSync(blogDir)) {
+    return [];
+  }
+
+  const posts: BlogPost[] = [];
+  
+  // Known blog posts with metadata (we can extend this to read from frontmatter later)
+  const blogMetadata: Record<string, Omit<BlogPost, 'slug' | 'href'>> = {
+    'rag-explained-simple-terms': {
+      title: 'RAG Explained in Simple Terms: Custom Chatbot Implementation Guide',
+      description: 'Discover how Retrieval-Augmented Generation (RAG) revolutionizes chatbots and how SiteAgent simplifies implementation.',
+      date: 'June 4, 2025',
+      category: 'Technical'
+    },
+    'meta-prompting-engineering-ai-mind': {
+      title: 'Meta Prompting: Engineering the Mind of Your AI',
+      description: 'Master meta prompting techniques to transform LLMs from talented interns into dependable colleagues. Deep dive into cognitive architecture, design patterns, and real-world applications.',
+      date: 'December 8, 2024',
+      category: 'Advanced Guide'
+    }
+  };
+
+  const folders = fs.readdirSync(blogDir, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(dirent => dirent.name);
+
+  for (const folder of folders) {
+    const pagePath = path.join(blogDir, folder, 'page.tsx');
+    if (fs.existsSync(pagePath)) {
+      const metadata = blogMetadata[folder];
+      if (metadata) {
+        posts.push({
+          slug: folder,
+          href: `/blog/${folder}`,
+          ...metadata
+        });
+      }
+    }
+  }
+
+  // Sort by date (newest first) - simple string comparison works for our date format
+  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
 export default function BlogPage() {
+  const blogPosts = getBlogPosts();
+
   return (
     <StaticPageLayout title="SiteAgent Blog">
       <p className="lead text-lg text-gray-300">
@@ -147,14 +209,22 @@ export default function BlogPage() {
       </p>
 
       {/* Latest Posts */}
-      <h2 className="mt-12 mb-6 text-2xl font-semibold tracking-tight text-white sm:text-3xl border-l-4 border-green-500 pl-4">Latest Post</h2>
-      <div className="space-y-6">
-        <Link href="/blog/rag-explained-simple-terms" className="group block rounded-lg border border-gray-800 bg-gray-900 p-6 transition-colors hover:border-blue-600">
-          <h3 className="text-xl font-semibold text-white group-hover:text-blue-400">RAG Explained in Simple Terms: Custom Chatbot Implementation Guide</h3>
-          <p className="mt-2 text-sm text-gray-400">June 4, 2025 · Technical</p>
-          <p className="mt-4 text-gray-400">Discover how Retrieval-Augmented Generation (RAG) revolutionizes chatbots and how SiteAgent simplifies implementation.</p>
-        </Link>
-      </div>
+      <h2 className="mt-12 mb-6 text-2xl font-semibold tracking-tight text-white sm:text-3xl border-l-4 border-green-500 pl-4">
+        {blogPosts.length === 1 ? 'Latest Post' : 'Latest Posts'}
+      </h2>
+      {blogPosts.length > 0 ? (
+        <div className="space-y-6">
+          {blogPosts.map((post) => (
+            <Link key={post.slug} href={post.href} className="group block rounded-lg border border-gray-800 bg-gray-900 p-6 transition-colors hover:border-blue-600">
+              <h3 className="text-xl font-semibold text-white group-hover:text-blue-400">{post.title}</h3>
+              <p className="mt-2 text-sm text-gray-400">{post.date} · {post.category}</p>
+              <p className="mt-4 text-gray-400">{post.description}</p>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-400">No blog posts found. Check back soon for our latest content!</p>
+      )}
 
       <div className="mt-16 text-center">
         <Link href="/contact">
