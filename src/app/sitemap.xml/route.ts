@@ -35,7 +35,7 @@ function generateUrlXml(
     .join('\n')
 }
 
-function collectBlogPostsFromDir(dir: string): { slug: string; lastmod: string }[] {
+function collectPagesFromDir(dir: string): { slug: string; lastmod: string }[] {
   if (!fs.existsSync(dir)) return []
 
   return fs
@@ -63,6 +63,7 @@ export async function GET() {
       { path: '/about', freq: 'monthly', prio: '0.8' },
       { path: '/contact', freq: 'monthly', prio: '0.8' },
       { path: '/blog', freq: 'weekly', prio: '0.7' },
+      { path: '/tools', freq: 'weekly', prio: '0.8' },
     ] as const
 
     const urls: string[] = []
@@ -79,17 +80,31 @@ export async function GET() {
     })
 
     // Blog posts – look in both source and compiled output so it works in all envs
-    const candidateDirs = [
+    const blogCandidateDirs = [
       path.join(process.cwd(), 'src', 'app', 'blog'),
       path.join(process.cwd(), '.next', 'server', 'app', 'blog'),
     ]
 
-    const blogPosts = candidateDirs.flatMap(collectBlogPostsFromDir)
-    const seen = new Set<string>()
+    const blogPosts = blogCandidateDirs.flatMap(collectPagesFromDir)
+    const seenBlog = new Set<string>()
     blogPosts.forEach(({ slug, lastmod }) => {
-      if (seen.has(slug)) return
-      seen.add(slug)
+      if (seenBlog.has(slug)) return
+      seenBlog.add(slug)
       urls.push(generateUrlXml(`${SITE_URL}/blog/${slug}`, lastmod, 'monthly', '0.8'))
+    })
+
+    // Tools pages – automatically discover all tool pages
+    const toolsCandidateDirs = [
+      path.join(process.cwd(), 'src', 'app', 'tools'),
+      path.join(process.cwd(), '.next', 'server', 'app', 'tools'),
+    ]
+
+    const toolPages = toolsCandidateDirs.flatMap(collectPagesFromDir)
+    const seenTools = new Set<string>()
+    toolPages.forEach(({ slug, lastmod }) => {
+      if (seenTools.has(slug)) return
+      seenTools.add(slug)
+      urls.push(generateUrlXml(`${SITE_URL}/tools/${slug}`, lastmod, 'weekly', '0.7'))
     })
 
     const sitemap = [
