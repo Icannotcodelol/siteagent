@@ -382,10 +382,23 @@ export default function MetaPromptingPost() {
             </p>
             <p>
               Start experimenting today, and you'll be designing the mental blueprints that power tomorrow's intelligent tools. Whether you're transforming a basic request into a structured meta prompt or building entire AI workflows, the principles in this guide will help you harness the full potential of language models.
-            </p>
+                        </p>
           </section>
 
-
+          {/* Meta Prompting Assistant */}
+          <section className="mb-12">
+            <div 
+              dangerouslySetInnerHTML={{
+                __html: `
+                  <script
+                    src="https://www.siteagent.eu/chatbot-widget.js"
+                    data-chatbot-id="a623575a-a1c9-445a-bbc7-d9c5ff560a0e"
+                    async
+                  ></script>
+                `
+              }}
+            />
+          </section>
 
           {/* CTA Section */}
           <section className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-8 text-white text-center">
