@@ -1823,7 +1823,7 @@ function Footer() {
             </div>
           </div>
           {[
-            { title: "Product", links: [{ label: "Features", href: "#features" }, { label: "Pricing", href: "#pricing" }, { label: "AI Token Counter", href: "/tools/token-counter" }, { label: "Documentation", href: "/docs" }, { label: "Changelog", href: "/changelog" }] },
+            { title: "Product", links: [{ label: "Features", href: "#features" }, { label: "Pricing", href: "#pricing" }, { label: "AI Token Counter", href: "/tools/token-counter" }, { label: "Meta Prompt Generator", href: "/tools/meta-prompt-generator" }, { label: "Documentation", href: "/docs" }] },
             { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Careers", href: "/careers" }, { label: "Contact", href: "/contact" }] },
             { title: "Legal", links: [{ label: "Privacy Policy", href: "/privacy" }, { label: "Terms of Service", href: "/terms" }, { label: "Security", href: "/security" }] },
           ].map((section, index) => (

@@ -36,6 +36,13 @@ const tools: Tool[] = [
     description: 'Count tokens and estimate costs for GPT models. Perfect for managing AI costs and optimizing prompts.',
     href: '/tools/token-counter',
     icon: '🔢',
+    category: 'AI'
+  },
+  {
+    title: 'Meta Prompt Generator',
+    description: 'Transform basic AI prompts into powerful meta prompts that deliver better results and consistency.',
+    href: '/tools/meta-prompt-generator',
+    icon: '✨',
     category: 'AI',
     isNew: true
   },
@@ -44,7 +51,7 @@ const tools: Tool[] = [
     title: 'Prompt Optimizer',
     description: 'Optimize your AI prompts for better results and lower token usage.',
     href: '/tools/prompt-optimizer',
-    icon: '✨',
+    icon: '🔧',
     category: 'AI',
     comingSoon: true
   },
