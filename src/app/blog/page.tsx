@@ -2,8 +2,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AuthButton } from '@/app/_components/auth-button';
 import { Facebook, Twitter, Linkedin, Github, ArrowRight } from 'lucide-react';
-import fs from 'node:fs';
-import path from 'node:path';
 
 // Consistent Navbar (Copied from AboutPage - consider refactoring to a shared component)
 function PageNavbar() {
@@ -122,51 +120,28 @@ interface BlogPost {
   href: string;
 }
 
-// Get all blog posts dynamically
+// Static blog posts data (easier and more reliable than filesystem scanning)
 function getBlogPosts(): BlogPost[] {
-  const blogDir = path.join(process.cwd(), 'src', 'app', 'blog');
-  
-  if (!fs.existsSync(blogDir)) {
-    return [];
-  }
-
-  const posts: BlogPost[] = [];
-  
-  // Known blog posts with metadata (we can extend this to read from frontmatter later)
-  const blogMetadata: Record<string, Omit<BlogPost, 'slug' | 'href'>> = {
-    'rag-explained-simple-terms': {
-      title: 'RAG Explained in Simple Terms: Custom Chatbot Implementation Guide',
-      description: 'Discover how Retrieval-Augmented Generation (RAG) revolutionizes chatbots and how SiteAgent simplifies implementation.',
-      date: 'June 4, 2025',
-      category: 'Technical'
-    },
-    'meta-prompting-engineering-ai-mind': {
+  const posts: BlogPost[] = [
+    {
+      slug: 'meta-prompting-engineering-ai-mind',
       title: 'Meta Prompting: Engineering the Mind of Your AI',
       description: 'Master meta prompting techniques to transform LLMs from talented interns into dependable colleagues. Deep dive into cognitive architecture, design patterns, and real-world applications.',
       date: 'December 8, 2024',
-      category: 'Advanced Guide'
+      category: 'Advanced Guide',
+      href: '/blog/meta-prompting-engineering-ai-mind'
+    },
+    {
+      slug: 'rag-explained-simple-terms',
+      title: 'RAG Explained in Simple Terms: Custom Chatbot Implementation Guide',
+      description: 'Discover how Retrieval-Augmented Generation (RAG) revolutionizes chatbots and how SiteAgent simplifies implementation.',
+      date: 'June 4, 2025',
+      category: 'Technical',
+      href: '/blog/rag-explained-simple-terms'
     }
-  };
+  ];
 
-  const folders = fs.readdirSync(blogDir, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory())
-    .map(dirent => dirent.name);
-
-  for (const folder of folders) {
-    const pagePath = path.join(blogDir, folder, 'page.tsx');
-    if (fs.existsSync(pagePath)) {
-      const metadata = blogMetadata[folder];
-      if (metadata) {
-        posts.push({
-          slug: folder,
-          href: `/blog/${folder}`,
-          ...metadata
-        });
-      }
-    }
-  }
-
-  // Sort by date (newest first) - simple string comparison works for our date format
+  // Sort by date (newest first)
   return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
