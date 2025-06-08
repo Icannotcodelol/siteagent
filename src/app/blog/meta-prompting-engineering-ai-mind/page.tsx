@@ -382,7 +382,41 @@ export default function MetaPromptingPost() {
             </p>
           </section>
 
+          {/* Interactive Demo Section */}
+          <section className="mb-12">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white text-center mb-8">
+              <h2 className="text-2xl font-bold mb-4">Try Meta Prompting in Action</h2>
+              <p className="text-lg opacity-90 mb-6">
+                Ready to experience meta prompting? Our AI assistant below can transform any regular prompt into a sophisticated meta prompt. 
+                Just describe what you want to accomplish!
+              </p>
+            </div>
 
+            <div className="bg-white rounded-lg border border-gray-200 p-6">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                🤖 SiteAgent Meta-Prompt Assistant
+              </h3>
+              <p className="text-gray-600 mb-6">
+                This chatbot demonstrates the power of SiteAgent's AI platform. It's trained specifically on meta prompting techniques 
+                and can help you transform basic prompts into structured, effective meta prompts.
+              </p>
+              
+              {/* Chatbot Embed */}
+              <div className="border border-gray-300 rounded-lg p-4 min-h-[400px] bg-gray-50">
+                <div 
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      <script
+                        src="https://www.siteagent.eu/chatbot-widget.js"
+                        data-chatbot-id="a623575a-a1c9-445a-bbc7-d9c5ff560a0e"
+                        async
+                      ></script>
+                    `
+                  }}
+                />
+              </div>
+            </div>
+          </section>
 
           {/* CTA Section */}
           <section className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-8 text-white text-center">
