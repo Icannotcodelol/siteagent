@@ -1,8 +1,51 @@
 import { createClient } from '@/lib/supabase/middleware'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Helper function to detect crawlers and SEO tools
+function isCrawlerOrBot(request: NextRequest): boolean {
+  const userAgent = request.headers.get('user-agent')?.toLowerCase() || ''
+  
+  const crawlerPatterns = [
+    'googlebot',
+    'bingbot',
+    'slurp', // Yahoo
+    'duckduckbot',
+    'baiduspider',
+    'yandexbot',
+    'facebookexternalhit',
+    'twitterbot',
+    'rogerbot', // Moz
+    'linkedinbot',
+    'whatsapp',
+    'telegrambot',
+    'applebot',
+    'chrome-lighthouse',
+    'gtmetrix',
+    'pingdom',
+    'uptime',
+    'seo',
+    'crawler',
+    'spider',
+    'scraper',
+    'bot',
+    'check',
+    'monitor',
+    'test',
+    'audit',
+    'scan'
+  ]
+  
+  return crawlerPatterns.some(pattern => userAgent.includes(pattern))
+}
+
 export async function middleware(request: NextRequest) {
   try {
+    // Skip geolocation redirects for crawlers and SEO tools
+    if (isCrawlerOrBot(request)) {
+      const { supabase, response } = createClient(request)
+      return response
+    }
+
     // ============= GEOLOCATION REDIRECTION =============
     // Check if user should be redirected to Italian page
     const shouldRedirectToItalian = checkForItalianRedirect(request)
