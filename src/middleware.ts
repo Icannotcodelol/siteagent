@@ -420,7 +420,9 @@ function isPublicPath(pathname: string): boolean {
     '/security',
     '/blog',
     '/careers',
-    '/api'
+    '/api',
+    '/sitemap.xml', // Add sitemap to public paths
+    '/2025sitemap.xml' // Add 2025 sitemap to public paths
   ]
   
   return publicPaths.some(path => 
