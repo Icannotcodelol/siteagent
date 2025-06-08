@@ -1172,8 +1172,8 @@ function Footer() {
               <li><a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Funktionen</a></li>
               <li><a href="#pricing" className="text-gray-600 hover:text-blue-600 transition-colors">Preise</a></li>
               <li><a href="/tools/token-counter" className="text-gray-600 hover:text-blue-600 transition-colors">KI Token-Zähler</a></li>
-              <li><a href="/tools/meta-prompt-generator" className="text-gray-600 hover:text-blue-600 transition-colors">KI Meta-Prompt Generator</a></li>
               <li><a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">Über uns</a></li>
+              <li><a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Kontakt</a></li>
             </ul>
           </div>
 
