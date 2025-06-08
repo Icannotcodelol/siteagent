@@ -1,9 +1,38 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function MetaPromptGeneratorTool() {
   const [chatbotLoaded, setChatbotLoaded] = useState(false)
+
+  useEffect(() => {
+    // Load the SiteAgent chatbot widget
+    const script = document.createElement('script')
+    script.src = 'https://www.siteagent.eu/chatbot-widget.js'
+    script.setAttribute('data-chatbot-id', 'a623575a-a1c9-445a-bbc7-d9c5ff560a0e')
+    script.async = true
+    
+    script.onload = () => {
+      setChatbotLoaded(true)
+      // Hide loading indicator
+      const loadingEl = document.getElementById('chatbot-loading')
+      if (loadingEl) {
+        loadingEl.style.display = 'none'
+      }
+    }
+    
+    const chatbotContainer = document.getElementById('meta-prompt-chatbot')
+    if (chatbotContainer) {
+      chatbotContainer.appendChild(script)
+    }
+    
+    return () => {
+      // Cleanup script on unmount
+      if (chatbotContainer && script.parentNode === chatbotContainer) {
+        chatbotContainer.removeChild(script)
+      }
+    }
+  }, [])
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
@@ -95,35 +124,31 @@ export default function MetaPromptGeneratorTool() {
           </p>
         </div>
 
-        {/* Chatbot Iframe Container */}
-        <div className="relative bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 min-h-[500px] flex items-center justify-center">
-          {/* Placeholder for SiteAgent chatbot iframe */}
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.435l-3.447 1.725a1 1 0 01-1.423-1.423l1.725-3.447A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
-              </svg>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-semibold text-gray-700">Meta Prompt Assistant Ready</h3>
-              <p className="text-gray-500">SiteAgent chatbot iframe will be embedded here</p>
-              <div className="text-sm text-gray-400">
-                Placeholder for iframe embed code
+        {/* Chatbot Widget Container */}
+        <div className="relative bg-white rounded-lg border border-gray-200 min-h-[500px] p-4">
+          {/* SiteAgent Chatbot Widget */}
+          <div 
+            id="meta-prompt-chatbot" 
+            className="w-full h-full min-h-[450px]"
+          />
+          
+          {/* Loading indicator */}
+          <div 
+            id="chatbot-loading" 
+            className="absolute inset-0 flex items-center justify-center bg-white rounded-lg"
+            style={{ display: chatbotLoaded ? 'none' : 'flex' }}
+          >
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.959 8.959 0 01-4.906-1.435l-3.447 1.725a1 1 0 01-1.423-1.423l1.725-3.447A8.959 8.959 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+                </svg>
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold text-gray-700">Loading Meta Prompt Assistant...</h3>
+                <p className="text-gray-500">Your AI assistant is initializing</p>
               </div>
             </div>
-          </div>
-          
-          {/* This div will be replaced with the actual iframe */}
-          <div className="hidden">
-            {/* 
-            Example of where the iframe will go:
-            <iframe 
-              src="YOUR_SITEAGENT_CHATBOT_URL" 
-              width="100%" 
-              height="500" 
-              frameBorder="0"
-            ></iframe> 
-            */}
           </div>
         </div>
       </div>
