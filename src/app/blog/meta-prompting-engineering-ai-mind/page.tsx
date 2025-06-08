@@ -57,7 +57,7 @@ export default function MetaPromptingPost() {
             Meta Prompting: Engineering the Mind of Your AI
           </h1>
           <div className="text-xl text-gray-600 mb-8 italic">
-            <em>"Prompting is programming, and meta prompting is architecture."</em> — <strong>SiteAgent Labs</strong>
+            <em>"Prompting is programming, and meta prompting is architecture."</em> <strong>- SiteAgent Labs</strong>
           </div>
           <div className="flex items-center space-x-4 text-gray-500 mb-8">
             <time dateTime="2025-06-08">June 8, 2025</time>
@@ -68,7 +68,7 @@ export default function MetaPromptingPost() {
           </div>
           <div className="prose prose-lg max-w-none text-gray-700">
             <p>
-              Large‑language models (LLMs) can compose music, write code, and negotiate contracts. Yet most teams still interact with them as if they were autocomplete on steroids: a single sentence in, a wall of prose out. 2024–25 has shown a different path. Start‑ups inside Y Combinator, FAANG research labs, and indie builders are embracing <strong>meta prompting</strong>—prompts <em>about</em> prompting—as a way to turn LLMs from talented interns into dependable colleagues.
+              Large‑language models (LLMs) can compose music, write code, and negotiate contracts. Yet most teams still interact with them as if they were autocomplete on steroids: a single sentence in, a wall of prose out. 2024–25 has shown a different path. Start‑ups inside Y Combinator, FAANG research labs, and indie builders are embracing <strong>meta prompting</strong> (prompts <em>about</em> prompting) as a way to turn LLMs from talented interns into dependable colleagues.
             </p>
             <p>
               This article is a deep, technical dive into the concept: how meta prompting works under the hood, why it unlocks reliability and scale, real‑world architectures you can copy today, and the strategic future we see emerging. Whether you're an engineer, product manager, or founder, you'll leave with concrete playbooks and a fresh mental model for designing AI systems.
@@ -99,7 +99,7 @@ export default function MetaPromptingPost() {
             <h2 className="text-3xl font-bold text-gray-900 mb-6">1. What Exactly Is Meta Prompting?</h2>
             
             <div className="bg-gray-100 border-l-4 border-blue-500 p-6 mb-6">
-              <h3 className="text-lg font-semibold mb-2">Definition — One‑Liner</h3>
+              <h3 className="text-lg font-semibold mb-2">Definition: One‑Liner</h3>
               <p className="italic text-gray-700">
                 Meta prompting is the practice of writing a prompt that instructs the LLM <strong>how</strong> to think, structure, and validate its eventual response.
               </p>
@@ -157,7 +157,7 @@ export default function MetaPromptingPost() {
             </div>
 
             <p>
-              In aggregate, those layers form a <strong>cognitive architecture</strong>—a blueprint the LLM instantiates at inference time. Think of it as supplying not just <em>data</em> but the <em>program</em> the model should run.
+              In aggregate, those layers form a <strong>cognitive architecture</strong>: a blueprint the LLM instantiates at inference time. Think of it as supplying not just <em>data</em> but the <em>program</em> the model should run.
             </p>
           </section>
 
@@ -208,8 +208,8 @@ export default function MetaPromptingPost() {
 
             <h3 className="text-2xl font-semibold text-gray-800 mb-4">4.1 Conductor ➜ Specialist ("Orchestra") Pattern</h3>
             <ul className="list-disc pl-6 mb-6">
-              <li><strong>Tier 1 — Conductor Prompt</strong>: Specifies global context, decomposes task, assigns roles.</li>
-              <li><strong>Tier 2 — Specialist Prompts</strong>: Smaller or cheaper models execute each sub‑task (e.g., summarisation, code review, sentiment analysis).</li>
+              <li><strong>Tier 1 - Conductor Prompt</strong>: Specifies global context, decomposes task, assigns roles.</li>
+              <li><strong>Tier 2 - Specialist Prompts</strong>: Smaller or cheaper models execute each sub‑task (e.g., summarisation, code review, sentiment analysis).</li>
               <li><strong>Coordination</strong>: Conductor re‑assembles outputs, runs validation, and produces the final answer.</li>
             </ul>
 
@@ -378,7 +378,7 @@ export default function MetaPromptingPost() {
             <h2 className="text-3xl font-bold text-gray-900 mb-6">10. Closing Thoughts</h2>
             
             <p>
-              Meta prompting is the bridge between brittle one‑off prompts and robust AI systems. By thinking in terms of <strong>architecture</strong>—personas, processes, validations—you gain <em>determinism</em> in a probabilistic world. The next wave of AI products will be built on prompt contracts, version‑controlled and distillable, just like software. Start experimenting today, and you'll be designing the mental blueprints that power tomorrow's intelligent tools.
+              Meta prompting is the bridge between brittle one‑off prompts and robust AI systems. By thinking in terms of <strong>architecture</strong> (personas, processes, validations) you gain <em>determinism</em> in a probabilistic world. The next wave of AI products will be built on prompt contracts, version‑controlled and distillable, just like software. Start experimenting today, and you'll be designing the mental blueprints that power tomorrow's intelligent tools.
             </p>
           </section>
 
