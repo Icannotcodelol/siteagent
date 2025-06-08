@@ -60,7 +60,7 @@ export default function MetaPromptingPost() {
             <em>"Prompting is programming, and meta prompting is architecture."</em> — <strong>SiteAgent Labs</strong>
           </div>
           <div className="flex items-center space-x-4 text-gray-500 mb-8">
-            <time dateTime="2024-12-08">December 8, 2024</time>
+            <time dateTime="2025-06-08">June 8, 2025</time>
             <span>•</span>
             <span>15 min read</span>
             <span>•</span>

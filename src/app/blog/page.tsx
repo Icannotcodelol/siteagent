@@ -123,14 +123,14 @@ interface BlogPost {
 // Static blog posts data (easier and more reliable than filesystem scanning)
 function getBlogPosts(): BlogPost[] {
   const posts: BlogPost[] = [
-    {
-      slug: 'meta-prompting-engineering-ai-mind',
-      title: 'Meta Prompting: Engineering the Mind of Your AI',
-      description: 'Master meta prompting techniques to transform LLMs from talented interns into dependable colleagues. Deep dive into cognitive architecture, design patterns, and real-world applications.',
-      date: 'December 8, 2024',
-      category: 'Advanced Guide',
-      href: '/blog/meta-prompting-engineering-ai-mind'
-    },
+         {
+       slug: 'meta-prompting-engineering-ai-mind',
+       title: 'Meta Prompting: Engineering the Mind of Your AI',
+       description: 'Master meta prompting techniques to transform LLMs from talented interns into dependable colleagues. Deep dive into cognitive architecture, design patterns, and real-world applications.',
+       date: 'June 8, 2025',
+       category: 'Advanced Guide',
+       href: '/blog/meta-prompting-engineering-ai-mind'
+     },
     {
       slug: 'rag-explained-simple-terms',
       title: 'RAG Explained in Simple Terms: Custom Chatbot Implementation Guide',
