@@ -1,8 +1,40 @@
 import { createClient } from '@/lib/supabase/middleware'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// List of known search engine bots
+const SEARCH_ENGINE_BOTS = [
+  'googlebot',
+  'bingbot',
+  'slurp', // Yahoo
+  'duckduckbot',
+  'baiduspider',
+  'yandexbot',
+  'facebookexternalhit',
+  'twitterbot',
+  'linkedinbot',
+  'whatsapp',
+  'applebot',
+  'semrushbot',
+  'ahrefsbot',
+  'msnbot',
+]
+
+// Check if the request is from a search engine bot
+function isSearchEngineBot(request: NextRequest): boolean {
+  const userAgent = request.headers.get('user-agent')?.toLowerCase() || ''
+  return SEARCH_ENGINE_BOTS.some(bot => userAgent.includes(bot))
+}
+
 export async function middleware(request: NextRequest) {
   try {
+    // ============= SKIP REDIRECTS FOR SEARCH ENGINES =============
+    // Don't redirect search engine bots to preserve crawlability
+    if (isSearchEngineBot(request)) {
+      const { supabase, response } = createClient(request)
+      await supabase.auth.getSession()
+      return response
+    }
+
     // ============= GEOLOCATION REDIRECTION =============
     // Check if user should be redirected to Italian page
     const shouldRedirectToItalian = checkForItalianRedirect(request)

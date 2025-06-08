@@ -14,25 +14,65 @@ import path from 'node:path'
 
 const SITE_URL = 'https://www.siteagent.eu'
 const LOCALES = ['de', 'it', 'pl', 'es', 'nl'] as const
+const DEFAULT_LOCALE = 'en'
 
 type Frequency = 'daily' | 'weekly' | 'monthly' | 'yearly'
+
+interface AlternateLink {
+  lang: string
+  href: string
+}
 
 function generateUrlXml(
   loc: string,
   lastmod?: string,
   changefreq: Frequency = 'monthly',
   priority: string = '0.7',
+  alternates?: AlternateLink[]
 ) {
-  return [
+  const urlLines = [
     '  <url>',
     `    <loc>${loc}</loc>`,
     lastmod ? `    <lastmod>${lastmod}</lastmod>` : null,
     `    <changefreq>${changefreq}</changefreq>`,
     `    <priority>${priority}</priority>`,
-    '  </url>',
-  ]
-    .filter(Boolean)
-    .join('\n')
+  ].filter(Boolean)
+
+  // Add alternate language links (hreflang)
+  if (alternates && alternates.length > 0) {
+    alternates.forEach(alt => {
+      urlLines.push(`    <xhtml:link rel="alternate" hreflang="${alt.lang}" href="${alt.href}"/>`)
+    })
+  }
+
+  urlLines.push('  </url>')
+  return urlLines.join('\n')
+}
+
+function generateAlternateLinks(basePath: string): AlternateLink[] {
+  const alternates: AlternateLink[] = []
+  
+  // Add default language (English)
+  alternates.push({
+    lang: 'en',
+    href: `${SITE_URL}${basePath === '/' ? '' : basePath}`
+  })
+  
+  // Add x-default (points to English version)
+  alternates.push({
+    lang: 'x-default',
+    href: `${SITE_URL}${basePath === '/' ? '' : basePath}`
+  })
+  
+  // Add all other locales
+  LOCALES.forEach(locale => {
+    alternates.push({
+      lang: locale,
+      href: `${SITE_URL}/${locale}${basePath === '/' ? '' : basePath}`
+    })
+  })
+  
+  return alternates
 }
 
 function collectBlogPostsFromDir(dir: string): { slug: string; lastmod: string }[] {
@@ -68,14 +108,17 @@ export async function GET() {
     const urls: string[] = []
     const today = new Date().toISOString().split('T')[0]
 
-    // Primary pages
+    // Primary pages with hreflang alternates
     staticRoutes.forEach(({ path: p, freq, prio }) => {
-      urls.push(generateUrlXml(`${SITE_URL}${p}`, today, freq as Frequency, prio))
+      // For pages that have translations, add hreflang
+      const alternates = p === '/' ? generateAlternateLinks('/') : []
+      urls.push(generateUrlXml(`${SITE_URL}${p}`, today, freq as Frequency, prio, alternates))
     })
 
-    // Localised landing pages (e.g. /de, /es ...)
+    // Localised landing pages with their alternates
     LOCALES.forEach((locale) => {
-      urls.push(generateUrlXml(`${SITE_URL}/${locale}`, today, 'daily', '0.9'))
+      const alternates = generateAlternateLinks('/')
+      urls.push(generateUrlXml(`${SITE_URL}/${locale}`, today, 'daily', '0.9', alternates))
     })
 
     // Blog posts – look in both source and compiled output so it works in all envs
@@ -94,7 +137,7 @@ export async function GET() {
 
     const sitemap = [
       '<?xml version="1.0" encoding="UTF-8"?>',
-      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">',
       ...urls,
       '</urlset>',
     ].join('\n')
