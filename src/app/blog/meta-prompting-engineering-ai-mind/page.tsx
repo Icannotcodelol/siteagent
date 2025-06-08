@@ -378,52 +378,21 @@ export default function MetaPromptingPost() {
             <h2 className="text-3xl font-bold text-gray-900 mb-6">10. Closing Thoughts</h2>
             
             <p>
-              Meta prompting is the bridge between brittle one‑off prompts and robust AI systems. By thinking in terms of <strong>architecture</strong> (personas, processes, validations) you gain <em>determinism</em> in a probabilistic world. The next wave of AI products will be built on prompt contracts, version‑controlled and distillable, just like software. Start experimenting today, and you'll be designing the mental blueprints that power tomorrow's intelligent tools.
+              Meta prompting is the bridge between brittle one‑off prompts and robust AI systems. By thinking in terms of <strong>architecture</strong> (personas, processes, validations) you gain <em>determinism</em> in a probabilistic world. The next wave of AI products will be built on prompt contracts, version‑controlled and distillable, just like software. 
+            </p>
+            <p>
+              Start experimenting today, and you'll be designing the mental blueprints that power tomorrow's intelligent tools. Whether you're transforming a basic request into a structured meta prompt or building entire AI workflows, the principles in this guide will help you harness the full potential of language models.
             </p>
           </section>
 
-          {/* Interactive Demo Section */}
-          <section className="mb-12">
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-8 text-white text-center mb-8">
-              <h2 className="text-2xl font-bold mb-4">Try Meta Prompting in Action</h2>
-              <p className="text-lg opacity-90 mb-6">
-                Ready to experience meta prompting? Our AI assistant below can transform any regular prompt into a sophisticated meta prompt. 
-                Just describe what you want to accomplish!
-              </p>
-            </div>
 
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                🤖 SiteAgent Meta-Prompt Assistant
-              </h3>
-              <p className="text-gray-600 mb-6">
-                This chatbot demonstrates the power of SiteAgent's AI platform. It's trained specifically on meta prompting techniques 
-                and can help you transform basic prompts into structured, effective meta prompts.
-              </p>
-              
-              {/* Chatbot Embed */}
-              <div className="border border-gray-300 rounded-lg p-4 min-h-[400px] bg-gray-50">
-                <div 
-                  dangerouslySetInnerHTML={{
-                    __html: `
-                      <script
-                        src="https://www.siteagent.eu/chatbot-widget.js"
-                        data-chatbot-id="a623575a-a1c9-445a-bbc7-d9c5ff560a0e"
-                        async
-                      ></script>
-                    `
-                  }}
-                />
-              </div>
-            </div>
-          </section>
 
           {/* CTA Section */}
           <section className="bg-gradient-to-r from-green-600 to-blue-600 rounded-lg p-8 text-white text-center">
-            <h2 className="text-2xl font-bold mb-4">Want to Build Your Own AI Assistant?</h2>
+            <h2 className="text-2xl font-bold mb-4">Ready to Build Your Own AI Assistant?</h2>
             <p className="text-lg opacity-90 mb-6 max-w-2xl mx-auto">
-              The chatbot above was built using SiteAgent in just minutes. Create your own intelligent assistant, 
-              upload your knowledge base, and deploy AI that actually understands your business.
+              Put these meta prompting techniques into practice with SiteAgent. Create intelligent assistants that understand your business context, 
+              upload your knowledge base, and deploy AI that delivers consistent, structured responses.
             </p>
             <a 
               href="/"
