@@ -59,7 +59,6 @@ function collectBlogPostsFromDir(dir: string): { slug: string; lastmod: string }
 export async function GET() {
   try {
     const staticRoutes = [
-      { path: '/', freq: 'daily', prio: '1.0' },
       { path: '/about', freq: 'monthly', prio: '0.8' },
       { path: '/contact', freq: 'monthly', prio: '0.8' },
       { path: '/blog', freq: 'weekly', prio: '0.7' },
