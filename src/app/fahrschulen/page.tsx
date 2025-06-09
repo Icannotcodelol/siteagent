@@ -74,7 +74,7 @@ function HeroSection() {
               KI-Chatbot für
             </div>
             <div className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent relative">
-              Fahrschulen
+              ihre Fahrschule
               <div className="absolute -right-4 top-0">
                 <div className="w-3 h-3 bg-yellow-400 rounded-full animate-bounce"></div>
               </div>
@@ -96,14 +96,6 @@ function HeroSection() {
               <span>🚀 Jetzt kostenlos testen</span>
               <div className="w-2 h-2 bg-white rounded-full group-hover:animate-ping"></div>
             </Link>
-            
-            <Link 
-              href="#demo" 
-              className="border-2 border-gray-600 text-gray-300 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:border-gray-400 hover:text-white hover:bg-gray-800/30 flex items-center justify-center gap-3"
-            >
-              <span>Demo ausprobieren</span>
-              <span className="text-green-400">↓</span>
-            </Link>
           </div>
 
           {/* Trust indicators */}
@@ -118,7 +110,7 @@ function HeroSection() {
             </div>
             <div className="flex items-center gap-2">
               <Globe className="w-4 h-4 text-purple-400" />
-              <span>Deutschsprachig</span>
+              <span>Spricht jede Sprache</span>
             </div>
           </div>
         </div>
@@ -355,14 +347,6 @@ function CTASection() {
           >
             <span>14 Tage kostenlos testen</span>
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Link>
-          
-          <Link 
-            href="/contact" 
-            className="border-2 border-white/30 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:border-white hover:bg-white/10 flex items-center justify-center gap-3"
-          >
-            <Mail className="w-5 h-5" />
-            <span>Persönliche Beratung</span>
           </Link>
         </div>
         
