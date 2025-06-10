@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { SwatchIcon, EyeIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect, useTransition } from "react";
+import { SwatchIcon, EyeIcon, SparklesIcon, BellIcon } from "@heroicons/react/24/outline";
 import ColorPicker from "./color-picker";
 import FontDropdown from "./font-dropdown";
+import {
+  ProactiveMessage,
+  getProactiveMessageForChatbot,
+  upsertProactiveMessage,
+  deleteProactiveMessage,
+} from '@/app/actions/proactive-messages';
 
 interface AppearanceSettings {
   primaryColor: string;
@@ -35,8 +41,6 @@ const colorPresets = [
   { name: "Dark", colors: { primaryColor: "#6366f1", secondaryColor: "#374151", backgroundColor: "#111827", textColor: "#f9fafb" } },
 ];
 
-
-
 const bubbleStyles = [
   { name: "Rounded", value: "rounded", className: "rounded-lg" },
   { name: "Square", value: "square", className: "rounded-sm" },
@@ -45,6 +49,71 @@ const bubbleStyles = [
 
 export default function SimplifiedAppearanceTab({ settings, onChange, chatbotId }: SimplifiedAppearanceTabProps) {
   const [showPreview, setShowPreview] = useState(false);
+
+  // Proactive message state
+  const [isPending, startTransition] = useTransition();
+  const [proactiveMessage, setProactiveMessage] = useState<ProactiveMessage | null>(null);
+  const [messageContent, setMessageContent] = useState('');
+  const [delaySeconds, setDelaySeconds] = useState(5);
+  const [isProactiveEnabled, setIsProactiveEnabled] = useState(true);
+  const [proactiveColor, setProactiveColor] = useState('#111827');
+
+  // Load existing proactive message when editing an existing chatbot
+  useEffect(() => {
+    if (!chatbotId) return;
+    const load = async () => {
+      try {
+        const data = await getProactiveMessageForChatbot(chatbotId);
+        if (data) {
+          setProactiveMessage(data);
+          setMessageContent(data.message_content);
+          setDelaySeconds(data.delay_seconds);
+          setIsProactiveEnabled(data.is_enabled);
+          setProactiveColor(data.color || '#111827');
+        }
+      } catch (err) {
+        console.error('Failed to load proactive message:', err);
+      }
+    };
+    load();
+  }, [chatbotId]);
+
+  const handleSaveProactive = async () => {
+    if (!chatbotId) return;
+    startTransition(async () => {
+      const result = await upsertProactiveMessage(
+        chatbotId,
+        {
+          message_content: messageContent,
+          delay_seconds: delaySeconds,
+          is_enabled: isProactiveEnabled,
+          color: proactiveColor,
+        },
+        proactiveMessage?.id,
+      );
+      if (result.error) {
+        console.error('Failed to save proactive message:', result.error);
+      } else if (result.data) {
+        setProactiveMessage(result.data);
+      }
+    });
+  };
+
+  const handleDeleteProactive = async () => {
+    if (!chatbotId || !proactiveMessage?.id) return;
+    startTransition(async () => {
+      const res = await deleteProactiveMessage(proactiveMessage.id, chatbotId);
+      if (res.error) {
+        console.error('Failed to delete proactive message:', res.error);
+      } else {
+        setProactiveMessage(null);
+        setMessageContent('');
+        setDelaySeconds(5);
+        setIsProactiveEnabled(true);
+        setProactiveColor('#111827');
+      }
+    });
+  };
 
   const updateSetting = <K extends keyof AppearanceSettings>(key: K, value: AppearanceSettings[K]) => {
     onChange({ [key]: value });
@@ -292,6 +361,97 @@ export default function SimplifiedAppearanceTab({ settings, onChange, chatbotId 
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Proactive Message Section */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <BellIcon className="h-6 w-6 text-purple-400" />
+          <h4 className="text-lg font-medium text-white">Proactive Message</h4>
+        </div>
+        <p className="text-sm text-gray-400 max-w-2xl">
+          Configure an automatic message that appears after a delay to engage visitors.
+        </p>
+
+        {chatbotId ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
+              <div>
+                <h5 className="text-sm font-medium text-white">Enable Proactive Message</h5>
+                <p className="text-xs text-gray-400">Show automatic message to engage visitors</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isProactiveEnabled}
+                  onChange={(e) => setIsProactiveEnabled(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+              </label>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Message Content</label>
+                <textarea
+                  value={messageContent}
+                  onChange={(e) => setMessageContent(e.target.value)}
+                  placeholder="👋 Hi! How can I help you today?"
+                  maxLength={255}
+                  rows={3}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-400">{255 - messageContent.length} characters remaining.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Delay (seconds)</label>
+                  <input
+                    type="number"
+                    value={delaySeconds}
+                    onChange={(e) => setDelaySeconds(Math.max(0, parseInt(e.target.value, 10) || 0))}
+                    min={0}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Bubble Color</label>
+                  <input
+                    type="color"
+                    value={proactiveColor}
+                    onChange={(e) => setProactiveColor(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-gray-700 p-1"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-2">
+                {proactiveMessage && (
+                  <button
+                    type="button"
+                    onClick={handleDeleteProactive}
+                    disabled={isPending}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-sm rounded-md transition-colors"
+                  >
+                    {isPending ? 'Deleting...' : 'Delete'}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={handleSaveProactive}
+                  disabled={isPending || !messageContent.trim()}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white text-sm rounded-md transition-colors"
+                >
+                  {isPending ? 'Saving...' : (proactiveMessage ? 'Update' : 'Create')}
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-400">Save your chatbot to enable proactive messages.</p>
+        )}
       </div>
     </div>
   );
