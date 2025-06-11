@@ -111,7 +111,7 @@ function HowDemoWorksSection() {
               
               <h2 className="text-4xl md:text-5xl font-bold">
                 <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                  Dal caricamento dei tuoi contenuti all'implementazione dell'
+                  Dal caricamento dei tuoi contenuti all'implementazione del tuo
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
