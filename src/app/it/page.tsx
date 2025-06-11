@@ -51,7 +51,7 @@ export const metadata: Metadata = {
 // Revolutionary hero with bright, light design
 function RevolutionaryHero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <section className="relative min-h-screen flex items-center overflow-visible bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Bright animated background */}
       <div className="absolute inset-0">
         {/* Light animated geometric shapes */}
@@ -93,10 +93,10 @@ function RevolutionaryHero() {
             <div className="space-y-6">
               <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tight">
                 <div className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
-                  Chatbot Intelligenti.
+                  Chatbot intelligente!
                 </div>
                 <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent relative">
-                  Velocissimi
+                  Veloce da configurare!
                   <div className="absolute -right-4 top-0">
                     <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce"></div>
                   </div>
@@ -104,7 +104,7 @@ function RevolutionaryHero() {
               </h1>
               
               <p className="text-xl md:text-2xl text-gray-600 leading-relaxed max-w-2xl">
-                Trasforma i tuoi documenti in chatbot intelligenti e integrarli nel tuo sito. Tutto in meno di 5 minuti.
+                Trasforma documenti ed informazioni del tuo modello di business in un chatbot intelligente da integrare sul tuo sito. Tutto in meno di 5 minuti!
                 <Link href="#live-demo" className="text-blue-600 font-semibold hover:text-blue-500 transition-colors cursor-pointer"> Vedi come funziona in tempo reale.</Link>
               </p>
             </div>
@@ -123,8 +123,7 @@ function RevolutionaryHero() {
                 href="/signup" 
                 className="border-2 border-gray-300 text-gray-700 bg-white/80 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:border-gray-400 hover:text-gray-800 hover:bg-white flex items-center gap-3 shadow-lg"
               >
-                <span>Inizia Prova Gratuita</span>
-                <span className="text-green-500">✓</span>
+                <span>Inizia una prova gratuita.</span>
               </Link>
             </div>
 
@@ -213,7 +212,7 @@ function RevolutionaryHero() {
                     </div>
                     <span className="text-gray-800 font-semibold text-sm">Automazione Istantanea</span>
                   </div>
-                  <div className="text-blue-600 text-xs font-medium mb-2">AI che Agisce, Non Solo Chatta</div>
+                  <div className="text-blue-600 text-xs font-medium mb-2">AI proattiva, non solo Chat!</div>
                   <p className="text-gray-600 text-xs mb-3">Crea automaticamente contatti CRM, programma riunioni e gestisce le richieste dei clienti.</p>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
@@ -228,7 +227,7 @@ function RevolutionaryHero() {
                     <div className="text-blue-700 text-sm font-semibold">Demo in Tempo Reale</div>
                   </div>
                   <div className="text-blue-600 text-xs font-medium mb-2">Interattivo e Setup Istantaneo</div>
-                  <p className="text-gray-700 text-xs">Carica i tuoi contenuti e sperimenta l'automazione AI in tempo reale immediatamente—nessuna registrazione richiesta.</p>
+                  <p className="text-gray-700 text-xs">Carica i tuoi contenuti ed implementa il tuo assistente AI in tempo reale! — nessuna registrazione richiesta.</p>
                 </div>
 
                 {/* Integrations */}
@@ -291,7 +290,7 @@ export default function Page() {
   return (
     <>
       {/* Versione italiana della landing page con UI più luminosa */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 text-gray-800">
+      <div className="relative overflow-visible bg-gradient-to-br from-blue-50 via-white to-purple-50 text-gray-800">
         <ModernNavbar authButtonSlot={<AuthButton />} locale="it" />
         <RevolutionaryHero />
       </div>

@@ -51,7 +51,7 @@ export const metadata: Metadata = {
 // Revolutionary hero with bright, light design for Polish market
 function RevolutionaryHero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <section className="relative min-h-screen flex items-center overflow-visible bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Bright animated background */}
       <div className="absolute inset-0">
         {/* Light animated geometric shapes */}

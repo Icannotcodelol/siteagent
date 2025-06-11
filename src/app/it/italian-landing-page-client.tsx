@@ -111,16 +111,16 @@ function HowDemoWorksSection() {
               
               <h2 className="text-4xl md:text-5xl font-bold">
                 <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-                  Dal Caricamento all'
+                  Dal caricamento dei tuoi contenuti all'implementazione dell'
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
-                  Automazione AI
+                  assistente AI!
                 </span>
               </h2>
               
               <p className="text-xl text-gray-600 leading-relaxed">
-                Guarda i tuoi contenuti statici trasformarsi in un sistema di automazione intelligente in tempo reale. Nessun setup complesso, nessuna conoscenza tecnica richiesta.
+                Guarda i tuoi contenuti trasformarsi in un sistema di assistente ChatBot intelligente in tempo reale. Nessun setup complesso, nessuna conoscenza tecnica richiesta.
               </p>
             </div>
 
@@ -209,11 +209,12 @@ function LiveDemoSection() {
             <span className="text-purple-600 text-sm font-medium">🥇 Esperienza Interattiva Unica</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Niente Solita Demo di Chatbot—
-            <span className="block text-purple-600">L'Unica Che Funziona Davvero</span>
+            Molto più di una semplice demo di Chatbot AI –
+            <span className="block text-purple-600">L'unica che funziona davvero!</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
-            I competitor mostrano esempi finti; noi mostriamo i tuoi veri contenuti. Scopri subito come SiteAgent automatizza task reali come prenotare appuntamenti, aggiornare il CRM e molto altro.
+            Basta demo finte. Con SiteAgent vedi l'AI in azione sui tuoi contenuti reali.
+            Scopri subito come SiteAgent automatizza task reali come prenotare appuntamenti, aggiornare il CRM e molto altro.
           </p>
           
           {/* Social proof about demo */}
@@ -274,20 +275,20 @@ function FeaturesSection() {
   const primaryFeatures = [
     { 
       img: "/icons/AI CHATBOT ICON.svg", 
-      title: "70% in meno di costi assistenza", 
-      description: "Le richieste di routine vengono gestite automaticamente, permettendo al tuo team di concentrarsi su problemi complessi che richiedono competenza umana.",
+      title: "Riduci i costi di assistenza fino al 70%.", 
+      description: "Le richieste di routine vengono gestite automaticamente, consentendo al tuo team di concentrarsi su casi complessi che richiedono competenze specialistiche. Automatizza le attività ripetitive e libera risorse preziose per gestire ciò che davvero conta.",
       stat: "70% riduzione costi"
     },
     { 
       img: "/icons/Website Embedding.svg", 
       title: "Basta l'URL del tuo sito", 
-      description: "Niente documenti da preparare! Inserisci semplicemente l'URL del tuo sito e creiamo subito un chatbot esperto da tutti i tuoi contenuti esistenti - perfetto per team sempre di corsa.",
-      stat: "0 tempo setup"
+      description: "Ti basta inserire l'URL del tuo sito: generiamo automaticamente un chatbot esperto, addestrato sui tuoi contenuti esistenti. Perfetto per team dinamici che vogliono risparmiare tempo ed iniziare subito.",
+      stat: "Zero documenti da preparare"
     },
     { 
       img: "/icons/External API Actions.svg", 
       title: "Da visitatori a clienti", 
-      description: "Prenota appuntamenti, aggiorna CRM, crea ticket di supporto - ogni conversazione diventa un'opportunità di business.",
+      description: "Massimizza il potenziale del tuo sito: più conversioni, meno dispersioni.",
       stat: "3x più conversioni"
     }
   ];
@@ -336,11 +337,11 @@ function FeaturesSection() {
               
               <h2 className="text-4xl md:text-6xl font-black leading-none">
                 <span className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
-                  Basta chiacchiere.
+                  È il momento di passare ai fatti.
                 </span>
                 <br />
                 <span className="bg-gradient-to-r from-green-500 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  Iniziamo a fare sul serio.
+                  Inizia a costruire risultati concreti.
                 </span>
               </h2>
             </div>
@@ -446,10 +447,10 @@ function FeaturesSection() {
         <div className="mt-20 text-center">
           <div className="bg-gradient-to-r from-white to-blue-50 border border-gray-200 rounded-2xl p-8 max-w-2xl mx-auto shadow-lg">
             <h3 className="text-2xl font-bold text-gray-800 mb-4">
-              Pronto a vedere queste funzionalità in azione?
+              Vuoi vedere queste funzionalità all'opera, in tempo reale?
             </h3>
             <p className="text-gray-600 mb-6">
-              Prova la nostra demo live - nessuna registrazione richiesta, vedi i risultati in 60 secondi.
+              Prova la nostra demo live – nessuna registrazione richiesta, vedi i risultati in 60 secondi.
             </p>
             <Link href="#live-demo" className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg">
               <span>🚀 Prova Demo Live</span>
@@ -469,8 +470,8 @@ function HowItWorksSection() {
   const steps = [
     { 
       number: "01", 
-      title: "Configura il chatbot", 
-      description: "Imposta il tuo chatbot in pochi minuti con la nostra dashboard intuitiva. Definisci scopo e personalità.", 
+      title: "Configura il tuo assistente chatbot.", 
+      description: "Impostalo in pochi minuti con la nostra dashboard intuitiva: definisci scopo, personalità e stile comunicativo.", 
       features: ["Nessuna programmazione necessaria", "Design personalizzabile", "Template chatbot multipli"],
       visual: "🤖"
     },

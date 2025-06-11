@@ -320,6 +320,24 @@ function DemoSection() {
                 Testen Sie ihn jetzt und erleben Sie die Zukunft der Kundenbetreuung!
               </p>
             </div>
+
+            {/* Information about chatbot training */}
+            <div className="mt-6 p-6 bg-blue-900/20 border border-blue-500/30 rounded-lg">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center mt-1">
+                  <Shield className="w-4 h-4 text-blue-400" />
+                </div>
+                <div className="text-left">
+                  <h4 className="text-blue-300 font-semibold mb-2">So funktioniert Ihr eigener Chatbot</h4>
+                  <p className="text-blue-200 text-sm leading-relaxed mb-3">
+                    <strong>Dieser Demo-Chatbot</strong> wurde mit allgemeinen Fahrschul-Informationen trainiert und dient als Beispiel für die Funktionalität.
+                  </p>
+                  <p className="text-blue-200 text-sm leading-relaxed">
+                    <strong>Als SiteAgent-Kunde</strong> haben Sie die vollständige Kontrolle über die Inhalte Ihres Chatbots. Sie laden Ihre eigenen Dokumente, Preislisten, Öffnungszeiten und spezifischen Informationen hoch. Der Chatbot wird dann ausschließlich mit Ihren Daten trainiert und gibt nur Antworten basierend auf Ihren Inhalten.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
