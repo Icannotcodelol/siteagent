@@ -43,6 +43,7 @@ import {
   type AppError 
 } from './error-handling'
 import SimplifiedAppearanceTab from './simplified-appearance-tab'
+import { Bars3Icon } from '@heroicons/react/24/outline'
 
 // Define possible section values
 type Section = 'settings' | 'dataSources' | 'appearance' | 'embed' | 'actions' | 'integrations' | 'analytics';
@@ -118,6 +119,44 @@ export default function ChatbotBuilderForm({
   const [headerText, setHeaderText] = useState<string>(initialHeaderText);
   const [inputPlaceholder, setInputPlaceholder] = useState<string>(initialInputPlaceholder);
   const [showBranding, setShowBranding] = useState<boolean>(initialShowBranding);
+
+  // Sidebar visibility state
+  const [sidebarHidden, setSidebarHidden] = useState(false)
+  const prevScrollY = useRef(typeof window !== 'undefined' ? window.scrollY : 0)
+
+  /*
+   * Sidebar visibility strategy
+   * – Hide after user scrolls down ≥ 100 px (delta) and has scrolled past 400 px overall
+   * – Show again when the user scrolls up ≥ 100 px OR returns near the top (<250 px)
+   * – Always show when the cursor is close to the left screen edge (≤40 px)
+   */
+  useEffect(() => {
+    const handleScroll = () => {
+      const y = window.scrollY
+      const delta = y - prevScrollY.current
+
+      if (!sidebarHidden && delta > 100 && y > 400) {
+        setSidebarHidden(true)
+      } else if (sidebarHidden && (delta < -100 || y < 250)) {
+        setSidebarHidden(false)
+      }
+
+      prevScrollY.current = y
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (sidebarHidden && e.clientX <= 40) {
+        setSidebarHidden(false)
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [sidebarHidden])
 
   // Create a supabase instance
   const supabase = createSupabaseBrowserClient()
@@ -370,6 +409,10 @@ export default function ChatbotBuilderForm({
         setAutoSaveStatus('saved')
         setLastSaved(new Date())
         
+        // Clear transient training inputs after successful processing to avoid re-scraping / re-processing on subsequent saves
+        setWebsiteUrls([])
+        setPastedText('')
+        
         if (!silent) {
           if (isEditMode) {
             // Show success message (you could implement a success toast component)
@@ -484,11 +527,24 @@ export default function ChatbotBuilderForm({
         onFieldFocus={handleFieldFocus}
       />
 
+      {/* Toggle button that appears when sidebar is hidden (desktop only) */}
+      <button
+        type="button"
+        onClick={() => setSidebarHidden(false)}
+        className={`fixed top-24 left-3 z-40 hidden lg:block transition-opacity duration-300 bg-gray-800/60 hover:bg-gray-700/70 p-2 rounded-lg ${sidebarHidden ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        aria-label="Open sidebar navigation"
+      >
+        <Bars3Icon className="w-5 h-5 text-white" />
+      </button>
+
       {/* Two-column layout: Navigation sidebar + Main content */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Left Column: Navigation Sidebar */}
-        <div className="lg:w-60 flex-shrink-0">
-          <div className="sticky top-24">
+        <div
+          onMouseEnter={() => setSidebarHidden(false)}
+          className={`${sidebarHidden ? 'lg:w-0' : 'lg:w-60'} flex-shrink-0 transition-[width] duration-300`}
+        >
+          <div className={`sticky top-24 transition-opacity duration-300 ${sidebarHidden ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             {/* Navigation Header */}
             <div className="glass rounded-xl p-4 mb-4">
               <div className="flex items-center gap-3 mb-4">
