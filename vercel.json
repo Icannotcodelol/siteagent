@@ -1,8 +1,26 @@
 {
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml/"
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/cleanup-vectors",
       "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/generate-summaries?type=daily",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/generate-summaries?type=weekly", 
+      "schedule": "0 3 * * 1"
+    },
+    {
+      "path": "/api/cron/generate-summaries?type=monthly",
+      "schedule": "0 4 1 * *"
     }
   ]
 } 

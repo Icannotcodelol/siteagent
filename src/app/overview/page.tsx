@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { UsageTrendsChart } from './_components/usage-trends-chart'
 import { ChatbotPerformanceChart } from './_components/chatbot-performance-chart'
+import { InsightsSummaryCard } from './_components/insights-summary-card'
 
 export default async function OverviewPage() {
   // Create a Supabase server client bound to the current user session (via cookies)
@@ -147,6 +148,11 @@ export default async function OverviewPage() {
                     <ChatbotPerformanceChart data={performanceData} />
                 }
             </div>
+        </section>
+
+        {/* AI Insights Summary */}
+        <section>
+          <InsightsSummaryCard chatbots={chatbots} />
         </section>
 
         {/* Detailed table */}

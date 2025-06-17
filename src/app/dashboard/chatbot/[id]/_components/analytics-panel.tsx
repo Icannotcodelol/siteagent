@@ -15,6 +15,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
+import AiInsightsTab from './ai-insights-tab'
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, Tooltip, Legend)
@@ -56,7 +57,7 @@ type AlertData = {
 }
 
 export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'patterns' | 'questions' | 'alerts'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'patterns' | 'questions' | 'alerts' | 'insights'>('overview')
   const [data, setData] = useState<MetricRow[]>([])
   const [hourlyData, setHourlyData] = useState<HourlyData[]>([])
   const [questionsData, setQuestionsData] = useState<QuestionData[]>([])
@@ -97,7 +98,7 @@ export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatbotId])
 
-  const handleTabChange = async (tab: 'overview' | 'patterns' | 'questions' | 'alerts') => {
+  const handleTabChange = async (tab: 'overview' | 'patterns' | 'questions' | 'alerts' | 'insights') => {
     setActiveTab(tab)
     if (tab === 'patterns' && hourlyData.length === 0) {
       await fetchData('hourly')
@@ -154,6 +155,7 @@ export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
             { key: 'patterns', label: 'Usage Patterns' },
             { key: 'questions', label: 'Top Questions' },
             { key: 'alerts', label: 'Alerts' },
+            { key: 'insights', label: 'AI Insights' },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -503,6 +505,11 @@ export default function AnalyticsPanel({ chatbotId }: AnalyticsPanelProps) {
             </div>
           )}
         </div>
+      )}
+
+      {/* AI Insights Tab */}
+      {activeTab === 'insights' && (
+        <AiInsightsTab chatbotId={chatbotId} />
       )}
     </div>
   )
