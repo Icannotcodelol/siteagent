@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 
 export async function GET(request: Request, { params }: { params: { chatbotId: string } }) {
   const chatbotId = params.chatbotId
@@ -10,11 +11,39 @@ export async function GET(request: Request, { params }: { params: { chatbotId: s
   const url = new URL(request.url)
   const type = url.searchParams.get('type') || 'daily'
 
-  try {
-    const supabase = createClient()
+  const supabase = createClient()
 
+  // 1. Authenticate user
+  const {
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser()
+
+  if (userErr || !user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  // 2. Verify ownership of chatbot using RLS-protected chatbots table
+  const { data: ownerRow, error: ownerErr } = await supabase
+    .from('chatbots')
+    .select('id')
+    .eq('id', chatbotId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (ownerErr || !ownerRow) {
+    return NextResponse.json({ error: 'Chatbot not found or access denied' }, { status: 404 })
+  }
+
+  // 3. Use service-role client to bypass analytics-view RLS limitations (read-only)
+  const supabaseAdmin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+  )
+
+  try {
     if (type === 'daily') {
-      const { data: dailyMetrics, error: metricsErr } = await supabase
+      const { data: dailyMetrics, error: metricsErr } = await supabaseAdmin
         .from('chatbot_daily_metrics')
         .select('*')
         .eq('chatbot_id', chatbotId)
@@ -23,7 +52,7 @@ export async function GET(request: Request, { params }: { params: { chatbotId: s
 
       if (metricsErr) throw metricsErr
 
-      const { data: feedback, error: fbErr } = await supabase
+      const { data: feedback, error: fbErr } = await supabaseAdmin
         .from('chatbot_feedback_summary')
         .select('*')
         .eq('chatbot_id', chatbotId)
@@ -46,7 +75,7 @@ export async function GET(request: Request, { params }: { params: { chatbotId: s
     }
 
     if (type === 'hourly') {
-      const { data: hourlyData, error } = await supabase
+      const { data: hourlyData, error } = await supabaseAdmin
         .from('hourly_usage_patterns')
         .select('*')
         .eq('chatbot_id', chatbotId)
@@ -57,7 +86,7 @@ export async function GET(request: Request, { params }: { params: { chatbotId: s
     }
 
     if (type === 'questions') {
-      const { data: questionsData, error } = await supabase
+      const { data: questionsData, error } = await supabaseAdmin
         .from('top_user_questions')
         .select('*')
         .eq('chatbot_id', chatbotId)
@@ -68,7 +97,7 @@ export async function GET(request: Request, { params }: { params: { chatbotId: s
     }
 
     if (type === 'conversations') {
-      const { data: conversationsData, error } = await supabase
+      const { data: conversationsData, error } = await supabaseAdmin
         .from('conversation_analytics')
         .select('*')
         .eq('chatbot_id', chatbotId)
