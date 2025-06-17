@@ -46,6 +46,17 @@ export function useDocuments(chatbotId: string) {
       }
 
       console.log('Documents fetched:', data?.length || 0)
+      
+      // Clean up any orphaned loading toasts for completed/failed documents
+      if (data && data.length > 0) {
+        data.forEach((doc) => {
+          if (doc.embedding_status === 'completed' || doc.embedding_status === 'failed') {
+            // Dismiss any loading toast that might still be showing for this document
+            toast.dismiss(doc.id)
+          }
+        })
+      }
+      
       return data || []
     },
     enabled: !!chatbotId,
@@ -101,16 +112,16 @@ export function useDocuments(chatbotId: string) {
             const newDoc = payload.new as Document
             const oldDoc = payload.old as Document
             
+            // Always dismiss any existing toast for this document
+            toast.dismiss(newDoc.id)
+            
             if (oldDoc.embedding_status !== newDoc.embedding_status) {
-              // Dismiss any existing loading toast for this document
-              toast.dismiss(newDoc.id)
-              
               switch (newDoc.embedding_status) {
                 case 'completed':
-                  toast.success(`${newDoc.file_name} processing completed!`)
+                  toast.success(`${newDoc.file_name} processing completed!`, { id: newDoc.id })
                   break
                 case 'failed':
-                  toast.error(`${newDoc.file_name} processing failed`)
+                  toast.error(`${newDoc.file_name} processing failed`, { id: newDoc.id })
                   break
                 case 'processing':
                   toast.loading(`Processing ${newDoc.file_name}...`, { id: newDoc.id })
@@ -129,7 +140,8 @@ export function useDocuments(chatbotId: string) {
           
           if (payload.eventType === 'DELETE' && payload.old) {
             const deletedDoc = payload.old as Document
-            toast.dismiss(deletedDoc.id) // Dismiss any pending toasts for deleted document
+            // Dismiss any pending toasts for deleted document
+            toast.dismiss(deletedDoc.id)
           }
         }
       )

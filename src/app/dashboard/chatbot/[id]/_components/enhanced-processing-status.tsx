@@ -2,6 +2,7 @@
 
 import { useProcessingStatus } from '@/lib/hooks/use-documents'
 import { cn } from '@/app/_components/ui/button'
+import { useState, useEffect } from 'react'
 
 interface EnhancedProcessingStatusProps {
   chatbotId: string
@@ -19,6 +20,37 @@ interface ProcessingStats {
 
 export default function EnhancedProcessingStatus({ chatbotId }: EnhancedProcessingStatusProps) {
   const { data: stats, isLoading, error } = useProcessingStatus(chatbotId)
+  const [isVisible, setIsVisible] = useState(true)
+  const [autoHideTimer, setAutoHideTimer] = useState<NodeJS.Timeout | null>(null)
+
+  // Auto-hide logic when all documents are successfully processed
+  useEffect(() => {
+    if (stats && stats.total > 0) {
+      const hasActiveProcessing = stats.pending > 0 || stats.processing > 0
+      const allCompleted = stats.completed === stats.total && stats.failed === 0
+      
+      if (allCompleted && !hasActiveProcessing) {
+        // Auto-hide after 5 seconds when all documents are successfully processed
+        const timer = setTimeout(() => {
+          setIsVisible(false)
+        }, 5000)
+        setAutoHideTimer(timer)
+      } else {
+        // Clear auto-hide timer if processing resumes or there are failures
+        if (autoHideTimer) {
+          clearTimeout(autoHideTimer)
+          setAutoHideTimer(null)
+        }
+        setIsVisible(true)
+      }
+    }
+    
+    return () => {
+      if (autoHideTimer) {
+        clearTimeout(autoHideTimer)
+      }
+    }
+  }, [stats])
 
   if (isLoading) {
     return (
@@ -46,16 +78,35 @@ export default function EnhancedProcessingStatus({ chatbotId }: EnhancedProcessi
     )
   }
 
-  if (!stats || stats.total === 0) {
-    return null // Don't show anything if no documents
+  // Don't show if no documents or manually hidden
+  if (!stats || stats.total === 0 || !isVisible) {
+    return null
   }
 
   const hasActiveProcessing = stats.pending > 0 || stats.processing > 0
   const completionRate = stats.total > 0 ? ((stats.completed / stats.total) * 100).toFixed(1) : '0'
 
+  // Only show if there's active processing, recent failures, or within auto-hide period
+  const shouldShow = hasActiveProcessing || stats.failed > 0 || isVisible
+
+  if (!shouldShow) {
+    return null
+  }
+
   return (
-    <div className="bg-gray-800/30 rounded-xl border border-gray-700/50 p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-gray-800/30 rounded-xl border border-gray-700/50 p-6 mb-6 relative">
+      {/* Close button */}
+      <button
+        onClick={() => setIsVisible(false)}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-300 transition-colors"
+        aria-label="Close processing status"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div className="flex items-center justify-between mb-4 pr-8">
         <h3 className="text-lg font-medium text-white flex items-center gap-2">
           <span className="text-xl">⚡</span>
           Processing Status
@@ -176,14 +227,17 @@ export default function EnhancedProcessingStatus({ chatbotId }: EnhancedProcessi
         </div>
       )}
 
-      {/* Status indicator */}
-      {!hasActiveProcessing && stats.completed === stats.total && stats.total > 0 && (
+      {/* Status indicator - shows temporarily then auto-hides */}
+      {!hasActiveProcessing && stats.completed === stats.total && stats.total > 0 && stats.failed === 0 && (
         <div className="mt-4 p-4 bg-green-900/10 border border-green-500/20 rounded-lg">
-          <div className="flex items-center text-green-400">
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            <span className="font-medium">All documents processed successfully!</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center text-green-400">
+              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              <span className="font-medium">All documents processed successfully!</span>
+            </div>
+            <span className="text-xs text-gray-400">Auto-hiding in a few seconds...</span>
           </div>
         </div>
       )}

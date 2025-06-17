@@ -94,7 +94,7 @@ export default function EnhancedDocumentUpload({
         // Remove from upload list after a delay
         setTimeout(() => {
           setUploads(prev => prev.filter(u => u.id !== uploadItem.id))
-        }, 3000)
+        }, 1500)
 
       } catch (error: any) {
         setUploads(prev => prev.map(u => 

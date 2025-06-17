@@ -85,12 +85,18 @@ export default function RootLayout({
                   color: '#f9fafb',
                   border: '1px solid #374151'
                 },
+                duration: 4000,
+                loading: {
+                  duration: Infinity,
+                },
                 success: {
+                  duration: 3000,
                   style: {
                     background: '#059669',
                   },
                 },
                 error: {
+                  duration: 5000,
                   style: {
                     background: '#dc2626',
                   },
