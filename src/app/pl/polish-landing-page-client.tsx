@@ -325,11 +325,11 @@ function HeroSection() {
             <Button 
               asChild
               variant="outline" 
-              className="border-2 border-gray-300 text-gray-700 bg-white/80 px-8 py-6 text-lg font-bold hover:border-gray-400 hover:text-gray-800 hover:bg-white rounded-xl shadow-lg"
+              className="border-2 border-gray-400 text-gray-800 bg-white px-8 py-6 text-lg font-bold hover:border-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-xl shadow-lg"
             >
               <Link href="/signup" className="flex items-center gap-3">
                 <span>Zacznij za Darmo</span>
-                <span className="text-green-500">✓</span>
+                <span className="text-green-600">✓</span>
               </Link>
             </Button>
           </div>
@@ -738,7 +738,7 @@ function HowItWorksSection() {
                       ? 'border-purple-500 bg-purple-500 text-white shadow-lg'
                       : index < currentStep
                       ? 'border-green-500 bg-green-500 text-white'
-                      : 'border-gray-300 bg-white text-gray-400 hover:border-purple-300'
+                      : 'border-gray-400 bg-white text-gray-600 hover:border-purple-400 hover:text-gray-800'
                   }`}
                 >
                   {index < currentStep ? <Check className="h-6 w-6" /> : step.step}
@@ -1202,7 +1202,7 @@ function CtaSection() {
               asChild
               size="lg"
               variant="outline"
-              className="border-2 border-white text-white font-bold px-8 py-4 hover:bg-white hover:text-purple-600 transition-all"
+              className="border-2 border-white bg-white/20 text-white font-bold px-8 py-4 hover:bg-white/30 hover:text-white transition-all"
             >
               <Link href="#live-demo">
                 Zobacz Demo

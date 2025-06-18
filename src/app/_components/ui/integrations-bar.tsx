@@ -49,7 +49,7 @@ const translations = {
 
 const IntegrationsBar: React.FC<IntegrationsBarProps> = ({ locale = 'en' }) => {
   const t = translations[locale];
-  const isBright = locale === 'it' || locale === 'de' || locale === 'pl' || locale === 'es' || locale === 'nl'; // Add Spanish and Dutch to bright theme
+  const isBright = locale === 'en' || locale === 'it' || locale === 'de' || locale === 'pl' || locale === 'es' || locale === 'nl'; // Add English, Spanish and Dutch to bright theme
 
   return (
     <div className="w-full py-12">

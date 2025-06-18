@@ -48,24 +48,23 @@ export const metadata: Metadata = {
   },
 };
 
-// Revolutionary hero with split-screen asymmetric design
+// Revolutionary hero with modern orange/blue design
 function RevolutionaryHero() {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50">
       {/* Dynamic animated background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800"></div>
         {/* Animated geometric shapes */}
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-l from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-orange-200/30 to-orange-300/30 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-l from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/2 left-1/3 w-40 h-40 bg-gradient-to-r from-orange-300/20 to-blue-300/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '4s' }}></div>
         
         {/* Floating particles */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(20)].map((_, i) => (
             <div
               key={i}
-              className="absolute w-1 h-1 bg-blue-400/30 rounded-full animate-pulse"
+              className="absolute w-1 h-1 bg-orange-400/40 rounded-full animate-pulse"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
@@ -82,31 +81,31 @@ function RevolutionaryHero() {
           {/* Left side - Content (60% width) */}
           <div className="lg:col-span-7 space-y-8">
             {/* Live demo badge with modern design */}
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-6 py-3">
+            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-orange-100 to-orange-200 backdrop-blur-sm border border-orange-300 rounded-full px-6 py-3 shadow-lg">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-green-400 text-sm font-bold tracking-wide">LIVE DEMO</span>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-600 text-sm font-bold tracking-wide">LIVE DEMO</span>
               </div>
-              <div className="w-px h-4 bg-gray-600"></div>
-              <span className="text-gray-300 text-sm">Try it now - No signup required!</span>
+              <div className="w-px h-4 bg-orange-300"></div>
+              <span className="text-orange-700 text-sm">Try it now - No signup required!</span>
             </div>
             
             <div className="space-y-6">
               <h1 className="text-5xl md:text-7xl font-black leading-none tracking-tight">
-                <div className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                <div className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
                   Smarter Chatbots.
                 </div>
-                <div className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent relative">
+                <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 bg-clip-text text-transparent relative">
                   Faster
                   <div className="absolute -right-4 top-0">
-                    <div className="w-3 h-3 bg-yellow-400 rounded-full animate-bounce"></div>
+                    <div className="w-3 h-3 bg-orange-400 rounded-full animate-bounce"></div>
                   </div>
                 </div>
               </h1>
               
-              <p className="text-xl md:text-2xl text-gray-400 leading-relaxed max-w-2xl">
+              <p className="text-xl md:text-2xl text-gray-600 leading-relaxed max-w-2xl">
                 Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes.
-                <Link href="#live-demo" className="text-blue-400 font-semibold hover:text-blue-300 transition-colors cursor-pointer"> See it work in real-time.</Link>
+                <Link href="#live-demo" className="text-blue-500 font-semibold hover:text-blue-600 transition-colors cursor-pointer"> See it work in real-time.</Link>
               </p>
             </div>
             
@@ -114,7 +113,7 @@ function RevolutionaryHero() {
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link 
                 href="#live-demo" 
-                className="group relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/25 flex items-center gap-3"
+                className="group relative bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-xl font-bold text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/25 flex items-center gap-3"
               >
                 <span>🚀 Launch Demo</span>
                 <div className="w-2 h-2 bg-white rounded-full group-hover:animate-ping"></div>
@@ -122,30 +121,30 @@ function RevolutionaryHero() {
               
               <Link 
                 href="/signup" 
-                className="border-2 border-gray-600 text-gray-300 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:border-gray-400 hover:text-white hover:bg-gray-800/30 flex items-center gap-3"
+                className="border-2 border-blue-300 text-blue-600 px-8 py-4 rounded-xl font-bold text-lg transition-all hover:border-blue-400 hover:text-blue-700 hover:bg-blue-50 flex items-center gap-3"
               >
                 <span>Start Free Trial</span>
-                <span className="text-green-400">✓</span>
+                <span className="text-green-500">✓</span>
               </Link>
             </div>
 
             {/* Trust indicators in a horizontal layout */}
             <div className="flex flex-wrap items-center gap-8 pt-8 text-gray-500 text-sm">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500/20 rounded border border-green-500/30 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-green-400 rounded"></div>
+                <div className="w-4 h-4 bg-green-100 rounded border border-green-300 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-green-500 rounded"></div>
                 </div>
                 <span>Enterprise Security</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500/20 rounded border border-blue-500/30 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-blue-400 rounded"></div>
+                <div className="w-4 h-4 bg-blue-100 rounded border border-blue-300 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded"></div>
                 </div>
                 <span>5-Minute Setup</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-purple-500/20 rounded border border-purple-500/30 flex items-center justify-center">
-                  <div className="w-2 h-2 bg-purple-400 rounded"></div>
+                <div className="w-4 h-4 bg-orange-100 rounded border border-orange-300 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-orange-500 rounded"></div>
                 </div>
                 <span>14-Day Free Trial</span>
               </div>
@@ -156,140 +155,162 @@ function RevolutionaryHero() {
           <div className="lg:col-span-5 relative mt-8 lg:mt-0">
             {/* Mobile-optimized feature showcase - visible only on mobile */}
             <div className="lg:hidden">
-              <h2 className="text-2xl font-bold text-white mb-6 text-center">Key Features</h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Key Features</h2>
               <div className="space-y-4">
                 {/* Hero feature card */}
-                <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-2xl p-6 backdrop-blur-sm">
+                <div className="bg-gradient-to-br from-orange-100 to-orange-200 border border-orange-300 rounded-2xl p-4 md:p-6 backdrop-blur-sm shadow-lg">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-lg">🚀</span>
                     </div>
-                    <h3 className="text-white font-bold text-lg">See It In Action</h3>
+                    <h3 className="text-gray-800 font-bold text-base md:text-lg leading-tight">See It In Action</h3>
                   </div>
-                  <p className="text-gray-300 text-sm mb-4">
+                  <p className="text-gray-600 text-sm mb-4 leading-relaxed">
                     Upload any document or paste your website URL. Watch as AI instantly creates an intelligent assistant that can automate real tasks.
                   </p>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 text-xs font-medium">Live Demo Available</span>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse flex-shrink-0"></div>
+                    <span className="text-green-600 text-xs font-medium">Live Demo Available</span>
                   </div>
                 </div>
 
                 {/* Key features grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
-                    <div className="text-2xl mb-2">🔌</div>
-                    <h4 className="text-white font-semibold text-sm mb-1">Integrations</h4>
-                    <p className="text-gray-400 text-xs">HubSpot, Calendly, Jira & more</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="bg-white/50 border border-blue-200 rounded-xl p-3 md:p-4 shadow-sm">
+                    <div className="text-xl md:text-2xl mb-2">🔌</div>
+                    <h4 className="text-gray-800 font-semibold text-sm mb-1 leading-tight">Integrations</h4>
+                    <p className="text-gray-600 text-xs leading-relaxed">HubSpot, Calendly, Jira & more</p>
                   </div>
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
-                    <div className="text-2xl mb-2">🌍</div>
-                    <h4 className="text-white font-semibold text-sm mb-1">Multi-Language</h4>
-                    <p className="text-gray-400 text-xs">Support customers globally</p>
+                  <div className="bg-white/50 border border-blue-200 rounded-xl p-3 md:p-4 shadow-sm">
+                    <div className="text-xl md:text-2xl mb-2">🌍</div>
+                    <h4 className="text-gray-800 font-semibold text-sm mb-1 leading-tight">Multi-Language</h4>
+                    <p className="text-gray-600 text-xs leading-relaxed">Support customers globally</p>
                   </div>
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
-                    <div className="text-2xl mb-2">⏰</div>
-                    <h4 className="text-white font-semibold text-sm mb-1">24/7 Active</h4>
-                    <p className="text-gray-400 text-xs">Never miss a lead</p>
+                  <div className="bg-white/50 border border-blue-200 rounded-xl p-3 md:p-4 shadow-sm">
+                    <div className="text-xl md:text-2xl mb-2">⏰</div>
+                    <h4 className="text-gray-800 font-semibold text-sm mb-1 leading-tight">24/7 Active</h4>
+                    <p className="text-gray-600 text-xs leading-relaxed">Never miss a lead</p>
                   </div>
-                  <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
-                    <div className="text-2xl mb-2">🔒</div>
-                    <h4 className="text-white font-semibold text-sm mb-1">Secure</h4>
-                    <p className="text-gray-400 text-xs">Enterprise-grade security</p>
+                  <div className="bg-white/50 border border-blue-200 rounded-xl p-3 md:p-4 shadow-sm">
+                    <div className="text-xl md:text-2xl mb-2">🔒</div>
+                    <h4 className="text-gray-800 font-semibold text-sm mb-1 leading-tight">Secure</h4>
+                    <p className="text-gray-600 text-xs leading-relaxed">Enterprise-grade security</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Desktop floating cards - hidden on mobile */}
-            <div className="hidden lg:block relative">
-              {/* Floating cards design - Only visible on desktop */}
-              <div className="relative w-full h-[800px]">
+            {/* Desktop hero image and floating cards - hidden on mobile */}
+            <div className="hidden lg:block relative w-full h-[800px] overflow-hidden">
+              {/* Main robot image - fixed center position */}
+              <div className="absolute top-[300px] left-1/2 transform -translate-x-1/2">
+                <div className="relative group z-20">
+                  {/* Main robot image with modern styling */}
+                  <div className="relative z-10 transform hover:scale-105 transition-transform duration-500">
+                    <Image
+                      src="/HAPPYBOT1.png"
+                      alt="AI Chatbot Assistant"
+                      width={300}
+                      height={300}
+                      className="object-contain drop-shadow-2xl"
+                      priority
+                    />
+                    {/* Glowing background effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400/20 to-blue-400/20 rounded-full blur-3xl scale-150 -z-10 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  </div>
+                  
+                  {/* Floating status indicator */}
+                  <div className="absolute -top-4 -right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+                    LIVE AI
+                  </div>
+                </div>
+              </div>
 
-                {/* Instant Automation */}
-                <div className="absolute top-[5%] right-[5%] w-60 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 rounded-2xl p-4 shadow-2xl backdrop-blur-sm transform rotate-3 hover:rotate-0 transition-transform duration-500">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">🚀</span>
+              {/* Floating feature cards - hardcoded positions with guaranteed spacing */}
+              <div className="absolute inset-0">
+                {/* Real-Time Demo - Top Left Corner */}
+                <div className="absolute top-[40px] left-[40px] w-[200px] bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-3 shadow-xl backdrop-blur-sm transform -rotate-6 hover:rotate-0 transition-transform duration-500 z-10 overflow-hidden">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-blue-600 text-lg">⚡</span>
+                    <div className="text-blue-700 text-sm font-semibold">Real-Time Demo</div>
+                  </div>
+                  <p className="text-blue-700 text-xs leading-relaxed">Experience AI automation immediately—no sign-up required.</p>
+                </div>
+
+                {/* Instant Automation - Top Right Corner */}
+                <div className="absolute top-[60px] right-[40px] w-[220px] bg-gradient-to-br from-white to-orange-50 border border-orange-200 rounded-2xl p-3 shadow-xl backdrop-blur-sm transform rotate-4 hover:rotate-0 transition-transform duration-500 z-10 overflow-hidden">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-5 h-5 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-sm">🚀</span>
                     </div>
-                    <span className="text-white font-semibold text-sm">Instant Automation</span>
+                    <span className="text-gray-800 font-semibold text-sm leading-tight">Instant Automation</span>
                   </div>
-                  <div className="text-blue-300 text-xs font-medium mb-2">AI That Acts, Not Just Chats</div>
-                  <p className="text-gray-400 text-xs mb-3">Automatically create CRM contacts, schedule meetings, and handle customer inquiries.</p>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400 text-xs font-medium">Live Processing</span>
+                  <p className="text-gray-600 text-xs leading-relaxed">AI that creates CRM contacts and schedules meetings automatically.</p>
+                  <div className="mt-2 inline-flex items-center bg-green-100 border border-green-300 rounded-full px-2 py-1">
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                    <span className="text-green-700 text-xs font-medium">Live Processing</span>
                   </div>
                 </div>
 
-                {/* Real-Time Demo */}
-                <div className="absolute top-[15%] left-[8%] w-56 bg-gradient-to-br from-blue-900/80 to-purple-900/80 border border-blue-500/30 rounded-xl p-4 shadow-xl backdrop-blur-sm transform -rotate-4 hover:rotate-0 transition-transform duration-500">
+                {/* Integrations - Far Left */}
+                <div className="absolute top-[260px] left-[15px] w-[170px] bg-gradient-to-br from-red-50 to-orange-50 border border-red-200 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500 z-10 overflow-hidden">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-blue-300 text-xs">⚡</span>
-                    <div className="text-blue-300 text-sm font-semibold">Real-Time Demo</div>
-                  </div>
-                  <div className="text-blue-200 text-xs font-medium mb-2">Interactive & Instant Setup</div>
-                  <p className="text-blue-100 text-xs">Upload your content and experience real-time AI automation immediately—no sign-up required.</p>
-                </div>
-
-                {/* Integrations */}
-                <div className="absolute top-[35%] left-[2%] w-48 bg-gradient-to-br from-orange-900/80 to-red-900/80 border border-orange-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-5 hover:rotate-0 transition-transform duration-500">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-4 h-4 bg-gradient-to-r from-orange-500 to-red-500 rounded-md flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-orange-500 rounded-md flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-xs">🔌</span>
                     </div>
-                    <div className="text-orange-300 text-xs font-semibold">Integrations</div>
+                    <div className="text-red-700 text-sm font-semibold">Integrations</div>
                   </div>
-                  <div className="text-orange-200 text-xs font-medium mb-1">Seamless Integration</div>
-                  <p className="text-orange-100 text-xs">Instantly connect with HubSpot, Calendly, Jira, Shopify, and more.</p>
+                  <p className="text-red-700 text-xs leading-relaxed">Seamless Integration</p>
+                  <p className="text-red-600 text-xs">Instantly connect with HubSpot, Calendly, Jira, Shopify, and more.</p>
                 </div>
-                
-                {/* Always On */}
-                <div className="absolute top-[40%] right-[10%] w-44 bg-gradient-to-br from-purple-900/80 to-pink-900/80 border border-purple-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500">
+
+                {/* Always On - Far Right */}
+                <div className="absolute top-[340px] right-[15px] w-[160px] bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500 z-10 overflow-hidden">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-xs">⏰</span>
                     </div>
-                    <div className="text-purple-300 text-xs font-semibold">Always On</div>
+                    <div className="text-purple-700 text-sm font-semibold">Always On</div>
                   </div>
-                  <div className="text-purple-200 text-xs font-medium mb-1">24/7 Availability</div>
-                  <p className="text-purple-100 text-xs">Engage visitors, generate leads, and handle tasks around the clock.</p>
+                  <p className="text-purple-700 text-xs leading-relaxed">24/7 Availability</p>
+                  <p className="text-purple-600 text-xs">Engage visitors, generate leads, and handle tasks around the clock.</p>
                 </div>
 
-                {/* Multi-Language */}
-                <div className="absolute top-[60%] left-[10%] w-52 bg-gradient-to-br from-teal-900/80 to-cyan-900/80 border border-teal-500/30 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                {/* Multi-Language - Bottom Left with massive spacing */}
+                <div className="absolute bottom-[180px] left-[30px] w-[160px] bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-3 hover:rotate-0 transition-transform duration-500 z-10 overflow-hidden">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-4 h-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-md flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-md flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-xs">🌍</span>
                     </div>
-                    <div className="text-teal-300 text-xs font-semibold">Multi-Language</div>
+                    <div className="text-teal-700 text-sm font-semibold">Multi-Language</div>
                   </div>
-                  <div className="text-teal-200 text-xs font-medium mb-1">Global Reach, Local Engagement</div>
-                  <p className="text-teal-100 text-xs">Provide seamless customer interactions in multiple languages.</p>
+                  <p className="text-teal-700 text-xs leading-relaxed">Global Reach, Local Engagement</p>
+                  <p className="text-teal-600 text-xs">Provide seamless customer interactions in multiple languages.</p>
                 </div>
 
-                {/* Quick Setup */}
-                <div className="absolute top-[55%] right-[25%] w-40 bg-gradient-to-br from-green-900/80 to-blue-900/80 border border-green-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500">
-                  <div className="flex items-center gap-1 mb-2">
-                    <span className="text-green-300 text-xs">⚙️</span>
-                    <div className="text-green-300 text-xs font-semibold">Quick Setup</div>
-                  </div>
-                  <div className="text-green-200 text-xs font-medium mb-1">Deploy in Minutes</div>
-                  <p className="text-green-100 text-xs">Simple embed snippet—start automating immediately without coding.</p>
-                </div>
-
-                {/* Secure & Private */}
-                <div className="absolute bottom-[5%] right-[8%] w-52 bg-gradient-to-br from-indigo-900/80 to-blue-900/80 border border-indigo-500/30 rounded-lg p-3 shadow-lg backdrop-blur-sm transform rotate-4 hover:rotate-0 transition-transform duration-500">
+                {/* Quick Setup - Bottom Center with better positioning */}
+                <div className="absolute bottom-[20px] left-[300px] w-[160px] bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-3 shadow-xl backdrop-blur-sm transform -rotate-2 hover:rotate-0 transition-transform duration-500 z-10 overflow-hidden">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-4 h-4 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-md flex items-center justify-center">
+                    <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-md flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-xs">⚡</span>
+                    </div>
+                    <div className="text-green-700 text-sm font-semibold">Quick Setup</div>
+                  </div>
+                  <p className="text-green-700 text-xs leading-relaxed">Deploy in Minutes</p>
+                  <p className="text-green-600 text-xs">Simple embed snippet—start automating immediately without coding.</p>
+                </div>
+
+                {/* Secure & Private - Bottom Right with massive spacing */}
+                <div className="absolute bottom-[160px] right-[30px] w-[170px] bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl p-3 shadow-xl backdrop-blur-sm transform rotate-2 hover:rotate-0 transition-transform duration-500 z-10 overflow-hidden">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-4 h-4 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-md flex items-center justify-center flex-shrink-0">
                       <span className="text-white text-xs">🔒</span>
                     </div>
-                    <div className="text-indigo-300 text-xs font-semibold">Secure & Private</div>
+                    <div className="text-indigo-700 text-sm font-semibold">Secure & Private</div>
                   </div>
-                  <div className="text-indigo-200 text-xs font-medium mb-1">Enterprise-Grade Security</div>
-                  <p className="text-indigo-100 text-xs">Fully GDPR compliant with advanced encryption and data protection.</p>
+                  <p className="text-indigo-700 text-xs leading-relaxed">Enterprise-Grade Security</p>
+                  <p className="text-indigo-600 text-xs">Fully GDPR compliant with advanced encryption and data protection.</p>
                 </div>
-
               </div>
             </div>
           </div>
@@ -303,15 +324,15 @@ export default function Page() {
   return (
     <>
       {/* Modern redesigned landing page */}
-      <div className="relative overflow-hidden bg-gray-900 text-gray-100">
+      <div className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 text-gray-800">
         <ModernNavbar authButtonSlot={<AuthButton />} locale="en" />
         <RevolutionaryHero />
       </div>
       
       {/* Non-critical content loaded after main hero */}
       <Suspense fallback={
-        <div className="flex items-center justify-center min-h-[50vh] bg-gray-900">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        <div className="flex items-center justify-center min-h-[50vh] bg-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
         </div>
       }>
         <LandingPageClient authButtonSlot={<AuthButton />} />

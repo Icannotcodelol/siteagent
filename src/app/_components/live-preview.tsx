@@ -506,6 +506,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
     setIsLoading(false);
     setIsSending(false);
     setShowDemo(false);
+    setIsMinimized(false);
   };
 
   // Clear error when switching tabs
@@ -728,12 +729,12 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
         {/* Header */}
         <div className="text-center mb-10">
           <h3 className={`text-2xl md:text-3xl font-bold mb-4 ${
-            isBright ? 'text-gray-800' : 'text-white'
+            isBright ? 'text-gray-900' : 'text-gray-900'
           }`}>
             {t.chooseContentSource}
           </h3>
           <p className={`text-base md:text-lg max-w-xl mx-auto leading-relaxed ${
-            isBright ? 'text-gray-600' : 'text-gray-400'
+            isBright ? 'text-gray-700' : 'text-gray-700'
           }`}>
             {t.contentSourceDescription}
           </p>
@@ -743,8 +744,8 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
         <div className="flex justify-center mb-8">
           <div className={`p-1.5 rounded-xl border shadow-xl ${
             isBright 
-              ? 'bg-white/90 backdrop-blur-sm border-gray-200' 
-              : 'bg-gray-800/60 backdrop-blur-sm border-gray-700/50'
+              ? 'bg-white/95 backdrop-blur-sm border-blue-200' 
+              : 'bg-white/95 backdrop-blur-sm border-blue-200'
           }`}>
             {[
               { type: 'document' as ContentType, icon: FileText, label: t.uploadDocument },
@@ -756,12 +757,8 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                 onClick={() => setActiveTab(type)}
                 className={`flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeTab === type
-                    ? isBright
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25 scale-105'
-                      : 'bg-blue-600 text-white shadow-lg shadow-blue-600/25 scale-105'
-                    : isBright
-                      ? 'text-gray-600 hover:text-gray-800 hover:bg-blue-50'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
+                    ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg shadow-blue-500/25 scale-105'
+                    : 'text-gray-600 hover:text-gray-800 hover:bg-blue-50'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -773,20 +770,14 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
 
         {/* Content Input Area */}
         <div className={`backdrop-blur-sm border rounded-2xl p-8 shadow-2xl ${
-          isBright 
-            ? 'bg-white/95 border-gray-200' 
-            : 'bg-gray-800/40 border-gray-700/50'
+          'bg-white/95 border-gray-200'
         }`}>
           {activeTab === 'document' && (
             <div
               className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 ${
                 isDragOver
-                  ? isBright
-                    ? 'border-blue-400 bg-blue-50/80 scale-[1.02]'
-                    : 'border-blue-400 bg-blue-500/10 scale-[1.02]'
-                  : isBright
-                    ? 'border-gray-300 hover:border-blue-300 hover:bg-blue-50/40'
-                    : 'border-gray-600/60 hover:border-gray-500/80 hover:bg-gray-700/20'
+                  ? 'border-blue-400 bg-blue-50/80 scale-[1.02]'
+                  : 'border-gray-300 hover:border-blue-300 hover:bg-blue-50/40'
               }`}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
@@ -794,15 +785,15 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
             >
               <div className={`transition-all duration-300 ${isDragOver ? 'scale-110' : ''}`}>
                 <Upload className={`h-16 w-16 mx-auto mb-6 ${
-                  isBright ? 'text-blue-500' : 'text-gray-400'
+                  'text-blue-500'
                 }`} />
                 <h3 className={`text-xl font-semibold mb-3 ${
-                  isBright ? 'text-gray-800' : 'text-white'
+                  'text-gray-800'
                 }`}>
                   {t.uploadYourDocument}
                 </h3>
                 <p className={`mb-6 max-w-md mx-auto ${
-                  isBright ? 'text-gray-600' : 'text-gray-400'
+                  'text-gray-600'
                 }`}>
                   {t.dragDropDescription}
                 </p>
@@ -810,10 +801,8 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
                   size="lg"
-                  className={`shadow-lg transition-all duration-300 ${
-                    isBright
-                      ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:shadow-blue-500/20'
-                      : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-600/20'
+                  className={`shadow-lg transition-all duration-300 text-white ${
+                    'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 hover:shadow-blue-500/20'
                   }`}
                 >
                   {isLoading ? (
@@ -839,7 +828,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                   className="hidden"
                 />
                 <div className={`mt-6 flex items-center justify-center gap-6 text-xs ${
-                  isBright ? 'text-gray-500' : 'text-gray-500'
+                  'text-gray-500'
                 }`}>
                   <div className="flex items-center gap-1">
                     <FileText className="h-3 w-3" />
@@ -862,22 +851,22 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <Globe className={`h-16 w-16 mx-auto mb-4 ${
-                  isBright ? 'text-purple-500' : 'text-blue-400'
+                  isBright ? 'text-purple-500' : 'text-purple-500'
                 }`} />
                 <h3 className={`text-xl font-semibold mb-2 ${
-                  isBright ? 'text-gray-800' : 'text-white'
+                  'text-gray-800'
                 }`}>
                   {t.scrapeWebsiteContent}
                 </h3>
                 <p className={`max-w-md mx-auto ${
-                  isBright ? 'text-gray-600' : 'text-gray-400'
+                  'text-gray-600'
                 }`}>
                   {t.websiteUrlDescription}
                 </p>
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-3 ${
-                  isBright ? 'text-gray-700' : 'text-white'
+                  'text-gray-700'
                 }`}>
                   {t.websiteUrl}
                 </label>
@@ -888,19 +877,15 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                     onChange={(e) => setWebsiteUrl(e.target.value)}
                     placeholder="https://example.com"
                     className={`flex-1 px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
-                      isBright
-                        ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                        : 'bg-gray-700/50 border-gray-600/50 text-white placeholder-gray-400'
+                      'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                     }`}
                   />
                   <Button
                     onClick={handleWebsiteSubmit}
                     disabled={!websiteUrl.trim() || isLoading}
                     size="lg"
-                    className={`px-8 shadow-lg ${
-                      isBright
-                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 hover:shadow-purple-500/20'
-                        : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-600/20'
+                    className={`px-8 shadow-lg text-white ${
+                      'bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 hover:shadow-purple-500/20'
                     }`}
                   >
                     {isLoading ? (
@@ -915,7 +900,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                 </div>
               </div>
               <div className={`flex items-center justify-center gap-6 text-xs ${
-                isBright ? 'text-gray-500' : 'text-gray-500'
+                'text-gray-500'
               }`}>
                 <div className="flex items-center gap-1">
                   <Shield className="h-3 w-3" />
@@ -933,22 +918,22 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <MessageCircle className={`h-16 w-16 mx-auto mb-4 ${
-                  isBright ? 'text-green-500' : 'text-purple-400'
+                  isBright ? 'text-green-500' : 'text-green-500'
                 }`} />
                 <h3 className={`text-xl font-semibold mb-2 ${
-                  isBright ? 'text-gray-800' : 'text-white'
+                  'text-gray-800'
                 }`}>
                   {t.pasteTextContent}
                 </h3>
                 <p className={`max-w-md mx-auto ${
-                  isBright ? 'text-gray-600' : 'text-gray-400'
+                  'text-gray-600'
                 }`}>
                   {t.pasteTextDescription}
                 </p>
               </div>
               <div>
                 <label className={`block text-sm font-medium mb-3 ${
-                  isBright ? 'text-gray-700' : 'text-white'
+                  'text-gray-700'
                 }`}>
                   {t.textContent}
                 </label>
@@ -958,15 +943,13 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                   placeholder={t.textPlaceholder}
                   rows={8}
                   className={`w-full px-4 py-4 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200 ${
-                    isBright
-                      ? 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                      : 'bg-gray-700/50 border-gray-600/50 text-white placeholder-gray-400'
+                    'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                   }`}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <div className={`flex items-center gap-6 text-xs ${
-                  isBright ? 'text-gray-500' : 'text-gray-500'
+                  'text-gray-500'
                 }`}>
                   <div className="flex items-center gap-1">
                     <FileText className="h-3 w-3" />
@@ -981,10 +964,8 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                   onClick={handleTextSubmit}
                   disabled={!textContent.trim() || isLoading}
                   size="lg"
-                  className={`shadow-lg ${
-                    isBright
-                      ? 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 hover:shadow-green-500/20'
-                      : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-600/20'
+                  className={`shadow-lg text-white ${
+                    'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 hover:shadow-green-500/20'
                   }`}
                 >
                   {isLoading ? (
@@ -1005,22 +986,20 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
 
           {error && (
             <div className={`mt-6 border rounded-xl p-6 backdrop-blur-sm animate-in slide-in-from-top duration-300 ${
-              isBright
-                ? 'bg-red-50 border-red-200'
-                : 'bg-red-900/30 border-red-700/50'
+              'bg-red-50 border-red-200'
             }`}>
               <div className="flex items-start gap-3">
                 <XCircle className={`h-6 w-6 mt-0.5 flex-shrink-0 ${
-                  isBright ? 'text-red-500' : 'text-red-400'
+                  'text-red-500'
                 }`} />
                 <div>
                   <h4 className={`font-medium mb-2 ${
-                    isBright ? 'text-red-800' : 'text-red-200'
+                    'text-red-800'
                   }`}>
                     {t.somethingWentWrong}
                   </h4>
                   <p className={`text-sm leading-relaxed ${
-                    isBright ? 'text-red-700' : 'text-red-300'
+                    'text-red-700'
                   }`}>{error}</p>
                 </div>
               </div>
@@ -1040,22 +1019,20 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
         {/* Demo Status Header */}
         <div className="text-center mb-8">
           <div className={`inline-flex items-center gap-2 rounded-full px-6 py-3 mb-6 shadow-lg backdrop-blur-sm ${
-            isBright 
-              ? 'bg-green-100 border border-green-300' 
-              : 'bg-green-500/10 border border-green-500/20'
+            'bg-green-100 border border-green-300'
           }`}>
-            <CheckCircle className={`h-5 w-5 ${isBright ? 'text-green-600' : 'text-green-400'}`} />
-            <span className={`font-medium ${isBright ? 'text-green-700' : 'text-green-400'}`}>
+            <CheckCircle className={`h-5 w-5 ${'text-green-600'}`} />
+            <span className={`font-medium ${'text-green-700'}`}>
               {t.demoChatbotReady}
             </span>
           </div>
           <h3 className={`text-2xl md:text-3xl font-bold mb-3 ${
-            isBright ? 'text-gray-800' : 'text-white'
+            'text-gray-900'
           }`}>
             {t.howChatbotAppears}
           </h3>
           <p className={`text-lg max-w-2xl mx-auto ${
-            isBright ? 'text-gray-600' : 'text-gray-400'
+            'text-gray-700'
           }`}>
             {t.widgetDescription}
           </p>
@@ -1063,23 +1040,17 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
 
         {/* Mock Website Context */}
         <div className={`rounded-2xl border p-8 mb-8 shadow-2xl backdrop-blur-sm ${
-          isBright 
-            ? 'bg-white border-gray-200' 
-            : 'bg-gradient-to-br from-gray-800 to-gray-900 border-gray-700/50'
+          'bg-white/95 border-gray-200'
         }`}>
           {/* Mock website content */}
-          <div className="bg-white rounded-xl p-8 relative overflow-hidden shadow-xl">
+          <div className="bg-white rounded-xl p-8 relative overflow-hidden shadow-xl border border-gray-100">
             <div className={`absolute inset-0 ${
-              isBright 
-                ? 'bg-gradient-to-br from-blue-50 to-purple-50' 
-                : 'bg-gradient-to-br from-blue-50 to-purple-50'
+              'bg-gradient-to-br from-blue-50 to-purple-50'
             }`}></div>
             <div className="relative">
               <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${
-                  isBright 
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
-                    : 'bg-blue-600'
+                  'bg-gradient-to-r from-blue-500 to-purple-500'
                 }`}>
                   <Bot className="h-6 w-6 text-white" />
                 </div>
@@ -1093,9 +1064,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                 </div>
                 <div className="ml-auto">
                   <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
-                    isBright 
-                      ? 'bg-green-100 text-green-700 border border-green-200' 
-                      : 'bg-green-100 text-green-800'
+                    'bg-green-100 text-green-700 border border-green-200'
                   }`}>
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                     {t.aiAssistantOnline}
@@ -1117,25 +1086,19 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                   </h5>
                   <div className="space-y-2 text-sm">
                     <a href="/signup" className={`flex items-center transition-colors ${
-                      isBright 
-                        ? 'text-purple-600 hover:text-purple-800' 
-                        : 'text-blue-600 hover:text-blue-800'
+                      'text-purple-600 hover:text-purple-800'
                     }`}>
                       <ArrowRight className="h-3 w-3 mr-2" />
                       {t.startFreeTrial}
                     </a>
                     <a href="/#features" className={`flex items-center transition-colors ${
-                      isBright 
-                        ? 'text-purple-600 hover:text-purple-800' 
-                        : 'text-blue-600 hover:text-blue-800'
+                      'text-purple-600 hover:text-purple-800'
                     }`}>
                       <ArrowRight className="h-3 w-3 mr-2" />
                       {t.seeFeatures}
                     </a>
                     <a href="/#pricing" className={`flex items-center transition-colors ${
-                      isBright 
-                        ? 'text-purple-600 hover:text-purple-800' 
-                        : 'text-blue-600 hover:text-blue-800'
+                      'text-purple-600 hover:text-purple-800'
                     }`}>
                       <ArrowRight className="h-3 w-3 mr-2" />
                       {t.viewPricing}
@@ -1161,9 +1124,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
             <button
               onClick={() => setIsMinimized(false)}
               className={`group text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 border-2 ${
-                isBright 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-blue-400/50' 
-                  : 'bg-blue-600 hover:bg-blue-700 border-blue-500/50'
+                'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 border-blue-400/50'
               }`}
             >
               <MessageCircle className="h-7 w-7" />
@@ -1175,9 +1136,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
             <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 w-96 h-[32rem] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
               {/* Widget Header */}
               <div className={`p-4 text-white ${
-                isBright 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-500' 
-                  : 'bg-gradient-to-r from-blue-600 to-blue-700'
+                'bg-gradient-to-r from-blue-500 to-purple-500'
               }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -1189,7 +1148,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                         {t.aiAssistant}
                       </h4>
                       <div className={`flex items-center gap-1 text-xs ${
-                        isBright ? 'text-blue-100' : 'text-blue-100'
+                        'text-blue-100'
                       }`}>
                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                         {t.online}
@@ -1217,24 +1176,24 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
               <div className="flex-1 flex flex-col min-h-0">
                 {/* Messages Area - scrollable */}
                 <div className={`flex-1 overflow-y-auto p-4 ${
-                  isBright ? 'bg-blue-50/30' : 'bg-gray-50'
+                  'bg-gray-50'
                 }`}>
                   {session?.status === 'processing' && (
                     <div className="text-center py-12 animate-in fade-in duration-500">
                       <div className="relative">
                         <Loader2 className={`h-10 w-10 animate-spin mx-auto mb-4 ${
-                          isBright ? 'text-purple-500' : 'text-blue-600'
+                          'text-purple-500'
                         }`} />
                         <div className="absolute inset-0 animate-ping">
                           <Loader2 className={`h-10 w-10 mx-auto opacity-20 ${
-                            isBright ? 'text-purple-400' : 'text-blue-400'
+                            'text-purple-400'
                           }`} />
                         </div>
                       </div>
-                      <p className="text-gray-600 text-sm font-medium">
+                      <p className="text-gray-700 text-sm font-medium">
                         {t.trainingAssistant}
                       </p>
-                      <p className="text-gray-500 text-xs mt-1">
+                      <p className="text-gray-600 text-xs mt-1">
                         {t.trainingDescription}
                       </p>
                     </div>
@@ -1243,10 +1202,10 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                   {session?.status === 'failed' && (
                     <div className="text-center py-12 animate-in fade-in duration-500">
                       <XCircle className="h-10 w-10 text-red-500 mx-auto mb-4" />
-                      <p className="text-gray-600 text-sm font-medium mb-1">
+                      <p className="text-gray-700 text-sm font-medium mb-1">
                         {t.trainingProblem}
                       </p>
-                      <p className="text-gray-500 text-xs max-w-xs mx-auto whitespace-pre-wrap">
+                      <p className="text-gray-600 text-xs max-w-xs mx-auto whitespace-pre-wrap">
                         {error || t.tryAgainLater}
                       </p>
                     </div>
@@ -1262,16 +1221,14 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                         <div
                           className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
                             message.isUser
-                              ? isBright
-                                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
-                                : 'bg-blue-600 text-white'
+                              ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
                               : 'bg-white text-gray-800 border border-gray-200'
                           }`}
                         >
                           <p className="whitespace-pre-wrap text-left leading-relaxed">{message.content}</p>
                           <div className={`text-xs mt-2 ${
                             message.isUser 
-                              ? isBright ? 'text-blue-100' : 'text-blue-100'
+                              ? 'text-blue-100'
                               : 'text-gray-500'
                           }`}>
                             {message.timestamp.toLocaleTimeString([], { 
@@ -1289,13 +1246,13 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                           <div className="flex items-center gap-2">
                             <div className="flex space-x-1">
                               <div className={`w-2 h-2 rounded-full animate-bounce ${
-                                isBright ? 'bg-purple-400' : 'bg-gray-400'
+                                'bg-purple-400'
                               }`}></div>
                               <div className={`w-2 h-2 rounded-full animate-bounce ${
-                                isBright ? 'bg-purple-400' : 'bg-gray-400'
+                                'bg-purple-400'
                               }`} style={{ animationDelay: '0.1s' }}></div>
                               <div className={`w-2 h-2 rounded-full animate-bounce ${
-                                isBright ? 'bg-purple-400' : 'bg-gray-400'
+                                'bg-purple-400'
                               }`} style={{ animationDelay: '0.2s' }}></div>
                             </div>
                             <span className="text-xs text-gray-500 ml-1">
@@ -1313,7 +1270,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                 {/* Suggested Questions - ultra compact, single line */}
                 {session?.status === 'completed' && session.suggestedQuestions.length > 0 && messages.length <= 1 && (
                   <div className={`px-3 py-1.5 border-t border-gray-200 animate-in slide-in-from-bottom duration-300 delay-200 flex-shrink-0 ${
-                    isBright ? 'bg-blue-50/30' : 'bg-gray-50'
+                    'bg-gray-50'
                   }`}>
                     <div className="flex gap-1.5 overflow-x-auto">
                       {session.suggestedQuestions.slice(0, 2).map((question, index) => (
@@ -1321,9 +1278,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                           key={index}
                           onClick={() => handleSuggestedQuestion(question)}
                           className={`flex-shrink-0 px-2 py-1 bg-white rounded text-xs text-gray-700 border transition-all duration-200 hover:shadow-sm whitespace-nowrap ${
-                            isBright 
-                              ? 'border-blue-200 hover:bg-blue-50 hover:border-blue-300' 
-                              : 'border-gray-200 hover:bg-blue-50 hover:border-blue-200'
+                            'border-blue-200 hover:bg-blue-50 hover:border-blue-300'
                           }`}
                         >
                           💬 {question.length > 30 ? question.substring(0, 30) + '...' : question}
@@ -1351,9 +1306,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
                       onClick={() => sendMessage(inputMessage)}
                       disabled={!inputMessage.trim() || isSending}
                       className={`disabled:opacity-50 text-white p-3 rounded-xl transition-all duration-200 hover:shadow-lg disabled:cursor-not-allowed ${
-                        isBright 
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600' 
-                          : 'bg-blue-600 hover:bg-blue-700'
+                        'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
                       }`}
                     >
                       <Send className="h-4 w-4" />
@@ -1375,16 +1328,14 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
               {/* Upgrade Prompt */}
               {session?.remainingMessages === 0 && (
                 <div className={`p-6 text-white text-center animate-in slide-in-from-bottom duration-300 ${
-                  isBright 
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
-                    : 'bg-gradient-to-r from-blue-600 to-purple-600'
+                  'bg-gradient-to-r from-blue-500 to-purple-600'
                 }`}>
                   <Sparkles className="h-6 w-6 mx-auto mb-3 animate-pulse" />
                   <p className="font-semibold text-base mb-2">
                     {t.demoCompleted}
                   </p>
                   <p className={`text-xs mb-4 leading-relaxed ${
-                    isBright ? 'text-blue-100' : 'text-blue-100'
+                    'text-blue-100'
                   }`}>
                     {t.readyToCreate}
                   </p>
@@ -1405,12 +1356,10 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
         {/* Demo Controls */}
         <div className="text-center mt-12 animate-in fade-in duration-500 delay-500">
           <div className={`inline-flex items-center gap-4 backdrop-blur-sm border rounded-xl p-4 ${
-            isBright 
-              ? 'bg-white/80 border-gray-200' 
-              : 'bg-gray-800/50 border-gray-700/50'
+            'bg-white/95 border-gray-200'
           }`}>
             <p className={`text-sm ${
-              isBright ? 'text-gray-600' : 'text-gray-400'
+              'text-gray-700'
             }`}>
               {t.tryDifferentContent}
             </p>
@@ -1419,9 +1368,7 @@ export default function LivePreview({ locale = 'en' }: LivePreviewProps) {
               variant="outline"
               size="sm"
               className={`transition-all duration-200 ${
-                isBright 
-                  ? 'border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300' 
-                  : 'border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white'
+                'border-gray-300 text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300'
               }`}
             >
               {t.tryAnotherDemo}

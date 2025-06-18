@@ -51,7 +51,7 @@ const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
 >(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={cn("border-b", className)} {...props} />
+  <AccordionPrimitive.Item ref={ref} className={cn("border-b border-orange-200", className)} {...props} />
 ));
 AccordionItem.displayName = "AccordionItem";
 
@@ -63,7 +63,7 @@ const AccordionTrigger = React.forwardRef<
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180 text-gray-800",
         className
       )}
       {...props}
@@ -84,7 +84,7 @@ const AccordionContent = React.forwardRef<
     className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
     {...props}
   >
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
+    <div className={cn("pb-4 pt-0 text-gray-600", className)}>{children}</div>
   </AccordionPrimitive.Content>
 ));
 AccordionContent.displayName = AccordionPrimitive.Content.displayName;
@@ -132,7 +132,7 @@ function MouseFollower() {
   return (
     <>
       <div
-        className={`pointer-events-none fixed z-50 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/10 transition-all duration-100 ${
+        className={`pointer-events-none fixed z-50 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500/10 transition-all duration-100 ${
           isHidden ? "opacity-0" : "opacity-100"
         } ${isPointer ? "scale-150" : "scale-100"}`}
         style={{
@@ -142,7 +142,7 @@ function MouseFollower() {
         }}
       ></div>
       <div
-        className={`pointer-events-none fixed z-50 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500 transition-all duration-75 ${
+        className={`pointer-events-none fixed z-50 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-500 transition-all duration-75 ${
           isHidden ? "opacity-0" : "opacity-100"
         } ${isPointer ? "scale-0" : "scale-100"}`}
         style={{
@@ -171,8 +171,8 @@ function Navbar({ authButtonSlot }: { authButtonSlot: React.ReactNode }) {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full border-b border-gray-800/0 backdrop-blur transition-all duration-300 ${
-        scrolled ? "border-gray-800/80 bg-gray-900/95 supports-[backdrop-filter]:bg-gray-900/80" : "bg-transparent"
+      className={`sticky top-0 z-50 w-full border-b border-orange-200/0 backdrop-blur transition-all duration-300 ${
+        scrolled ? "border-orange-200/80 bg-white/95 supports-[backdrop-filter]:bg-white/80" : "bg-transparent"
       }`}
     >
       <div className="container flex h-16 items-center justify-between px-4 md:px-8">
@@ -187,7 +187,7 @@ function Navbar({ authButtonSlot }: { authButtonSlot: React.ReactNode }) {
             <Link
               key={item}
               href={`#${item.toLowerCase().replace(/\s+/g, "-")}`}
-              className="relative text-sm font-medium text-gray-300 transition-colors hover:text-white after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-blue-500 after:transition-all after:duration-300 hover:after:w-full"
+              className="relative text-sm font-medium text-gray-600 transition-colors hover:text-gray-800 after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-orange-500 after:transition-all after:duration-300 hover:after:w-full"
             >
               {item}
             </Link>
@@ -452,15 +452,15 @@ function HeroSection() {
 // How Demo Works Section Component with diagonal layout
 function HowDemoWorksSection() {
   return (
-    <section className="relative py-16 bg-gradient-to-br from-gray-900 to-gray-800 overflow-hidden">
+    <section className="relative py-16 bg-gradient-to-br from-blue-50 via-white to-orange-50 overflow-hidden">
       {/* Diagonal background elements */}
       <div className="absolute inset-0">
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-full blur-3xl transform rotate-45"></div>
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl transform -rotate-45"></div>
+        <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-orange-200/30 to-orange-300/30 rounded-full blur-3xl transform rotate-45"></div>
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-cyan-200/30 rounded-full blur-3xl transform -rotate-45"></div>
         
         {/* Diagonal lines */}
-        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent transform -rotate-12"></div>
-        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/20 to-transparent transform rotate-12"></div>
+        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-300/50 to-transparent transform -rotate-12"></div>
+        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent transform rotate-12"></div>
       </div>
 
       <div className="container relative mx-auto px-6">
@@ -468,21 +468,21 @@ function HowDemoWorksSection() {
           {/* Left side - Content */}
           <div className="space-y-8">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600/20 to-yellow-600/20 backdrop-blur-sm border border-orange-500/30 rounded-full px-4 py-2">
-                <span className="text-orange-400 text-sm font-bold">⚡ INSTANT</span>
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-orange-200 backdrop-blur-sm border border-orange-300 rounded-full px-4 py-2 shadow-sm">
+                <span className="text-orange-600 text-sm font-bold">⚡ INSTANT</span>
               </div>
               
               <h2 className="text-4xl md:text-5xl font-bold">
-                <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                   From Upload to
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-orange-400 to-yellow-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
                   AI Automation
                 </span>
               </h2>
               
-              <p className="text-xl text-gray-400 leading-relaxed">
+              <p className="text-xl text-gray-600 leading-relaxed">
                 Watch your static content transform into an intelligent automation system in real-time. No complex setup, no technical knowledge required.
               </p>
             </div>
@@ -494,13 +494,13 @@ function HowDemoWorksSection() {
                 { step: "02", title: "AI Processing", desc: "Our AI analyzes and structures your content automatically" },
                 { step: "03", title: "Start Automating", desc: "Your intelligent assistant is ready to handle real tasks" }
               ].map((item, index) => (
-                <div key={index} className="flex items-center gap-4 p-4 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30 rounded-xl hover:border-gray-600/50 transition-all">
-                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center text-white font-bold text-sm">
+                <div key={index} className="flex items-center gap-4 p-4 bg-white/70 backdrop-blur-sm border border-orange-200 rounded-xl hover:border-orange-300 hover:shadow-md transition-all">
+                  <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg">
                     {item.step}
                   </div>
                   <div>
-                    <div className="text-white font-semibold">{item.title}</div>
-                    <div className="text-gray-400 text-sm">{item.desc}</div>
+                    <div className="text-gray-800 font-semibold">{item.title}</div>
+                    <div className="text-gray-600 text-sm">{item.desc}</div>
                   </div>
                 </div>
               ))}
@@ -509,36 +509,36 @@ function HowDemoWorksSection() {
 
           {/* Right side - Visual demo preview */}
           <div className="relative">
-            <div className="relative bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 shadow-2xl">
+            <div className="relative bg-gradient-to-br from-white/80 to-blue-50/80 backdrop-blur-sm border border-blue-200 rounded-2xl p-8 shadow-2xl">
               <div className="space-y-6">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-gray-400 text-sm ml-4">Live Demo Interface</span>
+                  <span className="text-gray-600 text-sm ml-4">Live Demo Interface</span>
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="bg-blue-600/20 border border-blue-500/30 rounded-lg p-4">
-                    <div className="text-blue-300 text-sm font-semibold mb-2">🌐 Paste URL or Upload Documents</div>
-                    <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
-                      <div className="w-3/4 h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse"></div>
+                  <div className="bg-blue-100 border border-blue-300 rounded-lg p-4">
+                    <div className="text-blue-700 text-sm font-semibold mb-2">🌐 Paste URL or Upload Documents</div>
+                    <div className="w-full h-2 bg-blue-200 rounded-full overflow-hidden">
+                      <div className="w-3/4 h-full bg-gradient-to-r from-blue-500 to-blue-600 animate-pulse"></div>
                     </div>
                   </div>
                   
-                  <div className="bg-purple-600/20 border border-purple-500/30 rounded-lg p-4">
-                    <div className="text-purple-300 text-sm font-semibold mb-2">🧠 AI Processing</div>
+                  <div className="bg-orange-100 border border-orange-300 rounded-lg p-4">
+                    <div className="text-orange-700 text-sm font-semibold mb-2">🧠 AI Processing</div>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                      <span className="text-purple-300 text-xs ml-2">Analyzing content...</span>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <span className="text-orange-700 text-xs ml-2">Analyzing content...</span>
                     </div>
                   </div>
                   
-                  <div className="bg-green-600/20 border border-green-500/30 rounded-lg p-4">
-                    <div className="text-green-300 text-sm font-semibold mb-2">✅ Ready to Automate</div>
-                    <div className="text-green-100 text-xs">Your AI assistant is live and ready for action!</div>
+                  <div className="bg-green-100 border border-green-300 rounded-lg p-4">
+                    <div className="text-green-700 text-sm font-semibold mb-2">✅ Ready to Automate</div>
+                    <div className="text-green-600 text-xs">Your AI assistant is live and ready for action!</div>
                   </div>
                 </div>
               </div>
@@ -553,29 +553,29 @@ function HowDemoWorksSection() {
 // Live Demo Section Component
 function LiveDemoSection() {
   return (
-    <section id="live-demo" className="relative py-20 md:py-24 bg-gradient-to-b from-gray-800 to-gray-900">
+    <section id="live-demo" className="relative py-20 md:py-24 bg-gradient-to-b from-orange-50 to-white">
       {/* Visual separator */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"></div>
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-300/50 to-transparent"></div>
       
       {/* Background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 1px 1px, #f97316 1px, transparent 0)`,
           backgroundSize: '24px 24px'
         }}></div>
       </div>
 
       <div className="container relative mx-auto px-4 md:px-6">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center rounded-full border border-purple-500/20 bg-purple-600/10 px-4 py-2 mb-6">
-            <Sparkles className="h-4 w-4 text-purple-400 mr-2" />
-            <span className="text-purple-400 text-sm font-medium">🥇 Unique Interactive Experience</span>
+          <div className="inline-flex items-center rounded-full border border-orange-300 bg-orange-100 px-4 py-2 mb-6 shadow-sm">
+            <Sparkles className="h-4 w-4 text-orange-600 mr-2" />
+            <span className="text-orange-700 text-sm font-medium">🥇 Unique Interactive Experience</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Not Another Chatbot Demo—
-            <span className="block text-purple-400">The Only One That Acts</span>
+            <span className="block text-orange-600">The Only One That Acts</span>
           </h2>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto mb-6">
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
             Competitors show generic examples; we show your actual content. Instantly experience how SiteAgent automates real tasks like scheduling meetings, updating CRM, and more.
           </p>
         </div>
@@ -583,38 +583,33 @@ function LiveDemoSection() {
         {/* Demo container with enhanced styling */}
         <div className="relative">
           {/* Glow effect */}
-          <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-blue-600/20 rounded-3xl blur-xl opacity-50"></div>
+          <div className="absolute -inset-4 bg-gradient-to-r from-orange-200/30 via-blue-200/30 to-orange-200/30 rounded-3xl blur-xl opacity-50"></div>
           
           {/* Demo content */}
-          <div className="relative bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-6 md:p-8">
+          <div className="relative bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl p-6 md:p-8 shadow-xl">
             <LivePreview />
           </div>
         </div>
 
         {/* Visual demo preview teaser */}
         <div className="mt-12 text-center">
-          <p className="text-gray-400 text-sm mb-4">
+          <p className="text-gray-600 text-sm mb-4">
             💡 Watch how SiteAgent instantly turns your content into an interactive AI experience
           </p>
-          <div className="inline-flex items-center text-blue-400 text-sm">
+          <div className="inline-flex items-center text-blue-600 text-sm">
             <MessageSquare className="h-4 w-4 mr-2" />
             <span>Real AI • Real Actions • Real Results</span>
           </div>
         </div>
 
         {/* Bottom separator with integration preview */}
-        <div className="mt-16 pt-12 border-t border-gray-700/50">
-          <div className="text-center mb-8">
-            <p className="text-gray-400 text-sm">
-              Seamlessly integrates with your existing workflow
-            </p>
-          </div>
-          <IntegrationsBar />
+        <div className="mt-16 pt-12 border-t border-orange-200">
+          <IntegrationsBar locale="en" />
         </div>
       </div>
 
       {/* Bottom visual separator */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent"></div>
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent"></div>
     </section>
   );
 }
@@ -663,15 +658,15 @@ function FeaturesSection() {
   const sectionRef = useRef<HTMLElement>(null);
 
   return (
-    <section id="features" ref={sectionRef} className="relative py-24 bg-gray-900 overflow-hidden">
+    <section id="features" ref={sectionRef} className="relative py-24 bg-gradient-to-br from-white via-blue-50 to-orange-50 overflow-hidden">
       {/* Modern background with asymmetric shapes */}
       <div className="absolute inset-0">
-        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-br from-green-600/10 to-blue-600/10 rounded-full blur-3xl transform -rotate-45"></div>
-        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-gradient-to-br from-purple-600/10 to-pink-600/10 rounded-full blur-3xl transform rotate-45"></div>
+        <div className="absolute top-20 -left-20 w-96 h-96 bg-gradient-to-br from-green-200/30 to-blue-200/30 rounded-full blur-3xl transform -rotate-45"></div>
+        <div className="absolute bottom-20 -right-20 w-96 h-96 bg-gradient-to-br from-orange-200/30 to-red-200/30 rounded-full blur-3xl transform rotate-45"></div>
         
         {/* Geometric accents */}
-        <div className="absolute top-1/3 right-1/4 w-2 h-32 bg-gradient-to-b from-blue-500/30 to-transparent transform rotate-12"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-2 h-32 bg-gradient-to-b from-purple-500/30 to-transparent transform -rotate-12"></div>
+        <div className="absolute top-1/3 right-1/4 w-2 h-32 bg-gradient-to-b from-blue-400/50 to-transparent transform rotate-12"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-2 h-32 bg-gradient-to-b from-orange-400/50 to-transparent transform -rotate-12"></div>
       </div>
 
       <div className="container relative mx-auto px-6">
@@ -679,40 +674,40 @@ function FeaturesSection() {
         <div className="mb-20">
           <div className="grid lg:grid-cols-2 gap-16 items-end">
             <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-sm border border-green-500/30 rounded-full px-4 py-2">
-                <Zap className="h-4 w-4 text-green-400" />
-                <span className="text-green-400 text-sm font-bold tracking-wide">REAL RESULTS</span>
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-blue-100 backdrop-blur-sm border border-green-300 rounded-full px-4 py-2 shadow-sm">
+                <Zap className="h-4 w-4 text-green-600" />
+                <span className="text-green-700 text-sm font-bold tracking-wide">REAL RESULTS</span>
               </div>
               
               <h2 className="text-4xl md:text-6xl font-black leading-none">
-                <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
                   Stop Talking.
                 </span>
                 <br />
-                <span className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-green-600 via-blue-600 to-orange-600 bg-clip-text text-transparent">
                   Start Delivering.
                 </span>
               </h2>
             </div>
             
             <div className="space-y-4">
-              <p className="text-xl text-gray-400 leading-relaxed">
+              <p className="text-xl text-gray-600 leading-relaxed">
                 Transform your website from a brochure into a revenue-generating machine that works around the clock.
               </p>
               
               {/* Quick stats */}
               <div className="flex flex-wrap gap-6">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span className="text-green-400 text-sm font-semibold">70% Cost Reduction</span>
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-green-600 text-sm font-semibold">70% Cost Reduction</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span className="text-blue-400 text-sm font-semibold">5-Min Setup</span>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-blue-600 text-sm font-semibold">5-Min Setup</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-                  <span className="text-purple-400 text-sm font-semibold">24/7 Automation</span>
+                  <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                  <span className="text-orange-600 text-sm font-semibold">24/7 Automation</span>
                 </div>
               </div>
             </div>
@@ -720,69 +715,69 @@ function FeaturesSection() {
         </div>
         
         {/* Asymmetric feature layout */}
-        <div className="grid lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 max-w-7xl mx-auto">
           {/* Primary features - larger cards */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-6">
             {primaryFeatures.map((feature, index) => (
-              <div key={index} className="group relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-3xl p-8 shadow-2xl hover:border-gray-600/50 transition-all duration-500 hover:scale-[1.02]">
-                <div className="flex flex-col md:flex-row gap-8 items-start">
+              <div key={index} className="group relative bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-sm border border-blue-200 rounded-3xl p-6 md:p-8 shadow-2xl hover:border-orange-300 hover:shadow-3xl transition-all duration-500 hover:scale-[1.02]">
+                <div className="flex flex-col md:flex-row gap-6 items-start">
                   <div className="flex-shrink-0">
-                    <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-600 rounded-2xl p-1 shadow-xl">
+                    <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-1 shadow-xl">
                       <div className="w-full h-full bg-white rounded-xl flex items-center justify-center">
                         <Image
                           src={feature.img}
                           alt={feature.title}
-                          width={40}
-                          height={40}
-                          className="object-contain"
+                          width={32}
+                          height={32}
+                          className="object-contain md:w-10 md:h-10"
                         />
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex-1 space-y-4">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <h3 className="text-2xl md:text-3xl font-bold text-white">
+                  <div className="flex-1 space-y-4 min-w-0">
+                    <div className="flex flex-col gap-4">
+                      <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 leading-tight">
                         {feature.title}
                       </h3>
-                      <div className="inline-flex items-center bg-gradient-to-r from-green-600/20 to-blue-600/20 border border-green-500/30 rounded-full px-4 py-2">
-                        <span className="text-green-400 text-sm font-bold">{feature.stat}</span>
+                      <div className="inline-flex items-center bg-gradient-to-r from-green-100 to-blue-100 border border-green-300 rounded-full px-4 py-2 shadow-sm self-start">
+                        <span className="text-green-700 text-sm font-bold whitespace-nowrap">{feature.stat}</span>
                       </div>
                     </div>
-                    <p className="text-lg text-gray-400 leading-relaxed">
+                    <p className="text-base md:text-lg text-gray-600 leading-relaxed">
                       {feature.description}
                     </p>
                   </div>
                 </div>
                 
                 {/* Hover effect line */}
-                <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-green-500 to-blue-500 transition-all duration-500 group-hover:w-full rounded-b-3xl"></div>
+                <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-orange-500 to-blue-500 transition-all duration-500 group-hover:w-full rounded-b-3xl"></div>
               </div>
             ))}
           </div>
 
           {/* Secondary features - compact sidebar */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-4 lg:space-y-6">
             {secondaryFeatures.map((feature, index) => (
-              <div key={index} className="group bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-sm border border-gray-700/40 rounded-2xl p-6 hover:border-gray-600/50 transition-all duration-500 hover:bg-gray-800/80">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-800 rounded-xl p-1 flex-shrink-0">
-                    <div className="w-full h-full bg-gray-100 rounded-lg flex items-center justify-center">
+              <div key={index} className="group bg-gradient-to-br from-white/80 to-orange-50/80 backdrop-blur-sm border border-orange-200 rounded-2xl p-4 md:p-6 hover:border-orange-300 hover:shadow-lg transition-all duration-500">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl p-1 flex-shrink-0 shadow-sm">
+                    <div className="w-full h-full bg-white rounded-lg flex items-center justify-center">
                       <Image
                         src={feature.img}
                         alt={feature.title}
-                        width={24}
-                        height={24}
-                        className="object-contain"
+                        width={20}
+                        height={20}
+                        className="object-contain md:w-6 md:h-6"
                       />
                     </div>
                   </div>
                   
-                  <div className="space-y-2">
-                    <h4 className="text-lg font-semibold text-white group-hover:text-gray-100">
+                  <div className="space-y-2 min-w-0 flex-1">
+                    <h4 className="text-base md:text-lg font-semibold text-gray-800 group-hover:text-gray-900 leading-tight">
                       {feature.title}
                     </h4>
-                    <p className="text-sm text-gray-400 leading-relaxed group-hover:text-gray-300">
+                    <p className="text-sm text-gray-600 leading-relaxed group-hover:text-gray-700">
                       {feature.description}
                     </p>
                   </div>
@@ -792,18 +787,48 @@ function FeaturesSection() {
           </div>
         </div>
 
-        {/* Bottom CTA section */}
-        <div className="mt-20 text-center">
-          <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-4">
-              Ready to see these features in action?
-            </h3>
-            <p className="text-gray-400 mb-6">
-              Try our live demo - no signup required, see results in 60 seconds.
-            </p>
-            <Link href="#live-demo" className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform">
-              <span>🚀 Try Live Demo</span>
-            </Link>
+        {/* Bottom CTA section with robot image */}
+        <div className="mt-20">
+          <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+            {/* Left side - CTA content */}
+            <div className="text-center lg:text-left order-2 lg:order-1">
+              <div className="bg-gradient-to-r from-orange-100 to-blue-100 backdrop-blur-sm border border-orange-200 rounded-2xl p-8 shadow-lg">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">
+                  Ready to see these features in action?
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Try our live demo - no signup required, see results in 60 seconds.
+                </p>
+                <Link href="#live-demo" className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-xl font-semibold hover:scale-105 transition-transform shadow-lg">
+                  <span>🚀 Try Live Demo</span>
+                </Link>
+              </div>
+            </div>
+            
+            {/* Right side - Robot image */}
+            <div className="flex justify-center order-1 lg:order-2">
+              <div className="relative group">
+                <div className="transform hover:scale-105 transition-transform duration-500">
+                  <Image
+                    src="/HAPPYBOT2.png"
+                    alt="AI Features Robot"
+                    width={300}
+                    height={300}
+                    className="object-contain drop-shadow-2xl"
+                  />
+                  {/* Glowing background effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-orange-400/20 rounded-full blur-3xl scale-150 -z-10 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </div>
+                
+                {/* Floating feature indicators */}
+                <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg animate-bounce">
+                  70% Cost Saved
+                </div>
+                <div className="absolute -bottom-2 -left-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+                  24/7 Active
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -882,19 +907,19 @@ function HowItWorksSection() {
   const currentStepData = steps[currentStep];
 
   return (
-    <section id="how-it-works" ref={sectionRef} className="relative py-24 bg-gradient-to-br from-gray-800 to-gray-900 overflow-hidden">
+    <section id="how-it-works" ref={sectionRef} className="relative py-24 bg-gradient-to-br from-blue-50 via-white to-orange-50 overflow-hidden">
       {/* Modern background with flowing lines */}
       <div className="absolute inset-0">
-        <div className="absolute top-10 left-10 w-80 h-80 bg-gradient-to-br from-blue-600/5 to-purple-600/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-10 w-80 h-80 bg-gradient-to-br from-purple-600/5 to-pink-600/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-10 left-10 w-80 h-80 bg-gradient-to-br from-blue-200/30 to-orange-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-10 right-10 w-80 h-80 bg-gradient-to-br from-orange-200/30 to-red-200/30 rounded-full blur-3xl"></div>
         
         {/* Flowing connection lines */}
-        <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.3))' }}>
+        <svg className="absolute inset-0 w-full h-full" style={{ filter: 'drop-shadow(0 0 10px rgba(249, 115, 22, 0.3))' }}>
           <defs>
             <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
-              <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#ec4899" stopOpacity="0.1" />
+              <stop offset="0%" stopColor="#f97316" stopOpacity="0.3" />
+              <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.1" />
             </linearGradient>
           </defs>
           <path 
@@ -910,21 +935,21 @@ function HowItWorksSection() {
       <div className="container relative mx-auto px-6">
         {/* Header with modern styling */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 backdrop-blur-sm border border-blue-500/30 rounded-full px-4 py-2 mb-6">
-            <span className="text-blue-400 text-sm font-bold">🛠️ SIMPLE PROCESS</span>
+          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-100 to-blue-100 backdrop-blur-sm border border-orange-300 rounded-full px-4 py-2 mb-6 shadow-sm">
+            <span className="text-orange-700 text-sm font-bold">🛠️ SIMPLE PROCESS</span>
           </div>
           
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
               From Idea to
             </span>
             <br />
-            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-orange-500 via-blue-600 to-orange-600 bg-clip-text text-transparent">
               AI Automation
             </span>
           </h2>
           
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Follow these simple steps to create and deploy your AI-powered automation system.
           </p>
         </div>
@@ -938,10 +963,10 @@ function HowItWorksSection() {
                   onClick={() => goToStep(index)}
                   className={`relative w-12 h-12 rounded-2xl flex items-center justify-center font-bold text-sm transition-all duration-300 ${
                     index === currentStep
-                      ? 'bg-gradient-to-br from-blue-600 to-purple-600 text-white shadow-xl scale-110'
+                      ? 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-xl scale-110'
                       : index < currentStep
                       ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:scale-105'
-                      : 'bg-gray-700/50 text-gray-400 hover:bg-gray-600/50 hover:text-gray-300'
+                      : 'bg-gray-200 text-gray-500 hover:bg-gray-300 hover:text-gray-600'
                   }`}
                   disabled={isAnimating}
                 >
@@ -953,7 +978,7 @@ function HowItWorksSection() {
                   
                   {/* Active indicator */}
                   {index === currentStep && (
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl opacity-30 animate-pulse"></div>
+                    <div className="absolute -inset-1 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl opacity-30 animate-pulse"></div>
                   )}
                 </button>
                 
@@ -962,7 +987,7 @@ function HowItWorksSection() {
                   <div className={`w-12 h-1 mx-2 rounded-full transition-all duration-500 ${
                     index < currentStep 
                       ? 'bg-gradient-to-r from-green-500 to-green-600' 
-                      : 'bg-gray-700/50'
+                      : 'bg-gray-300'
                   }`}></div>
                 )}
               </div>
@@ -976,28 +1001,28 @@ function HowItWorksSection() {
             {/* Content side */}
             <div className="flex-1 space-y-6">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-xl">
                   <span className="text-white font-black text-lg">{currentStepData.number}</span>
                 </div>
                 <div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white">
+                  <h3 className="text-2xl md:text-3xl font-bold text-gray-800">
                     {currentStepData.title}
                   </h3>
                 </div>
               </div>
               
-              <p className="text-lg text-gray-400 leading-relaxed">
+              <p className="text-lg text-gray-600 leading-relaxed">
                 {currentStepData.description}
               </p>
               
               {/* Features in a modern card grid */}
               <div className="grid gap-3">
                 {currentStepData.features.map((feature, featureIndex) => (
-                  <div key={featureIndex} className="flex items-center gap-3 p-3 bg-gray-800/30 backdrop-blur-sm border border-gray-700/30 rounded-lg hover:border-gray-600/50 transition-all">
+                  <div key={featureIndex} className="flex items-center gap-3 p-3 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-lg hover:border-orange-300 hover:shadow-md transition-all">
                     <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Check className="h-4 w-4 text-white" />
                     </div>
-                    <span className="text-gray-300 font-medium">
+                    <span className="text-gray-700 font-medium">
                       {feature}
                     </span>
                   </div>
@@ -1011,8 +1036,8 @@ function HowItWorksSection() {
                   disabled={currentStep === 0 || isAnimating}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
                     currentStep === 0 
-                      ? 'bg-gray-700/30 text-gray-500 cursor-not-allowed' 
-                      : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white hover:scale-105'
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
+                      : 'bg-gray-200 text-gray-600 hover:bg-gray-300 hover:text-gray-800 hover:scale-105'
                   }`}
                 >
                   <ArrowRight className="h-4 w-4 rotate-180" />
@@ -1021,7 +1046,7 @@ function HowItWorksSection() {
 
                 {currentStep === steps.length - 1 ? (
                   <Link href="/signup">
-                    <button className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-green-600 to-green-700 text-white hover:scale-105 shadow-lg hover:shadow-xl hover:from-green-500 hover:to-green-600">
+                    <button className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-green-500 to-green-600 text-white hover:scale-105 shadow-lg hover:shadow-xl">
                       <span>that's it! Start now →</span>
                     </button>
                   </Link>
@@ -1029,7 +1054,7 @@ function HowItWorksSection() {
                   <button
                     onClick={nextStep}
                     disabled={isAnimating}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:scale-105 shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:scale-105 shadow-lg hover:shadow-xl"
                   >
                     <span>Next</span>
                     <ArrowRight className="h-4 w-4" />
@@ -1042,23 +1067,23 @@ function HowItWorksSection() {
             <div className="flex-1 flex justify-center">
               <div className="relative">
                 {/* Main visual card */}
-                <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-3xl p-8 shadow-2xl max-w-md">
+                <div className="bg-gradient-to-br from-white/90 to-blue-50/90 backdrop-blur-sm border border-blue-200 rounded-3xl p-8 shadow-2xl max-w-md">
                   <div className="text-center space-y-6">
                     <div className="text-6xl">{currentStepData.visual}</div>
                     
                     <div className="space-y-3">
-                      <div className="bg-gray-700/50 rounded-lg p-3">
+                      <div className="bg-orange-100 rounded-lg p-3">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
-                          <span className="text-blue-300 text-sm font-semibold">Step {currentStepData.number}</span>
+                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                          <span className="text-orange-700 text-sm font-semibold">Step {currentStepData.number}</span>
                         </div>
-                        <div className="text-white text-sm">{currentStepData.title}</div>
+                        <div className="text-gray-800 text-sm">{currentStepData.title}</div>
                       </div>
                       
                       <div className="grid grid-cols-2 gap-2">
                         {currentStepData.features.slice(0, 2).map((feature, idx) => (
-                          <div key={idx} className="bg-gray-700/30 rounded p-2">
-                            <div className="text-gray-300 text-xs">{feature}</div>
+                          <div key={idx} className="bg-blue-50 rounded p-2">
+                            <div className="text-gray-600 text-xs">{feature}</div>
                           </div>
                         ))}
                       </div>
@@ -1170,48 +1195,48 @@ function IntegrationEcosystemSection() {
   ];
 
   return (
-    <section ref={sectionRef} className="relative py-20 md:py-24 bg-gradient-to-b from-gray-800 to-gray-900">
+    <section ref={sectionRef} className="relative py-20 md:py-24 bg-gradient-to-b from-orange-50 to-blue-50">
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
-          backgroundImage: `linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.1) 50%, transparent 60%)`,
+          backgroundImage: `linear-gradient(45deg, transparent 40%, rgba(249,115,22,0.1) 50%, transparent 60%)`,
           backgroundSize: '20px 20px'
         }}></div>
       </div>
 
       <div className="container relative mx-auto px-4 md:px-6">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center rounded-full border border-purple-500/20 bg-purple-600/10 px-4 py-2 mb-6">
-            <Layers className="h-4 w-4 text-purple-400 mr-2" />
-            <span className="text-purple-400 text-sm font-medium">Integration Hub</span>
+          <div className="inline-flex items-center rounded-full border border-orange-300 bg-orange-100 px-4 py-2 mb-6 shadow-sm">
+            <Layers className="h-4 w-4 text-orange-600 mr-2" />
+            <span className="text-orange-700 text-sm font-medium">Integration Hub</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
             Connect Everything
-            <span className="block text-purple-400">Your Users Need</span>
+            <span className="block text-orange-600">Your Users Need</span>
           </h2>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Turn conversations into actions with powerful integrations. Your chatbot doesn't just talk—it does.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-12 max-w-6xl mx-auto">
           {integrations.map((integration, index) => (
             <div
               key={index}
               ref={(el) => { cardsRef.current[index] = el; }}
-              className="group relative bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 transition-all duration-500 hover:border-purple-500/30 hover:bg-gray-800/80 hover:shadow-lg hover:shadow-purple-500/10 opacity-0 translate-y-8 scale-95"
+              className="group relative bg-white/80 backdrop-blur-sm border border-orange-200 rounded-xl p-4 md:p-6 transition-all duration-500 hover:border-orange-300 hover:bg-white hover:shadow-lg hover:shadow-orange-100 opacity-0 translate-y-8 scale-95 min-h-[200px]"
             >
               <div className="flex items-center mb-4">
-                <div className={`rounded-lg bg-gradient-to-r ${integration.color} p-2 shadow-lg transition-transform duration-300 group-hover:scale-110 text-2xl`}>
+                <div className={`rounded-lg bg-gradient-to-r ${integration.color} p-2 shadow-lg transition-transform duration-300 group-hover:scale-110 text-xl md:text-2xl flex-shrink-0`}>
                   {integration.icon}
                 </div>
-                <h3 className="ml-3 text-lg font-semibold text-white">{integration.name}</h3>
+                <h3 className="ml-3 text-base md:text-lg font-semibold text-gray-800 leading-tight">{integration.name}</h3>
               </div>
-              <p className="text-gray-400 mb-4 text-sm">{integration.description}</p>
+              <p className="text-gray-600 mb-4 text-sm leading-relaxed">{integration.description}</p>
               <div className="space-y-2">
                 {integration.actions.map((action, actionIndex) => (
-                  <div key={actionIndex} className="flex items-center text-sm text-gray-300">
-                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mr-2"></div>
-                    {action}
+                  <div key={actionIndex} className="flex items-center text-sm text-gray-700">
+                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mr-2 flex-shrink-0"></div>
+                    <span className="leading-relaxed">{action}</span>
                   </div>
                 ))}
               </div>
@@ -1219,41 +1244,69 @@ function IntegrationEcosystemSection() {
           ))}
         </div>
 
-        {/* Live Integration Demo */}
-        <div className="relative bg-gray-800/30 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-8 overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent"></div>
-          
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-white mb-2">See Integration in Action</h3>
-            <p className="text-gray-400">Watch how your chatbot performs real actions</p>
+        {/* Live Integration Demo with robot */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center max-w-6xl mx-auto">
+          {/* Left side - Demo */}
+          <div className="relative bg-orange-50 backdrop-blur-sm border border-orange-200 rounded-2xl p-6 md:p-8 overflow-hidden shadow-lg">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-400/50 to-transparent"></div>
+            
+            <div className="mb-6">
+              <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-2">See Integration in Action</h3>
+              <p className="text-gray-600 text-sm md:text-base">Watch how your chatbot performs real actions</p>
+            </div>
+
+            <div className="bg-white rounded-lg p-4 border border-orange-200 shadow-sm">
+              <div className="flex items-start space-x-3 mb-4">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Bot className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-700 text-sm">I can help you schedule a meeting with our sales team. What time works best for you?</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 mb-4">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Users className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-700 text-sm">Tomorrow at 2 PM would be perfect</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Bot className="h-4 w-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-gray-700 text-sm">Perfect! I've scheduled a 30-minute meeting for tomorrow at 2:00 PM. You'll receive a Calendly confirmation shortly.</p>
+                  <div className="mt-2 bg-green-100 border border-green-300 rounded-lg px-3 py-2">
+                    <p className="text-green-700 text-xs font-medium">✓ Meeting scheduled via Calendly integration</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700/30">
-            <div className="flex items-start space-x-3 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <Bot className="h-4 w-4 text-white" />
+          {/* Right side - Robot image */}
+          <div className="flex justify-center">
+            <div className="relative group">
+              <div className="transform hover:scale-105 transition-transform duration-500">
+                <Image
+                  src="/HAPPYBOT3.png"
+                  alt="AI Integration Robot"
+                  width={280}
+                  height={280}
+                  className="object-contain drop-shadow-2xl"
+                />
+                {/* Glowing background effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-teal-400/20 to-purple-400/20 rounded-full blur-3xl scale-150 -z-10 opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
               </div>
-              <div className="flex-1">
-                <p className="text-gray-300 text-sm">I can help you schedule a meeting with our sales team. What time works best for you?</p>
+              
+              {/* Floating integration indicators */}
+              <div className="absolute -top-3 -left-3 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-pulse">
+                🔌 Live Integrations
               </div>
-            </div>
-            <div className="flex items-start space-x-3 mb-4">
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                <Users className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-300 text-sm">Tomorrow at 2 PM would be perfect</p>
-              </div>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <Bot className="h-4 w-4 text-white" />
-              </div>
-              <div className="flex-1">
-                <p className="text-gray-300 text-sm">Perfect! I've scheduled a 30-minute meeting for tomorrow at 2:00 PM. You'll receive a Calendly confirmation shortly.</p>
-                <div className="mt-2 bg-green-600/20 border border-green-500/30 rounded-lg px-3 py-2">
-                  <p className="text-green-400 text-xs font-medium">✓ Meeting scheduled via Calendly integration</p>
-                </div>
+              <div className="absolute -bottom-3 -right-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg animate-bounce">
+                ⚡ Real Actions
               </div>
             </div>
           </div>
@@ -1299,29 +1352,29 @@ function TestimonialsSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-gray-800 py-24 md:py-32 overflow-hidden">
+    <section ref={sectionRef} className="relative bg-gradient-to-br from-white via-blue-50 to-orange-50 py-24 md:py-32 overflow-hidden">
       {/* Enhanced background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"></div>
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-500/10 to-blue-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-white via-blue-50 to-orange-50"></div>
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-yellow-200/30 to-orange-200/30 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-gradient-to-l from-blue-200/30 to-orange-200/30 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
       
       <div className="container relative mx-auto px-4 md:px-6">
         {/* Enhanced header */}
         <div className="mx-auto mb-20 max-w-3xl text-center">
-          <div className="inline-flex items-center rounded-full border border-yellow-500/30 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 backdrop-blur-xl px-6 py-3 mb-8">
-            <span className="text-yellow-400 text-sm font-semibold tracking-wide">Customer Stories</span>
+          <div className="inline-flex items-center rounded-full border border-orange-300 bg-gradient-to-r from-orange-100 to-blue-100 backdrop-blur-xl px-6 py-3 mb-8 shadow-sm">
+            <span className="text-orange-700 text-sm font-semibold tracking-wide">Customer Stories</span>
           </div>
           <h2 className="mb-6 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
               Trusted by Innovative
             </span>
-            <span className="block bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent mt-2">
+            <span className="block bg-gradient-to-r from-orange-600 via-blue-600 to-orange-600 bg-clip-text text-transparent mt-2">
               Companies
             </span>
           </h2>
-          <p className="text-xl text-gray-400 leading-relaxed">See what our customers are saying about SiteAgent.</p>
+          <p className="text-xl text-gray-600 leading-relaxed">See what our customers are saying about SiteAgent.</p>
         </div>
         
         {/* Enhanced testimonials grid */}
@@ -1330,10 +1383,10 @@ function TestimonialsSection() {
             <div
               key={index}
               ref={(el) => { cardsRef.current[index] = el; }}
-              className="group relative rounded-3xl bg-gradient-to-br from-gray-900/80 to-gray-800/80 p-8 shadow-2xl backdrop-blur-sm border border-gray-700/50 opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-gray-600/50 hover:shadow-3xl hover:shadow-yellow-900/10 hover:-translate-y-2"
+              className="group relative rounded-3xl bg-gradient-to-br from-white/90 to-blue-50/90 p-8 shadow-2xl backdrop-blur-sm border border-orange-200 opacity-0 translate-y-8 transition-all duration-500 ease-out hover:border-orange-300 hover:shadow-3xl hover:shadow-orange-100 hover:-translate-y-2"
             >
               {/* Background gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-yellow-600/5 via-transparent to-orange-600/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-100/50 via-transparent to-blue-100/50 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl"></div>
               
               <div className="relative">
                 {/* Star rating with enhanced animation */}
@@ -1341,7 +1394,7 @@ function TestimonialsSection() {
                   {[...Array(5)].map((_, i) => (
                     <Star 
                       key={i} 
-                      className="h-6 w-6 fill-current text-yellow-500 transition-all duration-300 group-hover:scale-125 group-hover:text-yellow-400 mx-0.5" 
+                      className="h-6 w-6 fill-current text-orange-500 transition-all duration-300 group-hover:scale-125 group-hover:text-orange-600 mx-0.5" 
                       style={{ 
                         animationDelay: `${i * 0.1}s`,
                         transform: 'rotate(0deg)',
@@ -1353,7 +1406,7 @@ function TestimonialsSection() {
                 
                 {/* Quote icon */}
                 <div className="mb-6 flex justify-center">
-                  <div className="rounded-full bg-gradient-to-r from-yellow-500 to-orange-600 p-3">
+                  <div className="rounded-full bg-gradient-to-r from-orange-500 to-orange-600 p-3 shadow-lg">
                     <svg className="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 32 32">
                       <path d="M10 8v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4zm12 0v8c0 2.2-1.8 4-4 4v4c4.4 0 8-3.6 8-8V8h-4z"/>
                     </svg>
@@ -1361,13 +1414,13 @@ function TestimonialsSection() {
                 </div>
                 
                 {/* Enhanced quote with better typography */}
-                <blockquote className="mb-8 text-gray-300 text-lg leading-relaxed text-center transition-colors duration-300 group-hover:text-white font-medium">
+                <blockquote className="mb-8 text-gray-700 text-lg leading-relaxed text-center transition-colors duration-300 group-hover:text-gray-800 font-medium">
                   "{testimonial.quote}"
                 </blockquote>
               </div>
               
               {/* Bottom accent */}
-              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-yellow-500 to-orange-500 transition-all duration-500 group-hover:w-full rounded-b-3xl"></div>
+              <div className="absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r from-orange-500 to-blue-500 transition-all duration-500 group-hover:w-full rounded-b-3xl"></div>
             </div>
           ))}
         </div>
@@ -1473,60 +1526,60 @@ function PricingSection() {
   ];
 
   return (
-    <section id="pricing" className="relative bg-gray-900 py-24 md:py-32 overflow-hidden">
+    <section id="pricing" className="relative bg-gradient-to-br from-blue-50 via-white to-orange-50 py-24 md:py-32 overflow-hidden">
       {/* Enhanced background with subtle pattern */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-orange-50"></div>
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0)`,
+          backgroundImage: `radial-gradient(circle at 2px 2px, rgba(249,115,22,0.03) 1px, transparent 0)`,
           backgroundSize: '40px 40px'
         }}></div>
       </div>
       
       {/* Background orbs */}
-      <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full filter blur-3xl"></div>
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-gradient-to-l from-purple-500/10 to-pink-500/10 rounded-full filter blur-3xl"></div>
+      <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-200/30 to-orange-200/30 rounded-full filter blur-3xl"></div>
+      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-gradient-to-l from-orange-200/30 to-blue-200/30 rounded-full filter blur-3xl"></div>
       
       <div className="container relative mx-auto px-4 md:px-6">
         {/* Enhanced header */}
         <div className="mx-auto mb-20 max-w-3xl text-center">
-          <div className="inline-flex items-center rounded-full border border-green-500/30 bg-gradient-to-r from-green-600/20 to-blue-600/20 backdrop-blur-xl px-6 py-3 mb-8">
-            <span className="text-green-400 text-sm font-semibold tracking-wide">Transparent Pricing</span>
+          <div className="inline-flex items-center rounded-full border border-green-300 bg-gradient-to-r from-green-100 to-blue-100 backdrop-blur-xl px-6 py-3 mb-8 shadow-sm">
+            <span className="text-green-700 text-sm font-semibold tracking-wide">Transparent Pricing</span>
           </div>
           <h2 className="mb-6 text-3xl md:text-4xl lg:text-6xl font-bold tracking-tight">
-            <span className="bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 bg-clip-text text-transparent">
               Simple, transparent
             </span>
-            <span className="block bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 bg-clip-text text-transparent mt-2">
+            <span className="block bg-gradient-to-r from-green-600 via-blue-600 to-orange-600 bg-clip-text text-transparent mt-2">
               pricing
             </span>
           </h2>
-          <p className="text-xl text-gray-400 leading-relaxed">
+          <p className="text-xl text-gray-600 leading-relaxed">
             Start for free – upgrade when you need more power. No hidden fees.
           </p>
         </div>
         
         {/* Enhanced pricing grid */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 pt-16">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 max-w-7xl mx-auto">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`group relative flex flex-col rounded-3xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 p-6 shadow-2xl backdrop-blur-sm border transition-all duration-500 hover:scale-105 hover:shadow-3xl ${
+              className={`group relative flex flex-col rounded-3xl bg-gradient-to-br from-white/90 to-blue-50/90 p-4 xl:p-6 shadow-2xl backdrop-blur-sm border transition-all duration-500 hover:scale-105 hover:shadow-3xl min-h-[480px] xl:min-h-[500px] ${
                 plan.highlight 
-                  ? "border-blue-500/50 ring-2 ring-blue-500/20 hover:ring-blue-400/30" 
-                  : "border-gray-700/50 hover:border-gray-600/50"
+                  ? "border-orange-300 ring-2 ring-orange-200 hover:ring-orange-300 lg:scale-105" 
+                  : "border-blue-200 hover:border-orange-200"
               }`}
             >
               {/* Popular badge */}
               {plan.highlight && (
-                <span className="absolute -top-3 left-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg uppercase tracking-wider whitespace-nowrap">
+                <span className="absolute -top-3 left-1/2 transform -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-3 xl:px-4 py-1.5 text-xs font-semibold text-white shadow-lg uppercase tracking-wider whitespace-nowrap">
                   Most Popular
                 </span>
               )}
               
               {/* Trial badge */}
-              {plan.trial && (
-                <span className="absolute -top-3 right-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-2 py-1 text-xs font-semibold text-white shadow-lg whitespace-nowrap">
+              {plan.trial && !plan.highlight && (
+                <span className="absolute -top-3 right-3 rounded-full bg-gradient-to-r from-green-500 to-green-600 px-3 py-1 text-xs font-semibold text-white shadow-lg whitespace-nowrap">
                   14-day trial
                 </span>
               )}
@@ -1534,75 +1587,77 @@ function PricingSection() {
               {/* Background gradient overlay */}
               <div className={`absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${
                 plan.highlight 
-                  ? "bg-gradient-to-br from-blue-600/10 via-transparent to-purple-600/10"
-                  : "bg-gradient-to-br from-gray-600/5 via-transparent to-gray-700/5"
+                  ? "bg-gradient-to-br from-orange-100/50 via-transparent to-blue-100/50"
+                  : "bg-gradient-to-br from-blue-100/30 via-transparent to-orange-100/30"
               }`}></div>
               
               <div className="relative flex flex-col h-full">
                 {/* Plan header */}
-                <div className="mb-6">
-                  <h3 className={`text-xl font-bold mb-3 transition-colors duration-300 ${
+                <div className="mb-4 xl:mb-6 pt-3">
+                  <h3 className={`text-lg xl:text-xl font-bold mb-2 xl:mb-3 transition-colors duration-300 leading-tight ${
                     plan.highlight 
-                      ? "text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-blue-400 group-hover:to-purple-400 group-hover:bg-clip-text"
-                      : "text-white group-hover:text-gray-200"
+                      ? "text-gray-800 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-orange-600 group-hover:to-blue-600 group-hover:bg-clip-text"
+                      : "text-gray-800 group-hover:text-gray-900"
                   }`}>{plan.name}</h3>
-                  <p className="text-gray-400 leading-relaxed text-sm">{plan.description}</p>
+                  <p className="text-gray-600 leading-relaxed text-xs xl:text-sm">{plan.description}</p>
                 </div>
                 
                 {/* Pricing */}
-                <div className="mb-8">
+                <div className="mb-4 xl:mb-6">
                   <div className="flex items-end gap-1">
-                    <span className="text-4xl font-extrabold text-white">{plan.price}</span>
+                    <span className="text-2xl xl:text-3xl 2xl:text-4xl font-extrabold text-gray-800">{plan.price}</span>
                     {plan.period && (
-                      <span className="text-gray-400 text-base mb-1">/{plan.period}</span>
+                      <span className="text-gray-600 text-sm xl:text-base mb-1">/{plan.period}</span>
                     )}
                   </div>
                   {plan.trial && (
-                    <p className="text-green-400 text-xs mt-2 font-medium">
+                    <p className="text-green-600 text-xs mt-2 font-medium">
                       14 days free, then cancel anytime
                     </p>
                   )}
                 </div>
                 
                 {/* Features */}
-                <ul className="mb-8 space-y-3 flex-grow">
+                <ul className="mb-6 xl:mb-8 space-y-2 xl:space-y-3 flex-grow">
                   {plan.features.map((feature, fIdx) => (
                     <li key={fIdx} className="flex items-start">
-                      <div className={`mr-2 mt-0.5 rounded-full p-1 ${
+                      <div className={`mr-2 xl:mr-3 mt-0.5 rounded-full p-1 flex-shrink-0 ${
                         plan.highlight 
-                          ? "bg-gradient-to-r from-blue-500 to-purple-600"
+                          ? "bg-gradient-to-r from-orange-500 to-orange-600"
                           : "bg-gradient-to-r from-green-500 to-green-600"
                       }`}>
                         <Check className="h-3 w-3 text-white" />
                       </div>
-                      <span className="text-gray-300 leading-relaxed text-sm">{feature}</span>
+                      <span className="text-gray-700 leading-relaxed text-xs xl:text-sm">{feature}</span>
                     </li>
                   ))}
                 </ul>
                 
                 {/* CTA Button */}
-                <Link href={plan.href} className="mt-auto inline-flex">
-                  <Button
-                    size="lg"
-                    className={`group w-full h-11 text-sm font-semibold transition-all duration-300 hover:scale-105 ${
-                      plan.highlight
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-600/25 hover:shadow-xl hover:shadow-blue-600/40"
-                        : "border-2 border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700 hover:text-white"
-                    }`}
-                  >
-                    <span className="flex items-center justify-center">
-                      {plan.cta}
-                      <ArrowRight className="ml-2 h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
-                    </span>
-                  </Button>
-                </Link>
+                <div className="mt-auto">
+                  <Link href={plan.href} className="block">
+                    <Button
+                      size="lg"
+                      className={`group w-full h-10 xl:h-12 text-xs xl:text-sm font-semibold transition-all duration-300 hover:scale-105 ${
+                        plan.highlight
+                          ? "bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300"
+                          : "border-2 border-blue-300 bg-white text-blue-700 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-700"
+                      }`}
+                    >
+                      <span className="flex items-center justify-center">
+                        {plan.cta}
+                        <ArrowRight className="ml-1 xl:ml-2 h-3 w-3 transition-transform duration-300 group-hover:translate-x-1" />
+                      </span>
+                    </Button>
+                  </Link>
+                </div>
               </div>
               
               {/* Bottom accent */}
-              <div className={`absolute bottom-0 left-0 h-1 w-0 transition-all duration-500 group-hover:w-full ${
+              <div className={`absolute bottom-0 left-0 h-1 w-0 transition-all duration-500 group-hover:w-full rounded-b-3xl ${
                 plan.highlight 
-                  ? "bg-gradient-to-r from-blue-500 to-purple-600"
-                  : "bg-gradient-to-r from-gray-600 to-gray-500"
+                  ? "bg-gradient-to-r from-orange-500 to-blue-500"
+                  : "bg-gradient-to-r from-blue-500 to-orange-500"
               }`}></div>
             </div>
           ))}
@@ -1645,13 +1700,13 @@ function FaqSection() {
   }, []);
 
   return (
-    <section id="faq" ref={sectionRef} className="bg-gray-900 py-20">
+    <section id="faq" ref={sectionRef} className="bg-gradient-to-br from-white via-orange-50 to-blue-50 py-20">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mx-auto mb-16 max-w-2xl text-center">
-          <h2 className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
+          <h2 className="bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-3xl font-bold tracking-tight text-transparent sm:text-4xl">
             Frequently Asked Questions
           </h2>
-          <p className="mt-4 text-lg text-gray-400">Find answers to common questions about SiteAgent.</p>
+          <p className="mt-4 text-lg text-gray-600">Find answers to common questions about SiteAgent.</p>
         </div>
         <div ref={faqRef} className="mx-auto max-w-3xl opacity-0 translate-y-8 transition-all duration-700 ease-out">
           <Accordion type="single" collapsible className="w-full">
@@ -1659,12 +1714,12 @@ function FaqSection() {
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="border-gray-800 transition-all duration-300 hover:border-gray-700"
+                className="border-orange-200 transition-all duration-300 hover:border-orange-300"
               >
-                <AccordionTrigger className="group text-left text-white transition-all duration-300 hover:text-blue-400">
+                <AccordionTrigger className="group text-left text-gray-800 transition-all duration-300 hover:text-orange-600">
                   <span className="transition-transform duration-300 group-hover:translate-x-1">{faq.question}</span>
                 </AccordionTrigger>
-                <AccordionContent className="text-gray-400 transition-colors duration-300 hover:text-gray-300">
+                <AccordionContent className="text-gray-600 transition-colors duration-300 hover:text-gray-700">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
@@ -1700,18 +1755,18 @@ function CtaSection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative bg-gray-800 py-24 md:py-32 overflow-hidden">
+    <section ref={sectionRef} className="relative bg-gradient-to-br from-orange-100 to-blue-100 py-24 md:py-32 overflow-hidden">
       {/* Enhanced background */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800"></div>
-        <div className="absolute top-0 left-1/3 w-96 h-96 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-gradient-to-l from-purple-600/20 to-pink-600/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-100 via-white to-blue-100"></div>
+        <div className="absolute top-0 left-1/3 w-96 h-96 bg-gradient-to-r from-orange-200/50 to-orange-300/50 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-gradient-to-l from-blue-200/50 to-cyan-200/50 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
       
       <div className="container relative mx-auto px-4 md:px-6">
         <div
           ref={ctaRef}
-          className="group mx-auto max-w-5xl rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800 p-12 text-center shadow-3xl backdrop-blur-sm opacity-0 translate-y-8 transition-all duration-700 ease-out md:p-16 hover:shadow-4xl hover:shadow-blue-900/30 relative overflow-hidden"
+          className="group mx-auto max-w-5xl rounded-3xl bg-gradient-to-br from-orange-500 via-orange-600 to-red-600 p-12 text-center shadow-3xl backdrop-blur-sm opacity-0 translate-y-8 transition-all duration-700 ease-out md:p-16 hover:shadow-4xl hover:shadow-orange-600/30 relative overflow-hidden"
         >
           {/* Background pattern overlay */}
           <div className="absolute inset-0 opacity-10">
@@ -1760,7 +1815,7 @@ function CtaSection() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="group h-16 border-2 border-white/80 bg-white/10 text-white px-10 text-xl font-semibold backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/20 hover:shadow-lg hover:shadow-white/20"
+                  className="group h-16 border-2 border-white bg-white/20 text-white px-10 text-xl font-semibold backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/30 hover:shadow-lg hover:shadow-white/20"
                 >
                   <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
                     Contact Sales
@@ -1795,19 +1850,19 @@ function CtaSection() {
 // Footer Component
 function Footer() {
   return (
-    <footer className="border-t border-gray-800 bg-gray-900 py-12">
+    <footer className="border-t border-orange-200 bg-white py-12">
       <div className="container mx-auto px-4 md:px-6">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <Link href="/" className="group flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-600 transition-all duration-300 group-hover:bg-blue-500">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-orange-500 transition-all duration-300 group-hover:bg-orange-600">
                 <span className="text-lg font-bold text-white">S</span>
               </div>
-              <span className="text-xl font-bold text-white transition-colors duration-300 group-hover:text-blue-400">
+              <span className="text-xl font-bold text-gray-800 transition-colors duration-300 group-hover:text-orange-600">
                 SiteAgent
               </span>
             </Link>
-            <p className="mt-4 text-sm text-gray-400 transition-colors duration-300 hover:text-gray-300">
+            <p className="mt-4 text-sm text-gray-600 transition-colors duration-300 hover:text-gray-700">
               Build, deploy, and manage AI-powered chatbots that integrate with your tools and data.
             </p>
             <div className="mt-6 flex space-x-4">
@@ -1815,7 +1870,7 @@ function Footer() {
                 { icon: Facebook, label: "Facebook" }, { icon: Twitter, label: "Twitter" },
                 { icon: Linkedin, label: "LinkedIn" }, { icon: Github, label: "GitHub" },
               ].map((social, index) => (
-                <a key={index} href="#" className="text-gray-400 transition-all duration-300 hover:text-white hover:scale-110">
+                <a key={index} href="#" className="text-gray-500 transition-all duration-300 hover:text-orange-600 hover:scale-110">
                   <social.icon className="h-5 w-5" />
                   <span className="sr-only">{social.label}</span>
                 </a>
@@ -1828,13 +1883,13 @@ function Footer() {
             { title: "Legal", links: [{ label: "Privacy Policy", href: "/privacy" }, { label: "Terms of Service", href: "/terms" }, { label: "Security", href: "/security" }] },
           ].map((section, index) => (
             <div key={index}>
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-400">
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-gray-600">
                 {section.title}
               </h3>
               <ul className="space-y-2">
                 {section.links.map((link, linkIndex) => (
                   <li key={linkIndex}>
-                    <Link href={link.href} className="text-gray-400 transition-all duration-300 hover:text-white hover:translate-x-1 inline-block">
+                    <Link href={link.href} className="text-gray-600 transition-all duration-300 hover:text-gray-800 hover:translate-x-1 inline-block">
                       {link.label}
                     </Link>
                   </li>
@@ -1843,8 +1898,8 @@ function Footer() {
             </div>
           ))}
         </div>
-        <div className="mt-12 border-t border-gray-800 pt-8">
-          <p className="text-center text-sm text-gray-400">
+        <div className="mt-12 border-t border-orange-200 pt-8">
+          <p className="text-center text-sm text-gray-600">
             &copy; {new Date().getFullYear()} SiteAgent. All rights reserved.
           </p>
         </div>
@@ -1855,7 +1910,7 @@ function Footer() {
 
 export default function LandingPageClient({ authButtonSlot }: LandingPageClientProps) {
   return (
-    <div className="relative overflow-hidden bg-gray-900 text-gray-100">
+    <div className="relative overflow-hidden bg-gradient-to-br from-orange-50 via-white to-blue-50 text-gray-800">
       <MouseFollower />
       {/* Navbar and HeroSection moved to critical path - skip here to avoid duplication */}
       <main className="overflow-x-hidden">

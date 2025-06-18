@@ -1153,7 +1153,7 @@ function CtaSection() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="group h-16 border-2 border-white/80 bg-white/10 text-white px-10 text-xl font-semibold backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/20 hover:shadow-lg"
+                  className="group h-16 border-2 border-white bg-white/20 text-white px-10 text-xl font-semibold backdrop-blur-sm transition-all duration-300 hover:border-white hover:bg-white/30 hover:shadow-lg"
                 >
                   <span className="flex items-center transition-transform duration-300 group-hover:translate-x-1">
                     Contatta Vendite

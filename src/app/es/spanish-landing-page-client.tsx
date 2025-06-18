@@ -977,7 +977,7 @@ function CtaSection() {
               <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
             </Link>
             
-            <Link href="#live-demo" className="border-2 border-gray-400 text-gray-700 bg-white/80 px-10 py-5 rounded-2xl font-bold text-xl transition-all hover:border-gray-500 hover:text-gray-800 hover:bg-white flex items-center gap-3 shadow-lg">
+            <Link href="#live-demo" className="border-2 border-gray-500 text-gray-800 bg-white px-10 py-5 rounded-2xl font-bold text-xl transition-all hover:border-gray-600 hover:text-gray-900 hover:bg-gray-50 flex items-center gap-3 shadow-lg">
               <span>Ver Demo Primero</span>
               <span>👀</span>
             </Link>
