@@ -138,6 +138,14 @@ function getBlogPosts(): BlogPost[] {
       date: 'June 4, 2025',
       category: 'Technical',
       href: '/blog/rag-explained-simple-terms'
+    },
+    {
+      slug: 'create-chatbot-with-siteagent',
+      title: 'Create a Chatbot With SiteAgent in 5 Minutes',
+      description: 'Follow this quick tutorial to build, train and embed a custom AI chatbot on your website using SiteAgent.',
+      date: 'June 18, 2025',
+      category: 'Tutorial',
+      href: '/blog/create-chatbot-with-siteagent'
     }
   ];
 
