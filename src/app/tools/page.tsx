@@ -41,6 +41,14 @@ const tools: Tool[] = [
   },
   // Future tools will be added here
   {
+    title: 'Startup Name Generator',
+    description: 'Generate unique startup names with instant domain availability checking.',
+    href: '/tools/startup-name-generator',
+    icon: '🚀',
+    category: 'SEO',
+    isNew: true
+  },
+  {
     title: 'Prompt Optimizer',
     description: 'Optimize your AI prompts for better results and lower token usage.',
     href: '/tools/prompt-optimizer',
@@ -49,12 +57,12 @@ const tools: Tool[] = [
     comingSoon: true
   },
   {
-    title: 'JSON Formatter',
-    description: 'Format, validate, and beautify JSON data with syntax highlighting.',
+    title: 'JSON Formatter & Validator',
+    description: 'Format, validate, and beautify JSON with smart error detection and one-click fixes.',
     href: '/tools/json-formatter',
     icon: '📋',
     category: 'Developer',
-    comingSoon: true
+    isNew: true
   },
   {
     title: 'URL Shortener',
