@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Add AI Chatbot to Website | SiteAgent",
     description: "Learn how to add a powerful AI chatbot to your website in minutes with SiteAgent. Improve customer interaction and support.",
-    images: ["/og-image.png"],
+    images: ["/apple-icon.png"],
   },
   robots: {
     index: true,
