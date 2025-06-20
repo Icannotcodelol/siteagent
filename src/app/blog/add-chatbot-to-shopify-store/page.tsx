@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import LazyVideo from '@/app/_components/lazy-video';
 
 export const metadata = {
   title: 'How to Add a Custom AI Chatbot to Your Shopify Store with SiteAgent',
@@ -112,13 +113,9 @@ export default function AddChatbotToShopifyPost() {
         Go to <strong>Dashboard → Chatbots → New</strong>. Name your bot, pick a language, set a welcome message, and click <strong>Create</strong>.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Chatbot%20creatio.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/chatbot-creation-poster.jpg"
           className="mx-auto my-8 rounded-lg shadow-lg w-full max-w-3xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Creating a new chatbot in the SiteAgent dashboard.</figcaption>
@@ -130,13 +127,9 @@ export default function AddChatbotToShopifyPost() {
         In your chatbot's dashboard, go to <strong>Actions → New → Shopify</strong>. Click <strong>Connect</strong> and follow the prompts to authenticate with your Shopify store. Approve the requested permissions so the bot can access orders, products, and customer info as needed.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Connecting%20shopify.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/connecting-shopify-poster.jpg"
           className="mx-auto my-8 rounded-lg shadow-lg w-full max-w-3xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Connecting SiteAgent to Shopify (OAuth flow).</figcaption>
@@ -148,13 +141,9 @@ export default function AddChatbotToShopifyPost() {
         Upload your FAQs, policies, product docs, or simply paste your store's URL. This helps the chatbot answer store-specific questions and provide accurate support.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Adding%20documents.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/adding-documents-poster.jpg"
           className="mx-auto my-8 rounded-lg shadow-lg w-full max-w-3xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Uploading store content and FAQs.</figcaption>
@@ -182,13 +171,9 @@ export default function AddChatbotToShopifyPost() {
         Copy the SiteAgent embed code from your dashboard.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Copy%20Snippet.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/copy-snippet-poster.jpg"
           className="mx-auto my-6 rounded-lg shadow-lg w-full max-w-2xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Copying the embed snippet from SiteAgent.</figcaption>
@@ -197,13 +182,9 @@ export default function AddChatbotToShopifyPost() {
         In Shopify admin, go to <strong>Online Store → Themes → Edit Code</strong>. Open <code>theme.liquid</code> and paste the snippet just before <code>&lt;/body&gt;</code>.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Paste%20snippet.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/paste-snippet-poster.jpg"
           className="mx-auto my-6 rounded-lg shadow-lg w-full max-w-2xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Pasting the snippet into Shopify's theme.liquid.</figcaption>

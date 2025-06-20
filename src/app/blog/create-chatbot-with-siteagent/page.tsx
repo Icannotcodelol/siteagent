@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { AuthButton } from '@/app/_components/auth-button';
 import { Facebook, Twitter, Linkedin, Github, ArrowLeft } from 'lucide-react';
+import LazyVideo from '@/app/_components/lazy-video';
 
 // Page-specific metadata
 export const metadata = {
@@ -232,13 +233,9 @@ export default function CreateChatbotPost() {
         Go to <strong>Dashboard → Chatbots → New</strong>. Name your bot, pick a language, set a welcome message, and click <strong>Create</strong>.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Chatbot%20creatio.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/chatbot-creation-poster.jpg"
           className="mx-auto my-8 rounded-lg shadow-lg w-full max-w-3xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Creating a new chatbot in the SiteAgent dashboard.</figcaption>
@@ -253,13 +250,9 @@ export default function CreateChatbotPost() {
         Click the <strong>Documents</strong> tab. Drag-and-drop your files or paste a website URL. SiteAgent extracts, cleans, chunks, and embeds your content automatically.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Adding%20documents.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/adding-documents-poster.jpg"
           className="mx-auto my-8 rounded-lg shadow-lg w-full max-w-3xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Uploading PDFs and knowledge-base docs.</figcaption>
@@ -291,25 +284,17 @@ export default function CreateChatbotPost() {
         Copy the embed code from the dashboard and paste it before <code>&lt;/body&gt;</code> in your <code>app/layout.tsx</code> file.
       </p>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Copy%20Snippet.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/copy-snippet-poster.jpg"
           className="mx-auto my-6 rounded-lg shadow-lg w-full max-w-2xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Copying the embed snippet from the dashboard.</figcaption>
       </figure>
       <figure className="not-prose">
-        <video
+        <LazyVideo
           src="/blog/Paste%20snippet.mov"
-          playsInline
-          autoPlay
-          muted
-          loop
-          preload="none"
+          poster="/blog/paste-snippet-poster.jpg"
           className="mx-auto my-6 rounded-lg shadow-lg w-full max-w-2xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Pasting the snippet into app/layout.tsx in VS Code.</figcaption>
