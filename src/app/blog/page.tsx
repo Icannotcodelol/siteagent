@@ -146,6 +146,14 @@ function getBlogPosts(): BlogPost[] {
       date: 'June 18, 2025',
       category: 'Tutorial',
       href: '/blog/create-chatbot-with-siteagent'
+    },
+    {
+      slug: 'add-chatbot-to-shopify-store',
+      title: 'How to Add a Custom AI Chatbot to Your Shopify Store',
+      description: 'Step-by-step guide to integrate a SiteAgent chatbot with Shopify in minutes.',
+      date: 'June 19, 2025',
+      category: 'E-commerce',
+      href: '/blog/add-chatbot-to-shopify-store'
     }
   ];
 
