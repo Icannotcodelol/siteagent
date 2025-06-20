@@ -342,8 +342,8 @@ export default function Page() {
       {process.env.NODE_ENV === 'production' && (
         <Script
           src="https://www.siteagent.eu/chatbot-widget.js"
-          data-chatbot-id="36735ac9-70ed-4d6b-bc11-394b5d2ef930"
-          data-launcher-icon="https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg?semt=ais_hybrid&w=740"
+          data-chatbot-id="b96354d2-b3d8-47c8-a44d-94a11f0e0903"
+          data-launcher-icon="https://www.siteagent.eu/icon.png?cb20a2f029ff27f7"
           strategy="lazyOnload"
         />
       )}
