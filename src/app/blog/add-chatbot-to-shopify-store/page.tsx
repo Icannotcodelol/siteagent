@@ -16,14 +16,14 @@ export const metadata = {
     publishedTime: '2025-06-19T00:00:00.000Z',
     authors: ['SiteAgent Team'],
     tags: ['Shopify', 'Chatbot', 'AI', 'Ecommerce', 'SiteAgent'],
-    images: ['/blog/System%20promt%20pic.png'],
+    images: ['/ShopifyBlogOG.png'],
     url: 'https://siteagent.eu/blog/add-chatbot-to-shopify-store'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'How to Add a Custom AI Chatbot to Your Shopify Store with SiteAgent',
     description: 'Integrate a smart AI chatbot with your Shopify store in minutes. Full tutorial with visuals and code.',
-    images: ['/blog/System%20promt%20pic.png']
+    images: ['/ShopifyBlogOG.png']
   },
   robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   alternates: {
@@ -115,7 +115,7 @@ export default function AddChatbotToShopifyPost() {
       <figure className="not-prose">
         <LazyVideo
           src="/blog/Chatbot%20creatio.mov"
-          poster="/blog/chatbot-creation-poster.jpg"
+          poster="/blog/chatbot-creatio-poster.jpg"
           className="mx-auto my-8 rounded-lg shadow-lg w-full max-w-3xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Creating a new chatbot in the SiteAgent dashboard.</figcaption>

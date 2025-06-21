@@ -39,7 +39,14 @@ const tools: Tool[] = [
     category: 'AI',
     isNew: true
   },
-  // Future tools will be added here
+  {
+    title: 'Dating App Chat Generator',
+    description: 'Create viral social media content with realistic dating app conversation mockups.',
+    href: '/tools/dating-chat-generator',
+    icon: '💬',
+    category: 'SEO',
+    isNew: true
+  },
   {
     title: 'Startup Name Generator',
     description: 'Generate unique startup names with instant domain availability checking.',

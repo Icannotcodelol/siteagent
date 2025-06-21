@@ -19,14 +19,14 @@ export const metadata = {
     publishedTime: '2025-06-18T00:00:00.000Z',
     authors: ['SiteAgent Team'],
     tags: ['Chatbot', 'AI', 'SiteAgent', 'Tutorial'],
-    images: ['/blog/siteagent-chatbot-guide/chatbot-creation-poster.jpg'],
+    images: ['/og-create-chatbot.png'],
     url: 'https://siteagent.eu/blog/create-chatbot-with-siteagent'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Create a Chatbot With SiteAgent in 5 Minutes',
     description: 'Quick tutorial covering chatbot creation, document ingestion and embedding.',
-    images: ['/blog/siteagent-chatbot-guide/chatbot-creation-poster.jpg']
+    images: ['/og-create-chatbot.png']
   },
   robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   alternates: {
@@ -235,7 +235,7 @@ export default function CreateChatbotPost() {
       <figure className="not-prose">
         <LazyVideo
           src="/blog/Chatbot%20creatio.mov"
-          poster="/blog/chatbot-creation-poster.jpg"
+          poster="/blog/chatbot-creatio-poster.jpg"
           className="mx-auto my-8 rounded-lg shadow-lg w-full max-w-3xl"
         />
         <figcaption className="mt-2 text-center text-sm text-gray-400">Creating a new chatbot in the SiteAgent dashboard.</figcaption>

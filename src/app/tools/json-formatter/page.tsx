@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     url: 'https://www.siteagent.eu/tools/json-formatter',
     images: [
       {
-        url: '/og-json-formatter.png',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'SiteAgent JSON Formatter & Validator Tool'
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'JSON Formatter & Validator - Free Tool by SiteAgent',
     description: 'Format, validate, and beautify JSON instantly. Smart error detection with one-click fixes.',
-    images: ['/og-json-formatter.png']
+    images: ['/og-image.png']
   },
   robots: {
     index: true,

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     url: 'https://www.siteagent.eu/tools/token-counter',
     images: [
       {
-        url: '/og-token-counter.png', // You'll want to create this image
+        url: '/og-token-counter.png',
         width: 1200,
         height: 630,
         alt: 'SiteAgent AI Token Counter Tool'

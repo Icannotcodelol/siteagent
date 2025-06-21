@@ -18,14 +18,14 @@ export const metadata = {
     publishedTime: '2025-06-04T00:00:00.000Z',
     authors: ['SiteAgent Team'],
     tags: ['RAG', 'Chatbot', 'AI', 'Customer Service', 'Automation'],
-    images: ['/blog/RAGEXPLAINED.png'],
+    images: ['/og-rag-explained.png'],
     url: 'https://siteagent.eu/blog/rag-explained-simple-terms'
   },
   twitter: {
     card: 'summary_large_image',
     title: 'RAG Explained in Simple Terms: Custom Chatbot Implementation Guide',
     description: 'Learn how RAG transforms chatbots into intelligent assistants that understand your business content.',
-    images: ['/blog/RAGEXPLAINED.png']
+    images: ['/og-rag-explained.png']
   },
   robots: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
   alternates: {

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     url: 'https://www.siteagent.eu/blog/meta-prompting-engineering-ai-mind',
     images: [
       {
-        url: '/og-meta-prompting.png', // You'll want to create this image
+        url: '/og-meta-prompting.png',
         width: 1200,
         height: 630,
         alt: 'Meta Prompting Guide by SiteAgent'

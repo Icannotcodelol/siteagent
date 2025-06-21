@@ -28,7 +28,7 @@ export default function JsonLdSchema() {
       "JSON path explorer",
       "Schema generator"
     ],
-    "screenshot": "https://www.siteagent.eu/og-json-formatter.png",
+    "screenshot": "https://www.siteagent.eu/og-image.png",
     "author": {
       "@type": "Organization",
       "name": "SiteAgent",

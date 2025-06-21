@@ -599,7 +599,10 @@ function chunkText(text: string, chunkSize: number, overlap: number): string[] {
     const chunks: string[] = [];
     if (!text) return chunks;
 
-    const cleanedText = text.replace(/\s+/g, ' ').trim();
+    const cleanedText = text
+        .replace(/[\x00-\x1F\x7F]/g, '') // Remove NUL and other control characters to ensure Postgres compatibility
+        .replace(/\s+/g, ' ')
+        .trim();
     let i = 0;
 
     while (i < cleanedText.length) {
