@@ -33,12 +33,21 @@ export const metadata: Metadata = {
     title: 'SiteAgent - Smarter Chatbots. Faster',
     description: 'Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes. Create AI assistants that automate real business tasks.',
     siteName: 'SiteAgent',
+    images: [
+      {
+        url: 'https://www.siteagent.eu/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'SiteAgent - Add AI Chatbot to Website',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'SiteAgent - Smarter Chatbots. Faster',
     description: 'Easily turn your existing documents into custom chatbots and embed them. All in under 5 minutes.',
     creator: '@SiteAgent',
+    images: ['https://www.siteagent.eu/og-image.png'],
   },
   alternates: {
     canonical: 'https://www.siteagent.eu/'
