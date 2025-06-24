@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
-import Link from 'next/link'
-import cheerio from 'cheerio'
+// @ts-ignore
+import * as cheerio from 'cheerio'
 
 interface CheckResult {
   ogImage?: string | null
@@ -162,20 +162,22 @@ function ResultCard({ result }: { result: CheckResult }) {
 
       {/* External tools */}
       <div className="mt-8 flex flex-wrap gap-4 text-sm">
-        <Link
-          href={`https://cards-dev.twitter.com/validator`}
+        <a
+          href="https://cards-dev.twitter.com/validator"
           target="_blank"
+          rel="noopener noreferrer"
           className="text-blue-600 hover:text-blue-700 underline"
         >
           Open Twitter Card Validator ↗
-        </Link>
-        <Link
+        </a>
+        <a
           href={`https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(url)}`}
           target="_blank"
+          rel="noopener noreferrer"
           className="text-blue-600 hover:text-blue-700 underline"
         >
           Open Facebook Sharing Debugger ↗
-        </Link>
+        </a>
       </div>
     </section>
   )
