@@ -56,6 +56,14 @@ const tools: Tool[] = [
     isNew: true
   },
   {
+    title: 'OG Image Checker',
+    description: 'Validate and preview your Open Graph & Twitter card images to ensure perfect social sharing.',
+    href: '/tools/og-image-checker',
+    icon: '🖼️',
+    category: 'SEO',
+    isNew: true
+  },
+  {
     title: 'Prompt Optimizer',
     description: 'Optimize your AI prompts for better results and lower token usage.',
     href: '/tools/prompt-optimizer',
