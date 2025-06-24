@@ -74,7 +74,6 @@
     "remark-slug": "^7.0.1",
     "resend": "^4.5.1",
     "cheerio": "^1.0.0-rc.12",
-    "probe-image-size": "^8.0.0",
     "stripe": "^15.8.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
