@@ -123,6 +123,30 @@ interface BlogPost {
 // Static blog posts data (easier and more reliable than filesystem scanning)
 function getBlogPosts(): BlogPost[] {
   const posts: BlogPost[] = [
+    {
+      slug: 'ai-chatbots-reduce-cart-abandonment',
+      title: 'AI Chatbots for E-commerce: 10 Ways to Reduce Cart Abandonment',
+      description: 'Discover how AI chatbots can cut cart abandonment from 69.99% to under 30% with proven strategies, real-world examples, and actionable implementation tips.',
+      date: 'June 25, 2025',
+      category: 'E-commerce',
+      href: '/blog/ai-chatbots-reduce-cart-abandonment'
+    },
+    {
+      slug: 'ai-chatbot-vs-live-chat-comparison',
+      title: 'AI Chatbot vs Live Chat: Complete Data-Driven Comparison',
+      description: 'Comprehensive comparison of AI chatbots vs live chat support. Real cost analysis, performance data, and ROI calculations to make the right choice for your business.',
+      date: 'June 25, 2025',
+      category: 'Business Strategy',
+      href: '/blog/ai-chatbot-vs-live-chat-comparison'
+    },
+    {
+      slug: 'chatbot-security-best-practices',
+      title: 'Chatbot Security Best Practices: Complete Implementation Guide',
+      description: 'Essential security framework for AI chatbots. Learn data protection, compliance (GDPR, CCPA, HIPAA), encryption, and threat prevention with real-world examples.',
+      date: 'June 25, 2025',
+      category: 'Security',
+      href: '/blog/chatbot-security-best-practices'
+    },
          {
        slug: 'meta-prompting-engineering-ai-mind',
        title: 'Meta Prompting: Engineering the Mind of Your AI',
