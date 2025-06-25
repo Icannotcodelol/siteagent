@@ -280,7 +280,7 @@ export default function IntegrationsPanel({ chatbotId }: Props) {
       {renderCalendly()}
       {renderShopify()}
       {renderMonday()}
-      {renderInstagram()}
+      {/* {renderInstagram()} */}
     </div>
   );
 } 
