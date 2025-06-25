@@ -21,7 +21,7 @@ export async function GET(_request: NextRequest, { params }: { params: { chatbot
   // Ownership check & fetch columns
   const { data, error } = await supabase
     .from('chatbots')
-    .select('integration_hubspot, integration_jira, integration_calendly, integration_shopify, user_id')
+    .select('integration_hubspot, integration_jira, integration_calendly, integration_shopify, integration_instagram, user_id')
     .eq('id', chatbotId)
     .single();
 
@@ -29,12 +29,12 @@ export async function GET(_request: NextRequest, { params }: { params: { chatbot
     return NextResponse.json({ error: 'Chatbot not found or not authorized' }, { status: 404 });
   }
 
-  const { integration_hubspot, integration_jira, integration_calendly, integration_shopify } = data as any;
-  return NextResponse.json({ integration_hubspot, integration_jira, integration_calendly, integration_shopify });
+  const { integration_hubspot, integration_jira, integration_calendly, integration_shopify, integration_instagram } = data as any;
+  return NextResponse.json({ integration_hubspot, integration_jira, integration_calendly, integration_shopify, integration_instagram });
 }
 
 interface UpdateBody {
-  service: 'hubspot' | 'jira' | 'calendly' | 'shopify';
+  service: 'hubspot' | 'jira' | 'calendly' | 'shopify' | 'instagram';
   enabled: boolean;
 }
 
@@ -51,6 +51,7 @@ export async function POST(request: NextRequest, { params }: { params: { chatbot
     jira: 'integration_jira',
     calendly: 'integration_calendly',
     shopify: 'integration_shopify',
+    instagram: 'integration_instagram',
   };
 
   const column = columnMap[service];

@@ -9,15 +9,17 @@ import { getJiraOAuthUrl } from '@/app/actions/jira';
 import { getCalendlyOAuthUrl } from '@/app/actions/oauth';
 import { getShopifyOAuthUrl } from '@/app/actions/shopify'; // Import Shopify action
 import { getMondayOAuthUrl } from '@/app/actions/monday'; // Import Monday action
+import { getInstagramAuthUrl } from '@/app/actions/instagram'; // Import Instagram action
 
 // Import the reusable connect button
 import ConnectServiceButton from '@/app/dashboard/_components/connect-service-button';
+import InstagramConnectButton from '@/app/dashboard/_components/instagram-connect-button';
 
 interface Props {
   chatbotId: string;
 }
 
-type IntegrationKey = 'hubspot' | 'jira' | 'calendly' | 'shopify' | 'monday';
+type IntegrationKey = 'hubspot' | 'jira' | 'calendly' | 'shopify' | 'monday' | 'instagram';
 
 interface ChatbotIntegrationState {
   integration_hubspot: boolean;
@@ -25,6 +27,7 @@ interface ChatbotIntegrationState {
   integration_calendly: boolean;
   integration_shopify: boolean;
   integration_monday: boolean; // Add Monday
+  integration_instagram: boolean; // Add Instagram
 }
 
 interface AccountConnectionState {
@@ -33,6 +36,7 @@ interface AccountConnectionState {
   calendly: boolean;
   shopify: boolean;
   monday: boolean; // Add Monday
+  instagram: boolean; // Add Instagram
 }
 
 export default function IntegrationsPanel({ chatbotId }: Props) {
@@ -81,6 +85,7 @@ export default function IntegrationsPanel({ chatbotId }: Props) {
           calendly: connectedServices.includes('calendly'),
           shopify: connectedServices.includes('shopify'),
           monday: connectedServices.includes('monday'),
+          instagram: connectedServices.includes('instagram'),
         });
 
       } catch (e: any) {
@@ -257,6 +262,17 @@ export default function IntegrationsPanel({ chatbotId }: Props) {
     return renderToggle('Monday.com', 'monday', checked);
   };
 
+  const renderInstagram = () => {
+    if (!accountConnections.instagram) {
+      return <InstagramConnectButton 
+                serviceName="instagram" 
+                displayName="Instagram" 
+             />;
+    }
+    const checked = chatbotState.integration_instagram;
+    return renderToggle('Instagram', 'instagram', checked);
+  };
+
   return (
     <div className="space-y-1">
       {renderHubspot()}
@@ -264,6 +280,7 @@ export default function IntegrationsPanel({ chatbotId }: Props) {
       {renderCalendly()}
       {renderShopify()}
       {renderMonday()}
+      {renderInstagram()}
     </div>
   );
 } 
