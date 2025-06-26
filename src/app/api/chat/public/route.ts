@@ -542,12 +542,14 @@ export async function POST(request: NextRequest) {
     let csvMatches: { row_text: string }[] = [];
     const queryTokens = extractSearchTokens(query);
 
-    // --- Step 1: Fetch Chatbot Owner ID ---
+    // --- Step 1: Fetch Chatbot Owner ID and Hybrid Mode Status ---
     let ownerId: string;
+    let hybridModeEnabled: boolean = false;
+    let autoHandoffTriggers: any = {};
     try {
         const { data: chatbotOwnerData, error: ownerError } = await supabaseAdmin
             .from('chatbots')
-            .select('user_id')
+            .select('user_id, hybrid_mode_enabled, auto_handoff_triggers')
             .eq('id', chatbotId)
             .single();
         if (ownerError || !chatbotOwnerData?.user_id) {
@@ -555,6 +557,8 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Chatbot not found or configuration error.' }, { status: 404, headers: getCorsHeaders() });
         }
         ownerId = chatbotOwnerData.user_id;
+        hybridModeEnabled = chatbotOwnerData.hybrid_mode_enabled || false;
+        autoHandoffTriggers = chatbotOwnerData.auto_handoff_triggers || {};
     } catch (e: any) {
         console.error(`Unexpected error fetching chatbot owner for ${chatbotId}:`, e.message);
         return NextResponse.json({ error: 'Server error fetching chatbot details.' }, { status: 500, headers: getCorsHeaders() });
@@ -591,7 +595,110 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'This chatbot is temporarily unavailable due to high message volume. Please try again later.', sessionId }, { status: 503, headers: getCorsHeaders() });
     }
 
-    // --- Step 3: Store User's Message ---
+    // --- Step 3: Check for Active Human Agent Session ---
+    if (hybridModeEnabled) {
+        // Check if there's an active conversation with an agent
+        const { data: activeConversation } = await supabaseAdmin
+            .from('conversations')
+            .select('id, status, assigned_agent_id')
+            .eq('chatbot_id', chatbotId)
+            .eq('session_id', sessionId)
+            .in('status', ['agent_responding', 'waiting_for_agent'])
+            .single();
+
+        if (activeConversation) {
+            console.log(`Hybrid mode: Active conversation found for session ${sessionId}`);
+            
+            // Store the user's message
+            await supabaseAdmin.from('chat_messages').insert({
+                chatbot_id: chatbotId,
+                session_id: sessionId,
+                is_user_message: true,
+                content: query,
+            });
+
+            // Create notification for agent
+            if (activeConversation.assigned_agent_id) {
+                await supabaseAdmin
+                    .from('agent_notifications')
+                    .insert({
+                        agent_id: activeConversation.assigned_agent_id,
+                        chatbot_id: chatbotId,
+                        conversation_id: activeConversation.id,
+                        type: 'new_message',
+                        message: 'New message from customer'
+                    });
+            }
+
+            await incrementMessageCount(ownerId, supabaseAdmin);
+            
+            // Return a response indicating agent will respond
+            return NextResponse.json({ 
+                answer: activeConversation.status === 'agent_responding' 
+                    ? "An agent is currently handling your conversation. They will respond shortly."
+                    : "Your message has been sent. An agent will be with you shortly.",
+                sessionId,
+                hybridMode: true,
+                agentActive: true
+            }, { status: 200, headers: getCorsHeaders() });
+        }
+
+        // Check for handoff triggers
+        const lowerQuery = query.toLowerCase();
+        const handoffKeywords = autoHandoffTriggers.keywords || ['human', 'agent', 'help', 'speak to someone'];
+        const shouldHandoff = handoffKeywords.some((keyword: string) => lowerQuery.includes(keyword.toLowerCase()));
+
+        if (shouldHandoff) {
+            console.log(`Hybrid mode: Handoff triggered by keyword in query`);
+            
+            // Create conversation and request handoff
+            const { data: conversation } = await supabaseAdmin
+                .from('conversations')
+                .upsert({
+                    chatbot_id: chatbotId,
+                    session_id: sessionId,
+                    status: 'waiting_for_agent',
+                    priority: 'normal',
+                    handoff_requested_at: new Date().toISOString()
+                }, {
+                    onConflict: 'chatbot_id,session_id'
+                })
+                .select()
+                .single();
+
+            if (conversation) {
+                // Create notification
+                await supabaseAdmin
+                    .from('agent_notifications')
+                    .insert({
+                        agent_id: ownerId,
+                        chatbot_id: chatbotId,
+                        conversation_id: conversation.id,
+                        type: 'handoff_request',
+                        message: 'Customer requested to speak with an agent'
+                    });
+            }
+
+            // Store the user's message
+            await supabaseAdmin.from('chat_messages').insert({
+                chatbot_id: chatbotId,
+                session_id: sessionId,
+                is_user_message: true,
+                content: query,
+            });
+
+            await incrementMessageCount(ownerId, supabaseAdmin);
+
+            return NextResponse.json({ 
+                answer: "I'll connect you with a human agent right away. They will be with you shortly.",
+                sessionId,
+                hybridMode: true,
+                handoffRequested: true
+            }, { status: 200, headers: getCorsHeaders() });
+        }
+    }
+
+    // --- Step 4: Store User's Message (Normal Flow) ---
     try {
         const { error: userMessageError } = await supabaseAdmin.from('chat_messages').insert({
             chatbot_id: chatbotId,
@@ -606,7 +713,7 @@ export async function POST(request: NextRequest) {
         console.error("Exception saving user's message:", e);
     }
 
-    // --- Step 4: Main processing logic (Actions, RAG, LLM call) ---
+    // --- Step 5: Main processing logic (Actions, RAG, LLM call) ---
     try {
         // --- ACTION CHECK LOGIC (existing code) ---
         const { data: actions, error: actionsError } = await supabaseAdmin

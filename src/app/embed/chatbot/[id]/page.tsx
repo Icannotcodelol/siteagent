@@ -30,7 +30,7 @@ export default async function EmbedChatbotPage({ params }: EmbedPageProps) {
       id, name, user_id, system_prompt,
       primary_color, secondary_color, background_color, text_color, font_family,
       welcome_message, bot_avatar_url, user_avatar_url, chat_bubble_style,
-      header_text, input_placeholder, show_branding
+      header_text, input_placeholder, show_branding, hybrid_mode_enabled
     `)
     .eq('id', chatbotId)
     .maybeSingle();

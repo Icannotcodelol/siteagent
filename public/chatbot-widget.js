@@ -41,6 +41,18 @@
       transform: translateZ(0);
       will-change: transform;
     }
+    .siteagent-agent-indicator {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 16px;
+      height: 16px;
+      background: white;
+      border-radius: 50%;
+      font-size: 10px;
+      line-height: 16px;
+      text-align: center;
+    }
     .siteagent-chatbot-launcher-btn img {
       width: 100%;
       height: 100%;
@@ -356,7 +368,7 @@
     })
   }
 
-  // Listen for messages from the iframe (e.g., to dismiss proactive bubble)
+  // Listen for messages from the iframe (e.g., to dismiss proactive bubble or handle handoff)
   window.addEventListener('message', (event) => {
     // IMPORTANT: Always verify the origin of the message for security.
     // baseOrigin should be the origin where your iframe content is served from.
@@ -372,6 +384,17 @@
         proactiveBubble.remove();
         proactiveBubble = null;
         proactiveDismissed = true; // Ensure it doesn't try to show again in this session
+      }
+    }
+    
+    // Handle hybrid mode notifications
+    if (event.data && event.data.type === 'siteagent-agent-status') {
+      if (event.data.agentActive) {
+        // Show indicator that agent is active
+        const indicator = document.createElement('div');
+        indicator.className = 'siteagent-agent-indicator';
+        indicator.innerHTML = '🟢';
+        launcherBtn.appendChild(indicator);
       }
     }
   });

@@ -601,7 +601,7 @@ export default function ChatbotBuilderForm({
               
               {/* Additional Links */}
               {isEditMode && chatbotId && (
-                <div className="mt-4 pt-3 border-t border-gray-700/30">
+                <div className="mt-4 pt-3 border-t border-gray-700/30 space-y-2">
                   <a
                     href={`/dashboard/chatbot/${chatbotId}/interrogation`}
                     className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 bg-gray-800/30 hover:bg-gray-700/50 hover:text-white border border-gray-700/30 hover:border-gray-600/50 group"
@@ -610,6 +610,20 @@ export default function ChatbotBuilderForm({
                     <div className="flex-1 text-left min-w-0">
                       <span className="block font-medium text-sm truncate">Interrogation</span>
                       <span className="block text-xs opacity-70 truncate">Debug chats</span>
+                    </div>
+                    <svg className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                  
+                  <a
+                    href={`/dashboard/chatbot/${chatbotId}/conversations`}
+                    className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 bg-gray-800/30 hover:bg-gray-700/50 hover:text-white border border-gray-700/30 hover:border-gray-600/50 group"
+                  >
+                    <span className="text-lg">💬</span>
+                    <div className="flex-1 text-left min-w-0">
+                      <span className="block font-medium text-sm truncate">Conversations</span>
+                      <span className="block text-xs opacity-70 truncate">Manage live chats</span>
                     </div>
                     <svg className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
